@@ -1,0 +1,334 @@
+<!DOCTYPE html>
+<html lang="pt">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>Izitrader — demo</title>
+<style>
+  * { box-sizing: border-box; }
+  :root {
+    --bg: #0a0f1c;
+    --card: #111a2e;
+    --field: #131b2e;
+    --text: #fff;
+    --muted: #7c88a3;
+    --border: #22304a;
+    --hover: rgba(255,255,255,0.06);
+  }
+  body.light {
+    --bg: #f2f4f8;
+    --card: #ffffff;
+    --field: #eef1f7;
+    --text: #10182b;
+    --muted: #6b7386;
+    --border: #dde2ec;
+    --hover: rgba(0,0,0,0.04);
+  }
+  body {
+    margin: 0;
+    background: var(--bg);
+    font-family: -apple-system, "Segoe UI", Roboto, sans-serif;
+    color: var(--text);
+    display: flex;
+    justify-content: center;
+    padding: 24px 12px 80px;
+    transition: background .2s, color .2s;
+  }
+  .app { width: 100%; max-width: 420px; }
+  .header { display: flex; align-items: center; gap: 10px; margin-bottom: 20px; }
+  .logo { width: 40px; height: 40px; border-radius: 10px; background: linear-gradient(135deg,#f5a623,#ffd166); display: flex; align-items: center; justify-content: center; font-weight: 800; color: #1a1305; flex-shrink: 0; }
+  .brand { font-size: 20px; font-weight: 700; margin-right: auto; color: var(--text); }
+  .brand span { color: #f5c04a; }
+  .header-actions { display: flex; align-items: center; gap: 8px; position: relative; }
+  .icon-btn { width: 38px; height: 38px; border-radius: 10px; background: var(--field); border: 1px solid var(--border); color: var(--text); display: flex; align-items: center; justify-content: center; font-size: 16px; cursor: pointer; }
+  .icon-btn:hover { background: var(--hover); }
+  .sair-btn { height: 38px; padding: 0 16px; border-radius: 10px; background: var(--field); border: 1px solid var(--border); color: var(--text); font-weight: 700; font-size: 13px; cursor: pointer; }
+  .sair-btn:hover { background: var(--hover); }
+  .menu { position: absolute; top: 46px; right: 92px; background: var(--card); border: 1px solid var(--border); border-radius: 12px; overflow: hidden; z-index: 20; min-width: 160px; display: none; }
+  .menu.open { display: block; }
+  .menu-item { padding: 10px 14px; font-size: 13px; cursor: pointer; }
+  .menu-item:hover { background: var(--hover); }
+  .card { background: var(--card); border-radius: 16px; padding: 16px; margin-bottom: 16px; border: 1px solid var(--border); }
+  .balance-row { display: flex; align-items: stretch; }
+  .balance-row > div:not(.divider) { flex: 1; }
+  .label { font-size: 11px; letter-spacing: .06em; color: var(--muted); margin-bottom: 6px; }
+  .value { font-size: 22px; font-weight: 700; }
+  .profit { color: #35d492; }
+  .divider { width: 1px; align-self: stretch; background: var(--border); margin: 0 16px; }
+  .row3 { display: grid; grid-template-columns: 1fr 1.4fr 0.7fr; gap: 10px; margin-bottom: 16px; }
+  .field-label { font-size: 11px; letter-spacing: .06em; color: var(--muted); margin-bottom: 8px; }
+  .pill { border-radius: 12px; padding: 12px; font-weight: 700; text-align: center; }
+  .pill-demo { background: #0e2b21; color: #35d492; }
+  .pill-aula { background: #d33; color: #fff; }
+  .dropdown { position: relative; }
+  .dropdown-btn { width: 100%; background: var(--field); border: none; border-radius: 12px; padding: 12px 14px; color: var(--text); font-weight: 700; font-size: 14px; display: flex; justify-content: space-between; align-items: center; cursor: pointer; }
+  .dropdown-menu { position: absolute; top: calc(100% + 6px); left: 0; right: 0; background: var(--field); border: 1px solid var(--border); border-radius: 12px; overflow: hidden; z-index: 5; display: none; }
+  .dropdown-menu.open { display: block; }
+  .dropdown-item { padding: 10px 14px; cursor: pointer; }
+  .dropdown-item:hover { background: var(--hover); }
+  .dropdown-item .name { font-weight: 700; font-size: 14px; color: var(--text); }
+  .dropdown-item .desc { font-size: 11px; color: var(--muted); }
+  .wheel-wrap { display: flex; justify-content: center; margin: 20px 0; position: relative; }
+  .wheel { width: 260px; height: 260px; border-radius: 50%; background: var(--field); position: relative; }
+  .digit-node { position: absolute; width: 44px; height: 44px; border-radius: 50%; background: var(--bg); display: flex; flex-direction: column; align-items: center; justify-content: center; font-weight: 700; font-size: 15px; color: var(--text); transition: background .15s, color .15s; }
+  .digit-node .pct { font-size: 9px; color: var(--muted); font-weight: 400; }
+  .digit-node.active { background: #3b82f6; color: #fff; }
+  .center { position: absolute; top: 50%; left: 50%; transform: translate(-50%,-50%); text-align: center; }
+  .center .digit { font-size: 40px; font-weight: 800; color: #f5a623; }
+  .center .caption { font-size: 10px; color: var(--muted); letter-spacing: .05em; }
+  .status { text-align: center; font-size: 12px; color: var(--muted); margin-bottom: 14px; }
+  .status .dot { display: inline-block; width: 7px; height: 7px; border-radius: 50%; background: #35d492; margin-right: 6px; }
+  .stake-row { display: flex; justify-content: space-between; align-items: center; }
+  .stake-value { font-size: 26px; font-weight: 800; }
+  .operate-btn { width: 100%; margin-top: 14px; padding: 14px; border: none; border-radius: 12px; background: #f5a623; color: #1a1305; font-weight: 800; font-size: 15px; cursor: pointer; }
+  .operate-btn:disabled { opacity: .5; cursor: default; }
+  .note { font-size: 11px; color: var(--muted); text-align: center; margin-top: 10px; }
+  .history-scroll { display: flex; gap: 10px; overflow-x: auto; padding-bottom: 4px; -webkit-overflow-scrolling: touch; scrollbar-width: thin; }
+  .history-item { flex: 0 0 auto; min-width: 128px; background: var(--field); border-radius: 12px; padding: 10px 12px; border: 1px solid var(--border); }
+  .history-item .bot { font-size: 11px; color: var(--muted); margin-bottom: 6px; }
+  .history-item .digit-row { display: flex; align-items: baseline; gap: 6px; }
+  .history-item .digit { font-size: 20px; font-weight: 800; }
+  .history-item .result { font-size: 12px; font-weight: 700; }
+  .result.win { color: #35d492; }
+  .result.loss { color: #e24b4a; }
+  .history-item .time { font-size: 10px; color: var(--muted); margin-top: 4px; }
+</style>
+</head>
+<body>
+<div class="app">
+  <div class="header">
+    <div class="logo">I</div>
+    <div class="brand">Izi<span>trader</span></div>
+    <div class="header-actions">
+      <button class="icon-btn" id="themeBtn" aria-label="Alternar tema" title="Alternar tema claro/escuro">☀️</button>
+      <button class="icon-btn" id="menuBtn" aria-label="Mais opções" title="Mais opções">•••</button>
+      <button class="sair-btn" id="sairBtn">Sair</button>
+      <div class="menu" id="menu">
+        <div class="menu-item" id="menuSettings">Definições</div>
+        <div class="menu-item" id="menuLang">Idioma</div>
+        <div class="menu-item" id="menuHelp">Ajuda</div>
+      </div>
+    </div>
+  </div>
+
+  <div class="card balance-row">
+    <div>
+      <div class="label">SALDO</div>
+      <div class="value" id="balance">$585,373.92</div>
+    </div>
+    <div class="divider"></div>
+    <div>
+      <div class="label">LUCRO/PERDA</div>
+      <div class="value profit" id="pnl">+$83.64</div>
+    </div>
+  </div>
+
+  <div class="row3">
+    <div>
+      <div class="field-label">TIPO DE CONTA</div>
+      <div class="pill pill-demo">Demo</div>
+    </div>
+    <div>
+      <div class="field-label">BOT</div>
+      <div class="dropdown">
+        <button class="dropdown-btn" id="dropdownBtn">
+          <span id="selectedBotName">ProParity</span>
+          <span id="chevron">▾</span>
+        </button>
+        <div class="dropdown-menu" id="dropdownMenu"></div>
+      </div>
+    </div>
+    <div>
+      <div class="field-label">AULA</div>
+      <div class="pill pill-aula">▶</div>
+    </div>
+  </div>
+
+  <div class="card">
+    <div class="field-label">HISTÓRICO RECENTE <span style="float:right">deslize para ver mais →</span></div>
+    <div class="history-scroll" id="historyScroll"></div>
+  </div>
+
+  <div class="status"><span class="dot"></span><span id="statusText">Conectando à Deriv...</span></div>
+
+  <div class="wheel-wrap">
+    <div class="wheel" id="wheel">
+      <div class="center">
+        <div class="digit" id="lastDigit">–</div>
+        <div class="caption">ÚLTIMO DÍGITO</div>
+      </div>
+    </div>
+  </div>
+
+  <div class="card">
+    <div class="field-label">APOSTA <span style="float:right">mínimo: $1.50 USD</span></div>
+    <div class="stake-row">
+      <span style="color:var(--muted);font-weight:700">USD</span>
+      <span class="stake-value">1.50</span>
+    </div>
+    <button class="operate-btn" id="operateBtn">Operar com ProParity</button>
+    <div class="note">Demo sem token — liga ticks reais da Deriv. Pra comprar de verdade, passa um token de API na versão React (useDerivBot).</div>
+  </div>
+</div>
+
+<script>
+const BOTS = [
+  { id: "proparity", name: "ProParity", desc: "Ganha em dígito par", contractType: "DIGITEVEN" },
+  { id: "octawin", name: "Octawin", desc: "Ganha se o dígito for menor que 8", contractType: "DIGITUNDER", barrier: "8" },
+  { id: "oddez", name: "OddEz", desc: "Ganha em dígito ímpar", contractType: "DIGITODD" },
+  { id: "tradesix", name: "TradeSix", desc: "Ganha se o dígito for maior que 6", contractType: "DIGITOVER", barrier: "6" },
+];
+
+let selectedBot = BOTS[0];
+const wheel = document.getElementById("wheel");
+const nodes = {};
+const radius = 105;
+for (let i = 0; i < 10; i++) {
+  const angle = (i / 10) * 2 * Math.PI - Math.PI / 2;
+  const x = 130 + radius * Math.cos(angle) - 22;
+  const y = 130 + radius * Math.sin(angle) - 22;
+  const node = document.createElement("div");
+  node.className = "digit-node";
+  node.style.left = x + "px";
+  node.style.top = y + "px";
+  node.innerHTML = i + '<div class="pct">--</div>';
+  wheel.appendChild(node);
+  nodes[i] = node;
+}
+
+const dropdownBtn = document.getElementById("dropdownBtn");
+const dropdownMenu = document.getElementById("dropdownMenu");
+const selectedBotName = document.getElementById("selectedBotName");
+const operateBtn = document.getElementById("operateBtn");
+
+BOTS.forEach((bot) => {
+  const item = document.createElement("div");
+  item.className = "dropdown-item";
+  item.innerHTML = '<div class="name">' + bot.name + '</div><div class="desc">' + bot.desc + '</div>';
+  item.onclick = () => {
+    selectedBot = bot;
+    selectedBotName.textContent = bot.name;
+    operateBtn.textContent = "Operar com " + bot.name;
+    dropdownMenu.classList.remove("open");
+  };
+  dropdownMenu.appendChild(item);
+});
+
+dropdownBtn.onclick = () => dropdownMenu.classList.toggle("open");
+document.addEventListener("click", (e) => {
+  if (!e.target.closest(".dropdown")) dropdownMenu.classList.remove("open");
+  if (!e.target.closest(".header-actions")) document.getElementById("menu").classList.remove("open");
+});
+
+const themeBtn = document.getElementById("themeBtn");
+themeBtn.onclick = () => {
+  document.body.classList.toggle("light");
+  themeBtn.textContent = document.body.classList.contains("light") ? "🌙" : "☀️";
+};
+
+const menu = document.getElementById("menu");
+document.getElementById("menuBtn").onclick = (e) => {
+  e.stopPropagation();
+  menu.classList.toggle("open");
+};
+document.getElementById("menuSettings").onclick = () => { alert("Definições (demo)"); menu.classList.remove("open"); };
+document.getElementById("menuLang").onclick = () => { alert("PT / EN / ES (demo)"); menu.classList.remove("open"); };
+document.getElementById("menuHelp").onclick = () => { alert("Central de ajuda (demo)"); menu.classList.remove("open"); };
+
+document.getElementById("sairBtn").onclick = () => {
+  if (confirm("Terminar sessão?")) alert("Sessão encerrada (demo).");
+};
+
+const historyScroll = document.getElementById("historyScroll");
+function addHistoryItem(entry) {
+  const item = document.createElement("div");
+  item.className = "history-item";
+  item.innerHTML =
+    '<div class="bot">' + entry.bot + "</div>" +
+    '<div class="digit-row"><span class="digit">' + entry.digit + '</span><span class="result ' +
+    (entry.win ? "win" : "loss") + '">' + (entry.win ? "+$" : "-$") + entry.amount + "</span></div>" +
+    '<div class="time">' + entry.time + "</div>";
+  historyScroll.prepend(item);
+}
+
+[
+  { bot: "ProParity", digit: 4, win: true, amount: "83.64", time: "9:20 AM" },
+  { bot: "TradeSix", digit: 8, win: true, amount: "41.20", time: "9:12 AM" },
+  { bot: "OddEz", digit: 2, win: false, amount: "25.00", time: "9:05 AM" },
+  { bot: "Octawin", digit: 3, win: true, amount: "18.75", time: "8:58 AM" },
+  { bot: "ProParity", digit: 7, win: false, amount: "25.00", time: "8:51 AM" },
+].reverse().forEach(addHistoryItem);
+
+const digitHistory = [];
+const ws = new WebSocket("wss://ws.derivws.com/websockets/v3?app_id=1089");
+
+ws.onopen = () => {
+  document.getElementById("statusText").textContent = "Conectado — R_100 ao vivo";
+  ws.send(JSON.stringify({ ticks: "R_100", subscribe: 1 }));
+};
+
+ws.onclose = () => {
+  document.getElementById("statusText").textContent = "Desconectado";
+};
+
+ws.onmessage = (event) => {
+  const data = JSON.parse(event.data);
+  if (data.msg_type === "tick" && data.tick) {
+    const price = data.tick.quote.toString();
+    const digit = Number(price.slice(-1));
+    digitHistory.push(digit);
+    if (digitHistory.length > 100) digitHistory.shift();
+
+    document.getElementById("lastDigit").textContent = digit;
+    Object.values(nodes).forEach((n) => n.classList.remove("active"));
+    nodes[digit].classList.add("active");
+
+    const counts = new Array(10).fill(0);
+    digitHistory.forEach((d) => counts[d]++);
+    const total = digitHistory.length;
+    counts.forEach((c, d) => {
+      nodes[d].querySelector(".pct").textContent = ((c / total) * 100).toFixed(1) + "%";
+    });
+  }
+};
+
+operateBtn.onclick = () => {
+  operateBtn.disabled = true;
+  operateBtn.textContent = "Operar com " + selectedBot.name;
+  const req = {
+    proposal: 1,
+    amount: 1.5,
+    basis: "stake",
+    contract_type: selectedBot.contractType,
+    currency: "USD",
+    duration: 5,
+    duration_unit: "t",
+    symbol: "R_100",
+  };
+  if (selectedBot.barrier) req.barrier = selectedBot.barrier;
+  ws.send(JSON.stringify(req));
+
+  const handler = (event) => {
+    const data = JSON.parse(event.data);
+    if (data.msg_type === "proposal") {
+      operateBtn.disabled = false;
+      if (data.proposal) {
+        alert(selectedBot.name + " — payout estimado: $" + data.proposal.payout + " (pra comprar de fato precisa autenticar com token de API)");
+        addHistoryItem({
+          bot: selectedBot.name,
+          digit: document.getElementById("lastDigit").textContent,
+          win: true,
+          amount: "cotação",
+          time: new Date().toLocaleTimeString("pt-PT", { hour: "2-digit", minute: "2-digit" }),
+        });
+      } else if (data.error) {
+        alert("Erro: " + data.error.message);
+      }
+      ws.removeEventListener("message", handler);
+    }
+  };
+  ws.addEventListener("message", handler);
+};
+</script>
+</body>
+</html>

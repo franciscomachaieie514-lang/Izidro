@@ -4,10 +4,9 @@ const path = require('path');
 const crypto = require('crypto');
 
 const PORT = Number(process.env.PORT || 10000);
-const APP_ID = String(process.env.DERIV_APP_ID || '1089').trim();
-// Follow the Matos environment naming: the public base URL is supplied by Render.
-const BASE_URL = String(process.env.NEXT_PUBLIC_BASE_URL || 'https://izidro.onrender.com').replace(/\/$/, '');
-const REDIRECT_URI = String(process.env.REDIRECT_URL || `${BASE_URL}/api/auth/callback`).trim();
+const APP_ID = String(process.env.DERIV_APP_ID || '').trim();
+const BASE_URL = String(process.env.NEXT_PUBLIC_BASE_URL || '').trim().replace(/\/$/, '');
+const REDIRECT_URI = String(process.env.REDIRECT_URL || '').trim();
 const AUTHORIZE_URL = 'https://auth.deriv.com/oauth2/auth';
 const TOKEN_URL = 'https://auth.deriv.com/oauth2/token';
 const SESSION_TTL = 7 * 24 * 60 * 60 * 1000;
@@ -16,6 +15,13 @@ const OAUTH_TTL = 10 * 60 * 1000;
 const oauthStates = new Map();
 const sessions = new Map();
 
+function configError() {
+  const missing = [];
+  if (!APP_ID) missing.push('DERIV_APP_ID');
+  if (!BASE_URL) missing.push('NEXT_PUBLIC_BASE_URL');
+  if (!REDIRECT_URI) missing.push('REDIRECT_URL');
+  return missing;
+}
 function randomToken(bytes = 32) { return crypto.randomBytes(bytes).toString('base64url'); }
 function sha256(value) { return crypto.createHash('sha256').update(value).digest('base64url'); }
 function parseCookies(header = '') {
@@ -89,9 +95,10 @@ function serveStatic(req, res) {
 const server = http.createServer(async (req, res) => {
   try {
     const url = new URL(req.url, `http://${req.headers.host || 'localhost'}`);
+    const missing = configError();
 
     if (url.pathname === '/api/auth/login' && req.method === 'GET') {
-      if (!APP_ID) return json(res, 500, { error: 'DERIV_APP_ID is missing' });
+      if (missing.length) return json(res, 500, { error: 'OAuth server configuration is incomplete', missing });
       const verifier = randomToken(32);
       const challenge = sha256(verifier);
       const state = randomToken(24);
@@ -132,7 +139,9 @@ const server = http.createServer(async (req, res) => {
       return json(res, 200, { ok: true }, { 'Set-Cookie': cookie('__Host-izitrader_session', '', { maxAge: 0 }) });
     }
 
-    if (url.pathname === '/api/health' && req.method === 'GET') return json(res, 200, { ok: true, oauth: true });
+    if (url.pathname === '/api/health' && req.method === 'GET') {
+      return json(res, 200, { ok: true, oauth: true, configured: missing.length === 0, missing });
+    }
     return serveStatic(req, res);
   } catch (error) {
     console.error('[Izitrader OAuth]', error);
@@ -146,4 +155,4 @@ setInterval(() => {
   for (const [id, session] of sessions) if (session.expiresAt < now) sessions.delete(id);
 }, 60_000).unref();
 
-server.listen(PORT, '0.0.0.0', () => console.log(`[Izitrader] listening on ${PORT}; OAuth redirect: ${REDIRECT_URI}`));
+server.listen(PORT, '0.0.0.0', () => console.log(`[Izitrader] listening on ${PORT}; OAuth redirect: ${REDIRECT_URI || '(not configured)'}`));

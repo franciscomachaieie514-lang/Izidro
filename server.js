@@ -5,8 +5,8 @@ const crypto = require('crypto');
 
 const PORT = Number(process.env.PORT || 10000);
 const APP_ID = String(process.env.DERIV_APP_ID || '').trim();
-const BASE_URL = String(process.env.NEXT_PUBLIC_BASE_URL || '').trim().replace(/\/$/, '');
-const REDIRECT_URI = String(process.env.REDIRECT_URL || '').trim();
+const BASE_URL = String(process.env.NEXT_PUBLIC_BASE_URL || 'https://izidro.onrender.com').trim().replace(/\/$/, '');
+const REDIRECT_URI = String(process.env.REDIRECT_URL || `${BASE_URL}/api/auth/callback`).trim();
 const AUTHORIZE_URL = 'https://auth.deriv.com/oauth2/auth';
 const TOKEN_URL = 'https://auth.deriv.com/oauth2/token';
 const SESSION_TTL = 7 * 24 * 60 * 60 * 1000;
@@ -40,6 +40,7 @@ function cookie(name, value, options = {}) {
   if (options.secure !== false) parts.push('Secure');
   return parts.join('; ');
 }
+function clearCookie(name) { return cookie(name, '', { maxAge: 0 }); }
 function json(res, status, body, headers = {}) {
   const data = JSON.stringify(body);
   res.writeHead(status, { 'Content-Type': 'application/json; charset=utf-8', 'Cache-Control': 'no-store', ...headers });
@@ -99,10 +100,12 @@ const server = http.createServer(async (req, res) => {
 
     if (url.pathname === '/api/auth/login' && req.method === 'GET') {
       if (missing.length) return json(res, 500, { error: 'OAuth server configuration is incomplete', missing });
+
       const verifier = randomToken(32);
       const challenge = sha256(verifier);
       const state = randomToken(24);
-      oauthStates.set(state, { verifier, createdAt: Date.now() });
+      oauthStates.set(state, { createdAt: Date.now() });
+
       const auth = new URL(AUTHORIZE_URL);
       auth.searchParams.set('response_type', 'code');
       auth.searchParams.set('client_id', APP_ID);
@@ -111,21 +114,62 @@ const server = http.createServer(async (req, res) => {
       auth.searchParams.set('state', state);
       auth.searchParams.set('code_challenge', challenge);
       auth.searchParams.set('code_challenge_method', 'S256');
-      return redirect(res, auth.toString());
+
+      return redirect(res, auth.toString(), {
+        'Set-Cookie': [
+          cookie('__Host-izitrader_oauth_state', state, { maxAge: OAUTH_TTL / 1000 }),
+          cookie('__Host-izitrader_oauth_verifier', verifier, { maxAge: OAUTH_TTL / 1000 })
+        ]
+      });
     }
 
     if (url.pathname === '/api/auth/callback' && req.method === 'GET') {
+      const cookies = parseCookies(req.headers.cookie || '');
       const code = url.searchParams.get('code');
       const state = url.searchParams.get('state');
       const oauthError = url.searchParams.get('error');
-      if (oauthError) return redirect(res, `/?auth_error=${encodeURIComponent(oauthError)}`);
+
+      if (oauthError) {
+        return redirect(res, `/?auth_error=${encodeURIComponent(oauthError)}`, {
+          'Set-Cookie': [clearCookie('__Host-izitrader_oauth_state'), clearCookie('__Host-izitrader_oauth_verifier')]
+        });
+      }
+
+      const cookieState = cookies['__Host-izitrader_oauth_state'];
+      const verifier = cookies['__Host-izitrader_oauth_verifier'];
       const pending = state && oauthStates.get(state);
-      if (!code || !pending || Date.now() - pending.createdAt > OAUTH_TTL) return json(res, 400, { error: 'Invalid or expired OAuth state' });
+
+      if (!code || !state || !verifier || state !== cookieState || !pending || Date.now() - pending.createdAt > OAUTH_TTL) {
+        return redirect(res, '/?auth_error=invalid_oauth_state', {
+          'Set-Cookie': [clearCookie('__Host-izitrader_oauth_state'), clearCookie('__Host-izitrader_oauth_verifier')]
+        });
+      }
+
       oauthStates.delete(state);
-      const token = await exchangeCode(code, pending.verifier);
-      const sessionId = randomToken(32);
-      sessions.set(sessionId, { accessToken: token.access_token, refreshToken: token.refresh_token || null, createdAt: Date.now(), expiresAt: Date.now() + SESSION_TTL });
-      return redirect(res, '/', { 'Set-Cookie': cookie('__Host-izitrader_session', sessionId, { maxAge: SESSION_TTL / 1000 }) });
+
+      try {
+        const token = await exchangeCode(code, verifier);
+        const sessionId = randomToken(32);
+        sessions.set(sessionId, {
+          accessToken: token.access_token,
+          refreshToken: token.refresh_token || null,
+          createdAt: Date.now(),
+          expiresAt: Date.now() + SESSION_TTL
+        });
+
+        return redirect(res, '/', {
+          'Set-Cookie': [
+            cookie('__Host-izitrader_session', sessionId, { maxAge: SESSION_TTL / 1000 }),
+            clearCookie('__Host-izitrader_oauth_state'),
+            clearCookie('__Host-izitrader_oauth_verifier')
+          ]
+        });
+      } catch (error) {
+        console.error('[Izitrader OAuth callback]', error.message);
+        return redirect(res, '/?auth_error=token_exchange_failed', {
+          'Set-Cookie': [clearCookie('__Host-izitrader_oauth_state'), clearCookie('__Host-izitrader_oauth_verifier')]
+        });
+      }
     }
 
     if (url.pathname === '/api/auth/session' && req.method === 'GET') {
@@ -136,7 +180,7 @@ const server = http.createServer(async (req, res) => {
     if (url.pathname === '/api/auth/logout' && (req.method === 'GET' || req.method === 'POST')) {
       const session = sessionFromRequest(req);
       if (session) sessions.delete(session.id);
-      return json(res, 200, { ok: true }, { 'Set-Cookie': cookie('__Host-izitrader_session', '', { maxAge: 0 }) });
+      return json(res, 200, { ok: true }, { 'Set-Cookie': clearCookie('__Host-izitrader_session') });
     }
 
     if (url.pathname === '/api/health' && req.method === 'GET') {

@@ -13,9 +13,8 @@ esac
 # Keep the public app_id configurable without exposing any secret.
 sed -i "s/app_id=1089/app_id=${DERIV_APP_ID}/g" /app/index.html
 
-# Connect the existing login link to the server-side OAuth endpoint and load
-# the small session controller. The OAuth access token never enters the page.
-sed -i 's#https://track.deriv.com/_PZZnG4RWbBdZl7VyVw174GNd7ZgqdRLk/1/#/api/auth/login#' /app/index.html
+# Only the existing loginLink is routed to OAuth. The signup/referral link stays unchanged.
+sed -i 's#href="https://track.deriv.com/_PZZnG4RWbBdZl7VyVw174GNd7ZgqdRLk/1/" target="_blank" rel="noopener" id="loginLink"#href="/api/auth/login" id="loginLink"#' /app/index.html
 sed -i 's#</body>#<script src="/auth.js"></script></body>#' /app/index.html
 
 exec "$@"

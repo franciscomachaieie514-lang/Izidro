@@ -1,13 +1,14 @@
-FROM nginx:alpine
+FROM node:20-alpine
 
-COPY index.html /usr/share/nginx/html/index.html
-
-# Render injects environment variables at runtime. We use DERIV_APP_ID only
-# for the public Deriv WebSocket app_id; never put an API token in the frontend.
+WORKDIR /app
+COPY index.html /app/index.html
+COPY favicon.svg /app/favicon.svg
+COPY auth.js /app/auth.js
+COPY server.js /app/server.js
 COPY docker-entrypoint.sh /docker-entrypoint.sh
 RUN chmod +x /docker-entrypoint.sh
 
-EXPOSE 80
+EXPOSE 10000
 
 ENTRYPOINT ["/docker-entrypoint.sh"]
-CMD ["nginx", "-g", "daemon off;"]
+CMD ["node", "server.js"]

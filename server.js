@@ -5,8 +5,9 @@ const crypto = require('crypto');
 
 const PORT = Number(process.env.PORT || 10000);
 const APP_ID = String(process.env.DERIV_APP_ID || '1089').trim();
-const APP_URL = String(process.env.APP_URL || 'https://izidro.onrender.com').replace(/\/$/, '');
-const REDIRECT_URI = String(process.env.DERIV_REDIRECT_URL || `${APP_URL}/api/auth/callback`).trim();
+// Follow the Matos environment naming: the public base URL is supplied by Render.
+const BASE_URL = String(process.env.NEXT_PUBLIC_BASE_URL || 'https://izidro.onrender.com').replace(/\/$/, '');
+const REDIRECT_URI = String(process.env.REDIRECT_URL || `${BASE_URL}/api/auth/callback`).trim();
 const AUTHORIZE_URL = 'https://auth.deriv.com/oauth2/auth';
 const TOKEN_URL = 'https://auth.deriv.com/oauth2/token';
 const SESSION_TTL = 7 * 24 * 60 * 60 * 1000;

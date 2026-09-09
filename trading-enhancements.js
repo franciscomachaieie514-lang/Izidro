@@ -2,7 +2,7 @@
 (function(){
 'use strict';
 const MIN_STAKE=.35;
-const MAX_LEVEL=5;
+const MAX_LEVEL=20;
 let baseStake=Math.max(MIN_STAKE,Number(localStorage.getItem('izitrader_stake')||MIN_STAKE));
 let level=0;
 let nativeSend=null;
@@ -43,6 +43,11 @@ function installProposalInterceptor(){
   };
   wrapped.__iziOriginal=nativeSend;Ctor.prototype.send=wrapped;Ctor.prototype.__iziMartingalePatched=true;
 }
+function setConnectedStatus(){
+  const type=localStorage.getItem('izitrader_account_type')==='demo'?'Demo':'Real';
+  const el=$('#statusText');if(el)el.textContent='Conta '+type+' ligada';
+  const dot=$('.status .dot');if(dot)dot.style.background='#35d492';
+}
 function applyResult(profit){
   const p=Number(profit);if(!Number.isFinite(p))return;
   if(p<0)level=Math.min(MAX_LEVEL,level+1);else level=0;
@@ -56,6 +61,7 @@ function installWhatsApp(){
 }
 function boot(){syncStakeInput();installProposalInterceptor();installWhatsApp();}
 window.addEventListener('izitrader:contract-closed',e=>applyResult(e.detail?.profit_loss??e.detail?.profit));
+window.addEventListener('izitrader:deriv-error',e=>{const m=String(e.detail?.message||'');if(/unknown contract proposal/i.test(m)){setConnectedStatus();setTimeout(boot,0)}});
 window.addEventListener('izitrader:ws-open',boot);
 if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',boot);else boot();
 })();

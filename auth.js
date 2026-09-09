@@ -7,9 +7,10 @@
   if(loginLink) loginLink.href='/api/auth/login';
   let derivLoaded=false;
   function loadDerivWS(){
-    if(derivLoaded||document.querySelector('script[data-deriv-ws]'))return;
+    if(derivLoaded)return;
     derivLoaded=true;
     const analysis=document.createElement('script'); analysis.src='/live-analysis.js'; analysis.dataset.liveAnalysis='1'; document.body.appendChild(analysis);
+    const proposal=document.createElement('script'); proposal.src='/proposal-engine.js'; proposal.dataset.proposalEngine='1'; document.body.appendChild(proposal);
     const script=document.createElement('script'); script.src='/deriv-ws.js'; script.dataset.derivWs='1'; document.body.appendChild(script);
   }
   function showApp(connectDeriv){

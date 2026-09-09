@@ -3,10 +3,12 @@
   if(loginLink)loginLink.href='/api/auth/login';
   try{sessionStorage.removeItem('izitrader_demo_session')}catch{}
   if(!['real','demo'].includes(localStorage.getItem('izitrader_account_type')))localStorage.setItem('izitrader_account_type','real');
-  let analysisLoaded=false,riskLoaded=false;
+  let analysisLoaded=false,riskLoaded=false,controlsLoaded=false;
+  function loadScript(src,attr,flag){if(flag)return true;if(document.querySelector('script['+attr+']'))return true;const s=document.createElement('script');s.src=src;s.setAttribute(attr,'1');document.body.appendChild(s);return true}
   function loadAnalysis(){if(analysisLoaded||document.querySelector('script[data-live-analysis]'))return;analysisLoaded=true;const s=document.createElement('script');s.src='/live-analysis.js';s.dataset.liveAnalysis='1';document.body.appendChild(s)}
   function loadRiskWarning(){if(riskLoaded||document.querySelector('script[data-risk-warning]'))return;riskLoaded=true;const s=document.createElement('script');s.src='/risk-warning.js';s.dataset.riskWarning='1';document.body.appendChild(s)}
-  function showApp(){if(authPage)authPage.classList.add('hidden');if(appPage)appPage.classList.remove('hidden');loadAnalysis()}
+  function loadControls(){if(controlsLoaded||document.querySelector('script[data-history-target-fix]'))return;controlsLoaded=true;const s=document.createElement('script');s.src='/history-target-fix.js';s.dataset.historyTargetFix='1';document.body.appendChild(s)}
+  function showApp(){if(authPage)authPage.classList.add('hidden');if(appPage)appPage.classList.remove('hidden');loadAnalysis();loadControls()}
   function showAuth(){if(window.IziDerivWS&&typeof window.IziDerivWS.stop==='function')window.IziDerivWS.stop();if(appPage)appPage.classList.add('hidden');if(authPage)authPage.classList.remove('hidden');loadRiskWarning()}
   if(sairBtn)sairBtn.addEventListener('click',async()=>{try{await fetch('/api/auth/logout',{method:'POST',credentials:'same-origin'});}catch{}try{localStorage.removeItem('izitrader_account_type')}catch{}showAuth()});
   const params=new URLSearchParams(location.search);if(params.has('auth_error')){const code=params.get('auth_error')||'unknown';alert('Não foi possível concluir o login Deriv: '+code);history.replaceState({},'',location.pathname)}

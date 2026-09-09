@@ -9,16 +9,25 @@
   function loadDerivWS(){
     if(derivLoaded||document.querySelector('script[data-deriv-ws]'))return;
     derivLoaded=true;
+    const analysis=document.createElement('script'); analysis.src='/live-analysis.js'; analysis.dataset.liveAnalysis='1'; document.body.appendChild(analysis);
     const script=document.createElement('script'); script.src='/deriv-ws.js'; script.dataset.derivWs='1'; document.body.appendChild(script);
   }
-  function showApp(){ if(authPage)authPage.classList.add('hidden'); if(appPage)appPage.classList.remove('hidden'); loadDerivWS(); }
-  function showAuth(){ if(appPage)appPage.classList.add('hidden'); if(authPage)authPage.classList.remove('hidden'); }
-  if(demoAccess) demoAccess.addEventListener('click',()=>{localStorage.setItem('izitrader_demo','1');showApp();});
+  function showApp(connectDeriv){
+    if(authPage)authPage.classList.add('hidden');
+    if(appPage)appPage.classList.remove('hidden');
+    if(connectDeriv)loadDerivWS();
+  }
+  function showAuth(){
+    if(window.IziDerivWS&&typeof window.IziDerivWS.disconnect==='function')window.IziDerivWS.disconnect();
+    if(appPage)appPage.classList.add('hidden');
+    if(authPage)authPage.classList.remove('hidden');
+  }
+  if(demoAccess) demoAccess.addEventListener('click',()=>{localStorage.setItem('izitrader_demo','1');showApp(false);});
   if(sairBtn) sairBtn.addEventListener('click',async()=>{try{await fetch('/api/auth/logout',{method:'POST',credentials:'same-origin'});}catch{} localStorage.removeItem('izitrader_demo'); showAuth();});
   const params=new URLSearchParams(location.search);
   if(params.has('auth_error')){const code=params.get('auth_error')||'unknown';alert('Não foi possível concluir o login Deriv: '+code);history.replaceState({},'',location.pathname);}
   try{
     const response=await fetch('/api/auth/session',{credentials:'same-origin',cache:'no-store'}); const session=await response.json();
-    if(session.authenticated)showApp(); else if(localStorage.getItem('izitrader_demo')==='1')showApp(); else showAuth();
-  }catch{if(localStorage.getItem('izitrader_demo')==='1')showApp();else showAuth();}
+    if(session.authenticated)showApp(true); else if(localStorage.getItem('izitrader_demo')==='1')showApp(false); else showAuth();
+  }catch{if(localStorage.getItem('izitrader_demo')==='1')showApp(false);else showAuth();}
 })();

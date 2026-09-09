@@ -1,4 +1,4 @@
-/* IziTrader trading enhancements: stake dropdown, universal martingale, official-style WhatsApp mark. */
+/* IziTrader trading enhancements: stake dropdown, universal martingale, selected stake used for orders. */
 (function(){
 'use strict';
 const MIN_STAKE=.35;
@@ -6,11 +6,24 @@ const MAX_STAKE=10;
 const MAX_LEVEL=20;
 const STAKES=[.35,.50];
 for(let v=1.50;v<=MAX_STAKE+.001;v+=.50)STAKES.push(Number(v.toFixed(2)));
+const $=s=>document.querySelector(s);
 let baseStake=Math.max(MIN_STAKE,Math.min(MAX_STAKE,Number(localStorage.getItem('izitrader_stake')||MIN_STAKE)));
 if(!STAKES.includes(Number(baseStake.toFixed(2))))baseStake=MIN_STAKE;
 let level=0,nativeSend=null;
-const $=s=>document.querySelector(s);
 function money(n){return Number(n).toFixed(2)}
+function selectedBaseStake(){
+  const ui=$('#stakeInput');
+  const saved=Number(ui?.value||localStorage.getItem('izitrader_stake')||baseStake);
+  const n=Number.isFinite(saved)?saved:baseStake;
+  return Math.min(MAX_STAKE,Math.max(MIN_STAKE,n));
+}
+function syncBaseFromUi(){
+  const n=selectedBaseStake();
+  const nearest=STAKES.reduce((a,b)=>Math.abs(b-n)<Math.abs(a-n)?b:a,STAKES[0]);
+  baseStake=Number(nearest.toFixed(2));
+  localStorage.setItem('izitrader_stake',String(baseStake));
+  return baseStake;
+}
 function setBaseStake(value){
   let n=Number(value);
   if(!Number.isFinite(n)||n<MIN_STAKE)n=MIN_STAKE;
@@ -47,10 +60,17 @@ function syncStakeInput(){
   if(!info){info=document.createElement('div');info.id='martingaleInfo';info.style.cssText='margin-top:7px;text-align:right;font-size:10px;color:var(--muted);';row.parentElement.insertBefore(info,row.nextSibling)}
   updateInfo();
 }
-function currentStake(){return Number((baseStake*Math.pow(2,Math.min(level,MAX_LEVEL))).toFixed(2))}
+function currentStake(){
+  const chosen=syncBaseFromUi();
+  return Number((chosen*Math.pow(2,Math.min(level,MAX_LEVEL))).toFixed(2));
+}
 function updateInfo(){
   const select=$('#stakeInput');
-  if(select&&select.tagName==='SELECT')select.value=money(baseStake);
+  if(select&&select.tagName==='SELECT'){
+    const saved=Number(localStorage.getItem('izitrader_stake')||baseStake);
+    const valid=STAKES.includes(Number(saved.toFixed(2)))?Number(saved.toFixed(2)):baseStake;
+    select.value=money(valid);
+  }
   const info=$('#martingaleInfo');
   if(info)info.textContent='Martingale '+level+'/'+MAX_LEVEL+' · próxima aposta $'+money(currentStake());
 }
@@ -61,7 +81,12 @@ function installProposalInterceptor(){
   const wrapped=function(data){
     try{
       const m=typeof data==='string'?JSON.parse(data):null;
-      if(m&&m.proposal===1&&m.basis==='stake'&&Number.isFinite(Number(m.amount))){m.amount=currentStake();delete m.subscribe;data=JSON.stringify(m)}
+      if(m&&m.proposal===1&&m.basis==='stake'&&Number.isFinite(Number(m.amount))){
+        const amount=currentStake();
+        m.amount=amount;
+        delete m.subscribe;
+        data=JSON.stringify(m);
+      }
     }catch(e){}
     return nativeSend.call(this,data);
   };
@@ -76,7 +101,7 @@ function applyResult(profit){
   const p=Number(profit);if(!Number.isFinite(p))return;
   if(p<0)level=Math.min(MAX_LEVEL,level+1);else level=0;
   updateInfo();
-  window.dispatchEvent(new CustomEvent('izitrader:martingale',{detail:{level,baseStake,stake:currentStake(),maxLevel:MAX_LEVEL,profit:p}}));
+  window.dispatchEvent(new CustomEvent('izitrader:martingale',{detail:{level,baseStake:selectedBaseStake(),stake:currentStake(),maxLevel:MAX_LEVEL,profit:p}}));
 }
 function installWhatsApp(){
   const a=$('.whatsapp-btn');if(!a)return;

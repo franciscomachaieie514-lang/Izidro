@@ -1,4 +1,4 @@
-/* IziTrader trading enhancements: editable stake, universal martingale, responsive stake controls, official-style WhatsApp mark. */
+/* IziTrader trading enhancements: editable stake, universal martingale, vertical stake controls, official-style WhatsApp mark. */
 (function(){
 'use strict';
 const MIN_STAKE=.35;
@@ -16,7 +16,7 @@ function setBaseStake(value){
   level=0;
   localStorage.setItem('izitrader_stake',String(baseStake));
   const input=$('#stakeInput');
-  if(input){input.value=money(baseStake);}
+  if(input)input.value=money(baseStake);
   updateInfo();
 }
 function adjustStake(direction){
@@ -50,7 +50,14 @@ function syncStakeInput(){
     plus.style.cssText=controlStyle;
     input.style.cssText='width:112px;min-width:86px;background:var(--field);border:1px solid var(--border);border-radius:9px;color:var(--text);font-size:22px;font-weight:800;text-align:center;padding:7px 8px;outline:none;';
 
-    controls.appendChild(minus);controls.appendChild(input);controls.appendChild(plus);
+    controls.appendChild(input);
+    const buttons=document.createElement('div');
+    buttons.id='stakeStepButtons';
+    buttons.style.cssText='display:flex;flex-direction:column;align-items:center;justify-content:center;gap:4px;min-width:40px;';
+    buttons.appendChild(plus);
+    buttons.appendChild(minus);
+    controls.appendChild(buttons);
+
     if(old)old.replaceWith(controls);else row.appendChild(controls);
 
     minus.addEventListener('click',()=>adjustStake(-1));
@@ -109,12 +116,13 @@ function installResponsiveStakeCss(){
   const s=document.createElement('style');s.id='iziStakeControlsCss';
   s.textContent=`
     #stakeControls{flex-wrap:nowrap}
+    #stakeStepButtons{flex-shrink:0}
     #stakeMinus:hover,#stakePlus:hover{border-color:var(--accent);transform:translateY(-1px)}
     #stakeMinus:active,#stakePlus:active{transform:scale(.97)}
     #stakeInput::-webkit-inner-spin-button,#stakeInput::-webkit-outer-spin-button{-webkit-appearance:none;margin:0}
     #stakeInput{appearance:textfield}
-    @media(max-width:599px){#stakeControls{gap:6px}#stakeMinus,#stakePlus{width:42px;height:42px;min-width:42px;font-size:23px}#stakeInput{width:96px;min-width:80px;font-size:20px;padding:8px 5px}}
-    @media(min-width:600px){#stakeMinus,#stakePlus{width:42px;height:42px}#stakeInput{width:118px}}
+    @media(max-width:599px){#stakeControls{gap:6px}#stakeMinus,#stakePlus{width:42px;height:38px;min-width:42px;font-size:22px}#stakeStepButtons{gap:3px}#stakeInput{width:96px;min-width:78px;font-size:20px;padding:8px 5px}}
+    @media(min-width:600px){#stakeMinus,#stakePlus{width:42px;height:36px}#stakeInput{width:118px}}
   `;
   document.head.appendChild(s);
 }

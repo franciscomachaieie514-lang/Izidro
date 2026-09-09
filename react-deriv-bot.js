@@ -1,4 +1,4 @@
-/* React Deriv bridge: real-time ticks + authenticated proposals for the existing bot dropdown. */
+/* React Deriv bridge: one authenticated real-time WebSocket for ticks, balance and proposals. */
 (function(){
   const load=(src)=>new Promise((resolve,reject)=>{const s=document.createElement('script');s.src=src;s.onload=resolve;s.onerror=reject;document.head.appendChild(s)});
   async function boot(){
@@ -17,7 +17,46 @@
       const ws=useRef(null),req=useRef(1000),ticks=useRef([]),lastProposal=useRef(0);
       const [state,setState]=useState({connected:false,authorized:false,tick:null,balance:null,proposal:null,signal:null,error:null});
       const send=useCallback(x=>{if(!ws.current||ws.current.readyState!==WebSocket.OPEN)return false;ws.current.send(JSON.stringify(x));return true},[]);
-      const connect=useCallback(async()=>{try{const ar=await fetch('/api/deriv/accounts',{credentials:'same-origin',cache:'no-store'});const aj=await ar.json();if(!ar.ok)throw new Error(aj.error||'Sessão Deriv não autenticada');const accounts=aj.data||aj.accounts||[];const wanted=accountType==='real'?accounts.find(a=>!(a.is_virtual||a.account_type==='demo'||a.type==='demo')):accounts.find(a=>a.is_virtual||a.account_type==='demo'||a.type==='demo');const a=wanted||accounts[0];if(!a)throw new Error('Nenhuma conta Deriv disponível');const id=a.account_id||a.accountId||a.id;const wr=await fetch('/api/deriv/ws-url',{method:'POST',headers:{'Content-Type':'application/json'},credentials:'same-origin',body:JSON.stringify({account_id:id})});const wj=await wr.json();if(!wr.ok||!wj?.data?.url)throw new Error(wj.error||'Não foi possível abrir WebSocket Deriv');if(ws.current)try{ws.current.close()}catch{}const socket=new WebSocket(wj.data.url);ws.current=socket;socket.onopen=()=>{setState(s=>({...s,connected:true,authorized:true,error:null}));socket.send(JSON.stringify({balance:1,subscribe:1,req_id:++req.current}));socket.send(JSON.stringify({ticks:symbol,subscribe:1,req_id:++req.current}))};socket.onmessage=e=>{let m;try{m=JSON.parse(e.data)}catch{return}if(m.error){setState(s=>({...s,error:m.error.message}));return}if(m.msg_type==='balance')setState(s=>({...s,balance:m.balance}));if(m.msg_type==='tick'&&m.tick){const q=Number(m.tick.quote);ticks.current=[...ticks.current,q].slice(-100);const sig=signal(ticks.current,botName);setState(s=>({...s,tick:m.tick,signal:sig}))}};socket.onclose=()=>setState(s=>({...s,connected:false,authorized:false}));socket.onerror=()=>setState(s=>({...s,error:'Erro no WebSocket Deriv'}));}catch(e){setState(s=>({...s,error:e.message||'Falha Deriv'}))}},[accountType,symbol,botName]);
+      const connect=useCallback(async()=>{try{
+        const ar=await fetch('/api/deriv/accounts',{credentials:'same-origin',cache:'no-store'});
+        const aj=await ar.json();
+        if(!ar.ok)throw new Error(aj.error||'Sessão Deriv não autenticada');
+        const accounts=aj.data||aj.accounts||[];
+        const wanted=accountType==='real'?accounts.find(a=>!(a.is_virtual||a.account_type==='demo'||a.type==='demo')):accounts.find(a=>a.is_virtual||a.account_type==='demo'||a.type==='demo');
+        const a=wanted||accounts[0];
+        if(!a)throw new Error('Nenhuma conta Deriv disponível');
+        const id=a.account_id||a.accountId||a.id;
+        if(!id)throw new Error('ID da conta Deriv não encontrado');
+        const wr=await fetch('/api/deriv/ws-url',{method:'POST',headers:{'Content-Type':'application/json'},credentials:'same-origin',body:JSON.stringify({account_id:id})});
+        const wj=await wr.json();
+        if(!wr.ok||!wj?.data?.url)throw new Error(wj.error||'Não foi possível abrir WebSocket Deriv');
+        if(ws.current)try{ws.current.close()}catch{}
+        const socket=new WebSocket(wj.data.url);ws.current=socket;
+        socket.onopen=()=>{
+          setState(s=>({...s,connected:true,authorized:true,error:null}));
+          socket.send(JSON.stringify({balance:1,subscribe:1,req_id:++req.current}));
+          socket.send(JSON.stringify({ticks:symbol,subscribe:1,req_id:++req.current}));
+          window.dispatchEvent(new CustomEvent('izitrader:ws-open',{detail:{socket}}));
+        };
+        socket.onmessage=e=>{
+          let m;try{m=JSON.parse(e.data)}catch{return}
+          if(m.error){setState(s=>({...s,error:m.error.message||'Erro Deriv'}));return}
+          if(m.msg_type==='balance'&&m.balance){
+            const balance={balance:Number(m.balance.balance),currency:m.balance.currency||'USD',loginid:m.balance.loginid||null};
+            setState(s=>({...s,balance,error:null}));
+            const el=document.getElementById('balance');
+            if(el)el.textContent=`${balance.balance.toFixed(2)} ${balance.currency}`;
+            window.dispatchEvent(new CustomEvent('izitrader:balance',{detail:balance}));
+          }
+          if(m.msg_type==='tick'&&m.tick){
+            const q=Number(m.tick.quote);ticks.current=[...ticks.current,q].slice(-100);
+            setState(s=>({...s,tick:m.tick,signal:signal(ticks.current,botName)}));
+            window.dispatchEvent(new CustomEvent('izitrader:tick',{detail:{quote:q,quoteRaw:String(m.tick.quote),epoch:m.tick.epoch,symbol:m.tick.symbol}}));
+          }
+        };
+        socket.onclose=()=>{setState(s=>({...s,connected:false,authorized:false}));window.dispatchEvent(new CustomEvent('izitrader:ws-close'));};
+        socket.onerror=()=>setState(s=>({...s,error:'Erro no WebSocket Deriv'}));
+      }catch(e){setState(s=>({...s,error:e.message||'Falha Deriv'}))}},[accountType,symbol,botName]);
       const requestProposal=useCallback(()=>{const s=state.signal;if(!s||Date.now()-lastProposal.current<1500)return false;lastProposal.current=Date.now();const[type]=s;const amount=Math.max(.35,Number(stake)||.35);const barrier=type==='OVER'?5:type==='UNDER'?4:0;return send({proposal:1,req_id:++req.current,amount,basis:'stake',contract_type:CONTRACT[type],currency:'USD',duration:1,duration_unit:'t',underlying_symbol:symbol,barrier:String(barrier)})},[state.signal,stake,symbol,send]);
       useEffect(()=>{connect();return()=>{if(ws.current)try{ws.current.close()}catch{}ws.current=null}},[connect]);
       useEffect(()=>{if(state.signal&&state.connected)requestProposal()},[state.signal,state.connected,requestProposal]);
@@ -32,7 +71,7 @@
       const [symbol,setSymbol]=useState('1HZ100V');const [account,setAccount]=useState('demo');const [stake,setStake]=useState(.35);
       useEffect(()=>{const id=setInterval(()=>{const b=document.getElementById('selectedBotName');if(b&&b.textContent?.trim())setBot(b.textContent.trim());const sb=document.querySelector('.symbol-dropdown .dropdown-btn');const raw=sb?.textContent?.trim().split(/\s+/)[0];if(raw)setSymbol(symbolMap[raw]||raw);const p=document.querySelector('.stake-value')?.textContent||'';const n=Number(p.replace(/[^0-9.,]/g,'').replace(',','.'));if(Number.isFinite(n)&&n>0)setStake(n);const type=document.querySelector('.pill-demo')?.textContent?.toLowerCase();if(type?.includes('real'))setAccount('real')},500);return()=>clearInterval(id)},[]);
       const d=useDerivBot({accountType:account,symbol,botName:bot,stake});
-      useEffect(()=>{const el=document.querySelector('.status');if(el){const dot=el.querySelector('.dot');const text=el.querySelector('#statusText');if(dot)dot.style.background=d.connected?'#35d492':'#f5a623';if(text)text.textContent=d.error||(!d.connected?'A ligar à Deriv…':`Deriv ligada — ${bot} / ticks reais`) }},[d.connected,d.error,bot]);
+      useEffect(()=>{const el=document.querySelector('.status');if(el){const dot=el.querySelector('.dot');const text=el.querySelector('#statusText');if(dot)dot.style.background=d.connected?'#35d492':'#f5a623';if(text)text.textContent=d.error||(!d.connected?'A ligar à Deriv…':`Deriv ligada — ${bot} / ticks reais`)}},[d.connected,d.error,bot]);
       useEffect(()=>{if(d.balance?.balance!=null){const el=document.getElementById('balance');if(el)el.textContent=`${Number(d.balance.balance).toFixed(2)} ${d.balance.currency||'USD'}`}},[d.balance]);
       return null;
     }

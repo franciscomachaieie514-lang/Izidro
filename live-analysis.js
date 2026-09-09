@@ -34,7 +34,7 @@
     if(!detail||detail.epoch===lastEpoch)return;
     const quote=Number(detail.quote);if(!Number.isFinite(quote))return;
     lastEpoch=detail.epoch;
-    const raw=String(detail.quote);
+    const raw=detail.quoteRaw!=null?String(detail.quoteRaw):String(detail.quote);
     const normalized=raw.includes('e')||raw.includes('E')?quote.toFixed(10):raw;
     const digits=normalized.replace(/\D/g,'');if(!digits)return;
     const digit=Number(digits.slice(-1));if(digit<0||digit>9)return;

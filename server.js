@@ -34,11 +34,11 @@ async function exchangeCode(code,verifier){
 
 function tokenSession(req){
   const c=parseCookies(req.headers.cookie||'');
+  const sid=c['__Host-izitrader_session'];
+  if(sid){const s=sessions.get(sid);if(s&&s.expiresAt>Date.now())return {...s,id:sid}}
   const accessToken=c.deriv_access_token;
   const refreshToken=c.deriv_refresh_token;
-  const sid=c['__Host-izitrader_session'];
   if(accessToken)return {accessToken,refreshToken,sid};
-  if(sid){const s=sessions.get(sid);if(s&&s.expiresAt>Date.now())return {...s,id:sid}}
   return null;
 }
 
@@ -66,8 +66,8 @@ async function derivRequest(session,pathname,options={}){
 
 function extractAccounts(payload){const data=payload?.data;if(Array.isArray(data))return data;if(data&&typeof data==='object'){if(Array.isArray(data.accounts))return data.accounts;if(data.account_id)return[data]}return[]}
 function accountId(a){return a?.account_id||a?.accountId||a?.id||a?.loginid}
-function isReal(a){return String(a?.account_type||a?.type||'').toLowerCase()==='real'||a?.is_virtual===false}
-function isDemo(a){return String(a?.account_type||a?.type||'').toLowerCase()==='demo'||a?.is_virtual===true}
+function isReal(a){const t=String(a?.account_type||a?.type||'').toLowerCase();return t==='real'||a?.is_virtual===false||/^CR/i.test(String(accountId(a)||''))}
+function isDemo(a){const t=String(a?.account_type||a?.type||'').toLowerCase();return t==='demo'||a?.is_virtual===true||/^VR/i.test(String(accountId(a)||''))}
 function contentType(file){const ext=path.extname(file).toLowerCase();return({'.html':'text/html; charset=utf-8','.js':'text/javascript; charset=utf-8','.css':'text/css; charset=utf-8','.svg':'image/svg+xml','.png':'image/png','.jpg':'image/jpeg','.jpeg':'image/jpeg','.ico':'image/x-icon'})[ext]||'application/octet-stream'}
 
 function serveStatic(req,res){
@@ -87,10 +87,12 @@ function serveStatic(req,res){
       html=html.replace(/(<div class="value profit" id="pnl">)[^<]*/i,'$1$0.00');
       html=html.replace(/(<div class="pill pill-demo"[^>]*>)[^<]*/i,'$1A ligar...');
       if(!html.includes('/auth.js'))html=html.replace('</body>','<script src="/auth.js"></script></body>');
-      if(!html.includes('/react-deriv-bot.js'))html=html.replace('</body>','<script src="/react-deriv-bot.js"></script></body>');
+      html=html.replace(/<script[^>]+src=["']\/react-deriv-bot\.js["'][^>]*><\/script>/gi,'');
+      if(!html.includes('/deriv-realtime.js'))html=html.replace('</body>','<script src="/deriv-realtime.js"></script></body>');
       data=Buffer.from(html,'utf8');
     }
-    res.writeHead(200,{'Content-Type':contentType(file),'Cache-Control':pathname==='/'?'no-cache':'public, max-age=300'});res.end(data);
+    const cache=pathname==='/'||pathname==='/deriv-realtime.js'?'no-store':'public, max-age=300';
+    res.writeHead(200,{'Content-Type':contentType(file),'Cache-Control':cache});res.end(data);
   });
 }
 
@@ -154,5 +156,5 @@ const server=http.createServer(async(req,res)=>{
   }catch(error){console.error('[Izitrader]',error);return json(res,500,{error:'Internal server error'})}
 });
 
-setInterval(()=>{const now=Date.now();for(const[state,item]of oauthStates)if(now-item.createdAt>OAUTH_TTL)oauthStates.delete(state);for(const[id,s]of sessions)if(s.expiresAt<now)sessions.delete(id)},60000).unref();
+setInterval(()=>{const now=Date.now();for(const[state,item]of oauthStates)if(now-item.createdAt>OAUTH_TTL)oauthStates.delete(state);for(const[id,s]of sessions)if(s.expiresAt<now) sessions.delete(id)},60000).unref();
 server.listen(PORT,'0.0.0.0',()=>console.log(`[Izitrader] listening on ${PORT}; OAuth redirect: ${REDIRECT_URI}`));

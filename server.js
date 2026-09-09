@@ -9,6 +9,7 @@ const BASE_URL = String(process.env.NEXT_PUBLIC_BASE_URL || 'https://izidro.onre
 const REDIRECT_URI = String(process.env.REDIRECT_URL || `${BASE_URL}/api/auth/callback`).trim();
 const AUTHORIZE_URL = 'https://auth.deriv.com/oauth2/auth';
 const TOKEN_URL = 'https://auth.deriv.com/oauth2/token';
+const DERIV_API_URL = 'https://api.derivws.com';
 const SESSION_TTL = 7 * 24 * 60 * 60 * 1000;
 const OAUTH_TTL = 10 * 60 * 1000;
 
@@ -51,22 +52,10 @@ function redirect(res, location, headers = {}) {
   res.end();
 }
 async function exchangeCode(code, verifier) {
-  const body = new URLSearchParams({
-    grant_type: 'authorization_code',
-    client_id: APP_ID,
-    code,
-    redirect_uri: REDIRECT_URI,
-    code_verifier: verifier,
-  });
-  const response = await fetch(TOKEN_URL, {
-    method: 'POST',
-    headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
-    body,
-  });
+  const body = new URLSearchParams({ grant_type: 'authorization_code', client_id: APP_ID, code, redirect_uri: REDIRECT_URI, code_verifier: verifier });
+  const response = await fetch(TOKEN_URL, { method: 'POST', headers: { 'Content-Type': 'application/x-www-form-urlencoded' }, body });
   const data = await response.json().catch(() => null);
-  if (!response.ok || !data?.access_token) {
-    throw new Error(`OAuth token exchange failed (${response.status}): ${data?.error_description || data?.error || 'unknown error'}`);
-  }
+  if (!response.ok || !data?.access_token) throw new Error(`OAuth token exchange failed (${response.status}): ${data?.error_description || data?.error || 'unknown error'}`);
   return data;
 }
 function sessionFromRequest(req) {
@@ -76,6 +65,13 @@ function sessionFromRequest(req) {
   if (!session) return null;
   if (session.expiresAt < Date.now()) { sessions.delete(id); return null; }
   return { id, ...session };
+}
+async function derivRequest(session, pathname, options = {}) {
+  const headers = { ...(options.headers || {}), Authorization: `Bearer ${session.accessToken}` };
+  const response = await fetch(`${DERIV_API_URL}${pathname}`, { ...options, headers });
+  const data = await response.json().catch(() => null);
+  if (!response.ok) throw Object.assign(new Error(data?.errors?.[0]?.message || `Deriv API error (${response.status})`), { status: response.status, data });
+  return data;
 }
 function contentType(file) {
   const ext = path.extname(file).toLowerCase();
@@ -88,19 +84,12 @@ function serveStatic(req, res) {
   if (!file.startsWith(path.resolve(__dirname) + path.sep)) return json(res, 403, { error: 'Forbidden' });
   fs.readFile(file, (err, data) => {
     if (err) return json(res, 404, { error: 'Not found' });
-
     if (pathname === '/') {
       let html = data.toString('utf8');
-      html = html.replace(
-        'href="https://track.deriv.com/_PZZnG4RWbBdZl7VyVw174GNd7ZgqdRLk/1/" target="_blank" rel="noopener" id="loginLink"',
-        'href="/api/auth/login" id="loginLink"'
-      );
-      if (!html.includes('/auth.js')) {
-        html = html.replace('</body>', '<script src="/auth.js"></script></body>');
-      }
+      html = html.replace('href="https://track.deriv.com/_PZZnG4RWbBdZl7VyVw174GNd7ZgqdRLk/1/" target="_blank" rel="noopener" id="loginLink"', 'href="/api/auth/login" id="loginLink"');
+      if (!html.includes('/auth.js')) html = html.replace('</body>', '<script src="/auth.js"></script></body>');
       data = Buffer.from(html, 'utf8');
     }
-
     res.writeHead(200, { 'Content-Type': contentType(file), 'Cache-Control': pathname === '/' ? 'no-cache' : 'public, max-age=300' });
     res.end(data);
   });
@@ -113,92 +102,65 @@ const server = http.createServer(async (req, res) => {
 
     if (url.pathname === '/api/auth/login' && req.method === 'GET') {
       if (missing.length) return json(res, 500, { error: 'OAuth server configuration is incomplete', missing });
-
       const verifier = randomToken(32);
       const challenge = sha256(verifier);
       const state = randomToken(24);
       oauthStates.set(state, { createdAt: Date.now() });
-
       const auth = new URL(AUTHORIZE_URL);
-      auth.searchParams.set('response_type', 'code');
-      auth.searchParams.set('client_id', APP_ID);
-      auth.searchParams.set('redirect_uri', REDIRECT_URI);
-      auth.searchParams.set('scope', 'trade');
-      auth.searchParams.set('state', state);
-      auth.searchParams.set('code_challenge', challenge);
-      auth.searchParams.set('code_challenge_method', 'S256');
-
-      return redirect(res, auth.toString(), {
-        'Set-Cookie': [
-          cookie('__Host-izitrader_oauth_state', state, { maxAge: OAUTH_TTL / 1000 }),
-          cookie('__Host-izitrader_oauth_verifier', verifier, { maxAge: OAUTH_TTL / 1000 })
-        ]
-      });
+      auth.searchParams.set('response_type', 'code'); auth.searchParams.set('client_id', APP_ID); auth.searchParams.set('redirect_uri', REDIRECT_URI); auth.searchParams.set('scope', 'trade'); auth.searchParams.set('state', state); auth.searchParams.set('code_challenge', challenge); auth.searchParams.set('code_challenge_method', 'S256');
+      return redirect(res, auth.toString(), { 'Set-Cookie': [cookie('__Host-izitrader_oauth_state', state, { maxAge: OAUTH_TTL / 1000 }), cookie('__Host-izitrader_oauth_verifier', verifier, { maxAge: OAUTH_TTL / 1000 })] });
     }
 
     if (url.pathname === '/api/auth/callback' && req.method === 'GET') {
       const cookies = parseCookies(req.headers.cookie || '');
-      const code = url.searchParams.get('code');
-      const state = url.searchParams.get('state');
-      const oauthError = url.searchParams.get('error');
-
-      if (oauthError) {
-        return redirect(res, `/?auth_error=${encodeURIComponent(oauthError)}`, {
-          'Set-Cookie': [clearCookie('__Host-izitrader_oauth_state'), clearCookie('__Host-izitrader_oauth_verifier')]
-        });
-      }
-
-      const cookieState = cookies['__Host-izitrader_oauth_state'];
-      const verifier = cookies['__Host-izitrader_oauth_verifier'];
-      const pending = state && oauthStates.get(state);
-
-      if (!code || !state || !verifier || state !== cookieState || !pending || Date.now() - pending.createdAt > OAUTH_TTL) {
-        return redirect(res, '/?auth_error=invalid_oauth_state', {
-          'Set-Cookie': [clearCookie('__Host-izitrader_oauth_state'), clearCookie('__Host-izitrader_oauth_verifier')]
-        });
-      }
-
+      const code = url.searchParams.get('code'); const state = url.searchParams.get('state'); const oauthError = url.searchParams.get('error');
+      if (oauthError) return redirect(res, `/?auth_error=${encodeURIComponent(oauthError)}`, { 'Set-Cookie': [clearCookie('__Host-izitrader_oauth_state'), clearCookie('__Host-izitrader_oauth_verifier')] });
+      const cookieState = cookies['__Host-izitrader_oauth_state']; const verifier = cookies['__Host-izitrader_oauth_verifier']; const pending = state && oauthStates.get(state);
+      if (!code || !state || !verifier || state !== cookieState || !pending || Date.now() - pending.createdAt > OAUTH_TTL) return redirect(res, '/?auth_error=invalid_oauth_state', { 'Set-Cookie': [clearCookie('__Host-izitrader_oauth_state'), clearCookie('__Host-izitrader_oauth_verifier')] });
       oauthStates.delete(state);
-
       try {
         const token = await exchangeCode(code, verifier);
         const sessionId = randomToken(32);
-        sessions.set(sessionId, {
-          accessToken: token.access_token,
-          refreshToken: token.refresh_token || null,
-          createdAt: Date.now(),
-          expiresAt: Date.now() + SESSION_TTL
-        });
-
-        return redirect(res, '/', {
-          'Set-Cookie': [
-            cookie('__Host-izitrader_session', sessionId, { maxAge: SESSION_TTL / 1000 }),
-            clearCookie('__Host-izitrader_oauth_state'),
-            clearCookie('__Host-izitrader_oauth_verifier')
-          ]
-        });
+        sessions.set(sessionId, { accessToken: token.access_token, refreshToken: token.refresh_token || null, tokenExpiresAt: Date.now() + Number(token.expires_in || 3600) * 1000, createdAt: Date.now(), expiresAt: Date.now() + SESSION_TTL });
+        return redirect(res, '/', { 'Set-Cookie': [cookie('__Host-izitrader_session', sessionId, { maxAge: SESSION_TTL / 1000 }), clearCookie('__Host-izitrader_oauth_state'), clearCookie('__Host-izitrader_oauth_verifier')] });
       } catch (error) {
         console.error('[Izitrader OAuth callback]', error.message);
-        return redirect(res, '/?auth_error=token_exchange_failed', {
-          'Set-Cookie': [clearCookie('__Host-izitrader_oauth_state'), clearCookie('__Host-izitrader_oauth_verifier')]
-        });
+        return redirect(res, '/?auth_error=token_exchange_failed', { 'Set-Cookie': [clearCookie('__Host-izitrader_oauth_state'), clearCookie('__Host-izitrader_oauth_verifier')] });
       }
     }
 
     if (url.pathname === '/api/auth/session' && req.method === 'GET') {
       const session = sessionFromRequest(req);
-      return json(res, 200, session ? { authenticated: true, expiresAt: session.expiresAt } : { authenticated: false });
+      return json(res, 200, session ? { authenticated: true, expiresAt: session.expiresAt, tokenExpiresAt: session.tokenExpiresAt } : { authenticated: false });
+    }
+
+    if (url.pathname === '/api/deriv/accounts' && req.method === 'GET') {
+      const session = sessionFromRequest(req);
+      if (!session) return json(res, 401, { error: 'Not authenticated' });
+      try { return json(res, 200, await derivRequest(session, '/trading/v1/options/accounts')); }
+      catch (error) { return json(res, error.status || 502, { error: error.message, details: error.data?.errors || null }); }
+    }
+
+    if (url.pathname === '/api/deriv/ws-url' && req.method === 'POST') {
+      const session = sessionFromRequest(req);
+      if (!session) return json(res, 401, { error: 'Not authenticated' });
+      let body = '';
+      for await (const chunk of req) body += chunk;
+      let payload = {};
+      try { payload = body ? JSON.parse(body) : {}; } catch { return json(res, 400, { error: 'Invalid JSON' }); }
+      const accountId = String(payload.account_id || '').trim();
+      if (!/^[A-Z]{2,8}\d{5,}$/.test(accountId)) return json(res, 400, { error: 'Invalid account_id' });
+      try {
+        const result = await derivRequest(session, `/trading/v1/options/accounts/${encodeURIComponent(accountId)}/otp`, { method: 'POST' });
+        return json(res, 200, result);
+      } catch (error) { return json(res, error.status || 502, { error: error.message, details: error.data?.errors || null }); }
     }
 
     if (url.pathname === '/api/auth/logout' && (req.method === 'GET' || req.method === 'POST')) {
-      const session = sessionFromRequest(req);
-      if (session) sessions.delete(session.id);
+      const session = sessionFromRequest(req); if (session) sessions.delete(session.id);
       return json(res, 200, { ok: true }, { 'Set-Cookie': clearCookie('__Host-izitrader_session') });
     }
-
-    if (url.pathname === '/api/health' && req.method === 'GET') {
-      return json(res, 200, { ok: true, oauth: true, configured: missing.length === 0, missing });
-    }
+    if (url.pathname === '/api/health' && req.method === 'GET') return json(res, 200, { ok: true, oauth: true, derivApi: true, configured: missing.length === 0, missing });
     return serveStatic(req, res);
   } catch (error) {
     console.error('[Izitrader OAuth]', error);

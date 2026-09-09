@@ -88,6 +88,7 @@ function serveStatic(req, res) {
       let html = data.toString('utf8');
       html = html.replace('href="https://track.deriv.com/_PZZnG4RWbBdZl7VyVw174GNd7ZgqdRLk/1/" target="_blank" rel="noopener" id="loginLink"', 'href="/api/auth/login" id="loginLink"');
       if (!html.includes('/auth.js')) html = html.replace('</body>', '<script src="/auth.js"></script></body>');
+      if (!html.includes('/react-deriv-bot.js')) html = html.replace('</body>', '<script src="/react-deriv-bot.js"></script></body>');
       data = Buffer.from(html, 'utf8');
     }
     res.writeHead(200, { 'Content-Type': contentType(file), 'Cache-Control': pathname === '/' ? 'no-cache' : 'public, max-age=300' });

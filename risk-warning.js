@@ -15,10 +15,10 @@ function show(){
   box.id='riskWarning';
   const render=()=>{const t=current();box.innerHTML='<div class="risk-icon">⚠</div><div class="risk-title">'+t.title+'</div><div class="risk-text">'+t.text+'</div><div class="risk-note">'+t.note+'</div><a class="risk-link" href="https://deriv.com/risk-disclosure" target="_blank" rel="noopener">'+t.link+'</a>';};
   render();
-  box.style.cssText='margin-top:18px;padding:14px 15px;border:1px solid rgba(226,75,74,.55);border-radius:12px;background:rgba(226,75,74,.08);text-align:left;';
+  box.style.cssText='margin-top:18px;padding:14px 15px;border:1px solid rgba(239,68,68,.55);border-radius:12px;background:rgba(239,68,68,.08);text-align:left;';
   const style=document.createElement('style');
   style.id='riskWarningCss';
-  style.textContent='#riskWarning .risk-icon{font-size:20px;line-height:1;margin-bottom:7px}#riskWarning .risk-title{font-size:12px;font-weight:900;letter-spacing:.06em;color:#e24b4a;margin-bottom:6px}#riskWarning .risk-text{font-size:11px;line-height:1.5;color:var(--text)}#riskWarning .risk-note{font-size:10px;line-height:1.45;color:var(--muted);margin-top:7px}#riskWarning .risk-link{display:inline-block;margin-top:8px;font-size:10px;color:#f5c04a;font-weight:800;text-decoration:none}#riskWarning .risk-link:hover{text-decoration:underline}';
+  style.textContent='#riskWarning .risk-icon{font-size:20px;line-height:1;margin-bottom:7px}#riskWarning .risk-title{font-size:12px;font-weight:900;letter-spacing:.06em;color:#ef4444;margin-bottom:6px}#riskWarning .risk-text{font-size:11px;line-height:1.5;color:var(--text)}#riskWarning .risk-note{font-size:10px;line-height:1.45;color:var(--muted);margin-top:7px}#riskWarning .risk-link{display:inline-block;margin-top:8px;font-size:10px;color:#ef4444;font-weight:800;text-decoration:none}#riskWarning .risk-link:hover{text-decoration:underline}#authPage .auth-logo,#authPage .logo{background:linear-gradient(135deg,#b91c1c,#ef4444)!important;color:#fff!important}#authPage .auth-brand span{color:#ef4444!important}#authPage .auth-primary{background:#ef4444!important;color:#fff!important}#authPage .auth-secondary{border-color:#ef4444!important}';
   document.head.appendChild(style);
   page.querySelector('.auth-card')?.appendChild(box);
   window.addEventListener('izitrader:language-change',render);

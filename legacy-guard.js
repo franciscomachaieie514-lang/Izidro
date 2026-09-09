@@ -1,9 +1,14 @@
-/* Disable the old inline Demo/public-WebSocket layer. Keep the native constructor for deriv-realtime.js. */
+/* Neutralize the obsolete inline Demo/public-WebSocket layer. */
 (function(){
   try{
     if(window.__IziNativeWebSocket)return;
     window.__IziNativeWebSocket=window.WebSocket;
-    window.WebSocket=function(){throw new Error('Legacy Izitrader WebSocket disabled; use authenticated Deriv realtime bridge.')};
-    window.WebSocket.CONNECTING=0;window.WebSocket.OPEN=1;window.WebSocket.CLOSING=2;window.WebSocket.CLOSED=3;
+    function LegacyBlockedWebSocket(){this.readyState=3;this.url=arguments[0]||'';this.onopen=null;this.onmessage=null;this.onerror=null;this.onclose=null;}
+    LegacyBlockedWebSocket.prototype.send=function(){};
+    LegacyBlockedWebSocket.prototype.close=function(){if(typeof this.onclose==='function')this.onclose({type:'close'})};
+    LegacyBlockedWebSocket.prototype.addEventListener=function(){};
+    LegacyBlockedWebSocket.prototype.removeEventListener=function(){};
+    LegacyBlockedWebSocket.CONNECTING=0;LegacyBlockedWebSocket.OPEN=1;LegacyBlockedWebSocket.CLOSING=2;LegacyBlockedWebSocket.CLOSED=3;
+    window.WebSocket=LegacyBlockedWebSocket;
   }catch(e){console.error('[Izitrader] legacy guard failed',e)}
 })();

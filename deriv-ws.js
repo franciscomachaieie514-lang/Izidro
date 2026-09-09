@@ -17,7 +17,7 @@
       ws=new WebSocket(data.data.url);
       ws.onopen=()=>{setStatus(`Deriv ${demo.is_virtual||demo.account_type==='demo'?'Demo':'conectada'}`,true);window.dispatchEvent(new CustomEvent('izitrader:ws-open',{detail:{socket:ws}}));ws.send(JSON.stringify({balance:1,subscribe:1,req_id:1}));ws.send(JSON.stringify({ticks:currentSymbol(),subscribe:1,req_id:2}));};
       ws.onmessage=event=>{try{const msg=JSON.parse(event.data);if(msg.msg_type==='balance'&&msg.balance&&balanceEl)balanceEl.textContent=`${Number(msg.balance.balance).toFixed(2)} ${msg.balance.currency||''}`.trim();if(msg.msg_type==='tick')showTick(msg);if(msg.error)setStatus(msg.error.message||'Erro Deriv',false);}catch{}};
-      ws.onerror=()=>{setStatus('Erro na ligação Deriv',false);window.dispatchEvent(new CustomEvent('izitrader:ws-error'));};
+      ws.onerror=()=>{window.dispatchEvent(new CustomEvent('izitrader:ws-error'));setStatus('Erro na ligação Deriv',false);};
       ws.onclose=()=>{window.dispatchEvent(new CustomEvent('izitrader:ws-close'));if(manualDisconnect)return;setStatus('Deriv desligada — a reconectar…',false);clearTimeout(reconnectTimer);reconnectTimer=setTimeout(connect,3000);};
     }catch(error){if(manualDisconnect)return;setStatus(error.message||'Falha na ligação Deriv',false);clearTimeout(reconnectTimer);reconnectTimer=setTimeout(connect,5000);}
   }

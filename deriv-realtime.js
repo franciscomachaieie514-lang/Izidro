@@ -4,13 +4,7 @@
 (function(){
   'use strict';
 
-  const SYMBOLS={
-    R_10:'1HZ10V',
-    R_25:'1HZ25V',
-    R_50:'1HZ50V',
-    R_75:'1HZ75V',
-    R_100:'1HZ100V'
-  };
+  const SYMBOLS={R_10:'1HZ10V',R_25:'1HZ25V',R_50:'1HZ50V',R_75:'1HZ75V',R_100:'1HZ100V'};
   const CONTRACTS={EVEN:'DIGITEVEN',ODD:'DIGITODD',OVER:'DIGITOVER',UNDER:'DIGITUNDER',RISE:'CALL',FALL:'PUT',DIFFER:'DIGITDIFF',MATCH:'DIGITMATCH'};
   let ws=null,stopped=false,reconnectTimer=null,reconnectDelay=1000;
   let accountType=localStorage.getItem('izitrader_account_type')||'real';
@@ -20,32 +14,29 @@
   const $=s=>document.querySelector(s);
   const setText=(s,v)=>{const e=$(s);if(e)e.textContent=v};
   const dispatch=(name,detail)=>window.dispatchEvent(new CustomEvent(name,{detail}));
-  const sleep=ms=>new Promise(r=>setTimeout(r,ms));
 
-  function accountId(a){return a&& (a.account_id||a.accountId||a.id||a.loginid);}
-  function isReal(a){const t=String(a&& (a.account_type||a.type||'')).toLowerCase();return t==='real'||a&&a.is_virtual===false||/^CR/i.test(String(accountId(a)||''));}
-  function isDemo(a){const t=String(a&& (a.account_type||a.type||'')).toLowerCase();return t==='demo'||a&&a.is_virtual===true||/^VR/i.test(String(accountId(a)||''));}
-  function showError(msg){setStatus(String(msg||'Erro Deriv'),false);dispatch('izitrader:deriv-error',{message:String(msg||'Erro Deriv')});}
-  function setStatus(text,connected){const dot=$('.status .dot');if(dot)dot.style.background=connected?'#35d492':'#f5a623';setText('#statusText',text);}
-  function currentBot(){const e=$('#selectedBotName');if(e&&e.textContent.trim())botName=e.textContent.trim();}
+  function accountId(a){return a&&(a.account_id||a.accountId||a.id||a.loginid)}
+  function isReal(a){const t=String(a&&(a.account_type||a.type)||'').toLowerCase();return t==='real'||(a&&a.is_virtual===false)||/^CR/i.test(String(accountId(a)||''))}
+  function isDemo(a){const t=String(a&&(a.account_type||a.type)||'').toLowerCase();return t==='demo'||(a&&a.is_virtual===true)||/^VR/i.test(String(accountId(a)||''))}
+  function showError(msg){setStatus(String(msg||'Erro Deriv'),false);dispatch('izitrader:deriv-error',{message:String(msg||'Erro Deriv')})}
+  function setStatus(text,connected){const dot=$('.status .dot');if(dot)dot.style.background=connected?'#35d492':'#f5a623';setText('#statusText',text)}
+  function currentBot(){const e=$('#selectedBotName');if(e&&e.textContent.trim())botName=e.textContent.trim()}
   function currentStake(){const e=$('.stake-value');if(e){const n=Number(e.textContent.replace(/[^0-9.,]/g,'').replace(',','.'));if(Number.isFinite(n)&&n>0)stake=Math.max(.35,n)}}
   function currentSymbol(){const e=$('.symbol-dropdown .dropdown-btn');if(e){const v=e.textContent.trim().split(/\s+/)[0];if(SYMBOLS[v]){uiSymbol=v;symbol=SYMBOLS[v]}}}
-
-  function digit(quote,pip){const n=Number(quote);if(!Number.isFinite(n))return null;const p=Number.isInteger(Number(pip))?Number(pip):2;const s=n.toFixed(Math.max(0,Math.min(10,p)));return Number(s.slice(-1));}
-  function strategy(){const n=String(botName).toUpperCase();if(/RISE|FALL|SUBIR|DESCER/.test(n))return'RISE_FALL';if(/DIFER|DIFF/.test(n))return'DIFF';if(/MATCH/.test(n))return'MATCH';if(/OVER|UNDER|ACIMA|BAIXO/.test(n))return'OVER_UNDER';return'EVEN_ODD';}
+  function digit(quote,pip){const n=Number(quote);if(!Number.isFinite(n))return null;const p=Number.isInteger(Number(pip))?Number(pip):2;const s=n.toFixed(Math.max(0,Math.min(10,p)));return Number(s.slice(-1))}
+  function strategy(){const n=String(botName).toUpperCase();if(/RISE|FALL|SUBIR|DESCER/.test(n))return'RISE_FALL';if(/DIFER|DIFF/.test(n))return'DIFF';if(/MATCH/.test(n))return'MATCH';if(/OVER|UNDER|ACIMA|BAIXO/.test(n))return'OVER_UNDER';return'EVEN_ODD'}
   function getSignal(){
     if(ticks.length<5)return null;
     const v=ticks.slice(-5),d=v.map(x=>digit(x.quote,x.pip_size)).filter(x=>x!==null);if(d.length<5)return null;
     const s=strategy();
-    if(s==='EVEN_ODD'){const e=d.filter(x=>x%2===0).length/5*100,o=100-e;return e>=65?['EVEN',e]:o>=65?['ODD',o]:null;}
-    if(s==='OVER_UNDER'){const o=d.filter(x=>x>5).length/5*100,u=d.filter(x=>x<4).length/5*100;return o>=65?['OVER',o]:u>=65?['UNDER',u]:null;}
-    if(s==='DIFF'){const x=d.filter(x=>x!==0).length/5*100;return x>=65?['DIFFER',x]:null;}
-    if(s==='MATCH'){const x=d.filter(x=>x===0).length/5*100;return x>=65?['MATCH',x]:null;}
-    let up=0,down=0;for(let i=1;i<v.length;i++){if(Number(v[i].quote)>Number(v[i-1].quote))up++;else if(Number(v[i].quote)<Number(v[i-1].quote))down++;}const total=up+down||1;return up/total*100>=65?['RISE',up/total*100]:down/total*100>=65?['FALL',down/total*100]:null;
+    if(s==='EVEN_ODD'){const e=d.filter(x=>x%2===0).length/5*100,o=100-e;return e>=65?['EVEN',e]:o>=65?['ODD',o]:null}
+    if(s==='OVER_UNDER'){const o=d.filter(x=>x>5).length/5*100,u=d.filter(x=>x<4).length/5*100;return o>=65?['OVER',o]:u>=65?['UNDER',u]:null}
+    if(s==='DIFF'){const x=d.filter(x=>x!==0).length/5*100;return x>=65?['DIFFER',x]:null}
+    if(s==='MATCH'){const x=d.filter(x=>x===0).length/5*100;return x>=65?['MATCH',x]:null}
+    let up=0,down=0;for(let i=1;i<v.length;i++){if(Number(v[i].quote)>Number(v[i-1].quote))up++;else if(Number(v[i].quote)<Number(v[i-1].quote))down++}const total=up+down||1;return up/total*100>=65?['RISE',up/total*100]:down/total*100>=65?['FALL',down/total*100]:null
   }
-
-  function send(obj){if(!ws||ws.readyState!==WebSocket.OPEN)return false;ws.send(JSON.stringify(obj));return true;}
-  async function getJson(url){const r=await fetch(url,{credentials:'same-origin',cache:'no-store'});const j=await r.json().catch(()=>({}));if(!r.ok)throw new Error(j.error||('HTTP '+r.status));return j;}
+  function send(obj){if(!ws||ws.readyState!==WebSocket.OPEN)return false;ws.send(JSON.stringify(obj));return true}
+  async function getJson(url){const r=await fetch(url,{credentials:'same-origin',cache:'no-store'}),j=await r.json().catch(()=>({}));if(!r.ok)throw new Error(j.error||('HTTP '+r.status));return j}
 
   async function connect(){
     if(stopped||ws)return;
@@ -66,42 +57,55 @@
         setStatus(`${accountType==='real'?'Conta Real':'Conta Demo'} ligada — ${botName}`,true);
         send({balance:1,subscribe:1,req_id:1});
         send({ticks:symbol,subscribe:1,req_id:2});
+        send({profit_table:1,limit:500,offset:0,req_id:3});
         dispatch('izitrader:ws-open',{accountType,accountId:id,symbol,uiSymbol});
       };
       ws.onmessage=event=>handleMessage(event.data);
       ws.onerror=()=>showError(`Erro no WebSocket ${accountType==='real'?'Real':'Demo'}`);
-      ws.onclose=()=>{ws=null;setStatus(`Reconectando à conta ${accountType==='real'?'Real':'Demo'}…`,false);if(!stopped){clearTimeout(reconnectTimer);reconnectTimer=setTimeout(connect,reconnectDelay);reconnectDelay=Math.min(reconnectDelay*2,10000);}};
-    }catch(e){showError(e.message||'Falha ao ligar à Deriv');if(!stopped){clearTimeout(reconnectTimer);reconnectTimer=setTimeout(connect,reconnectDelay);reconnectDelay=Math.min(reconnectDelay*2,10000);}}
+      ws.onclose=()=>{ws=null;setStatus(`Reconectando à conta ${accountType==='real'?'Real':'Demo'}…`,false);if(!stopped){clearTimeout(reconnectTimer);reconnectTimer=setTimeout(connect,reconnectDelay);reconnectDelay=Math.min(reconnectDelay*2,10000)}};
+    }catch(e){showError(e.message||'Falha ao ligar à Deriv');if(!stopped){clearTimeout(reconnectTimer);reconnectTimer=setTimeout(connect,reconnectDelay);reconnectDelay=Math.min(reconnectDelay*2,10000)}}
+  }
+
+  function syncProfitTable(table){
+    const rows=Array.isArray(table)?table:Array.isArray(table&&table.transactions)?table.transactions:[];
+    if(!rows.length)return;
+    let total=0;
+    rows.forEach(row=>{
+      const p=Number(row&&row.profit_loss);
+      if(Number.isFinite(p))total+=p;
+    });
+    if(Number.isFinite(total)){pnl=total;setText('#pnl',(pnl>=0?'+':'')+'$'+pnl.toFixed(2));dispatch('izitrader:pnl',{profit_loss:pnl,accountType,source:'profit_table'})}
   }
 
   function handleMessage(raw){
-    let m;try{m=JSON.parse(raw)}catch{return;}
-    if(m.error){showError(m.error.message||'Erro Deriv');return;}
+    let m;try{m=JSON.parse(raw)}catch{return}
+    if(m.error){showError(m.error.message||'Erro Deriv');return}
     if(m.msg_type==='balance'&&m.balance){
       const value=Number(m.balance.balance),currency=m.balance.currency||'USD';
-      if(Number.isFinite(value)){setText('#balance',(currency==='USD'?'$':currency+' ')+value.toFixed(2));dispatch('izitrader:balance',{balance:value,currency,loginid:m.balance.loginid});}
-      return;
+      if(Number.isFinite(value)){setText('#balance',(currency==='USD'?'$':currency+' ')+value.toFixed(2));dispatch('izitrader:balance',{balance:value,currency,loginid:m.balance.loginid})}
+      return
     }
+    if(m.msg_type==='profit_table'&&m.profit_table){syncProfitTable(m.profit_table);return}
     if(m.msg_type==='tick'&&m.tick){
       ticks.push(m.tick);if(ticks.length>10)ticks.shift();
       dispatch('izitrader:tick',{quote:m.tick.quote,quoteRaw:String(m.tick.quote),epoch:m.tick.epoch,symbol:m.tick.symbol,pip_size:m.tick.pip_size});
       const sig=getSignal();dispatch('izitrader:live-digit',{digit:digit(m.tick.quote,m.tick.pip_size),quote:m.tick.quote,epoch:m.tick.epoch});
       if(active&&sig)requestProposal(sig);
-      return;
+      return
     }
-    if(m.msg_type==='proposal'&&m.proposal){proposal=m.proposal;if(active)buyProposal();return;}
+    if(m.msg_type==='proposal'&&m.proposal){proposal=m.proposal;if(active)buyProposal();return}
     if(m.msg_type==='buy'&&m.buy){
       buying=false;proposal=null;contractId=Number(m.buy.contract_id)||null;
       dispatch('izitrader:buy',{...m.buy,accountType});
       if(contractId)send({proposal_open_contract:1,contract_id:contractId,subscribe:1,req_id:Date.now()%100000});
-      return;
+      return
     }
     if(m.msg_type==='proposal_open_contract'&&m.proposal_open_contract){
       const c=m.proposal_open_contract;if(m.subscription&&m.subscription.id)contractSubscription=m.subscription.id;
       if(c.is_sold||['sold','won','lost','expired'].includes(String(c.status||'').toLowerCase())){
-        const profit=Number(c.profit_loss);if(Number.isFinite(profit))pnl+=profit;
+        const profit=Number(c.profit_loss||c.profit);if(Number.isFinite(profit))pnl+=profit;
         setText('#pnl',(pnl>=0?'+':'')+'$'+pnl.toFixed(2));dispatch('izitrader:contract-closed',{...c,result:String(c.status||'').toUpperCase(),profit_loss:profit,accountType});contractId=null;proposal=null;buying=false;
-        if(contractSubscription)send({forget:contractSubscription});contractSubscription=null;
+        if(contractSubscription)send({forget:contractSubscription});contractSubscription=null
       }
     }
   }
@@ -111,30 +115,26 @@
     const type=sig[0],ct=CONTRACTS[type];if(!ct)return;
     const p={proposal:1,amount:Math.max(.35,Number(stake)||.35),basis:'stake',contract_type:ct,currency:'USD',duration:1,duration_unit:'t',underlying_symbol:symbol,req_id:Date.now()%100000};
     if(type==='OVER')p.barrier='5';if(type==='UNDER')p.barrier='4';if(type==='DIFFER'||type==='MATCH')p.barrier='0';
-    send(p);
+    send(p)
   }
   function buyProposal(){
     if(!active||buying||!proposal)return;
-    const id=proposal.id||proposal.proposal_id,price=Number(proposal.ask_price||proposal.display_value);if(!id||!Number.isFinite(price)||price<=0){showError('Proposal inválida para BUY');proposal=null;return;}
-    buying=true;send({buy:String(id),price,req_id:Date.now()%100000});
+    const id=proposal.id||proposal.proposal_id,price=Number(proposal.ask_price||proposal.display_value);if(!id||!Number.isFinite(price)||price<=0){showError('Proposal inválida para BUY');proposal=null;return}
+    buying=true;send({buy:String(id),price,req_id:Date.now()%100000})
   }
 
   function bindUI(){
     const pill=$('.pill-demo');
     if(pill&&!$('#iziAccountSelect')){
       pill.style.display='none';const sel=document.createElement('select');sel.id='iziAccountSelect';sel.innerHTML='<option value="real">Real</option><option value="demo">Demo</option>';sel.value=accountType;sel.style.cssText='width:100%;background:var(--field);border:1px solid var(--border);border-radius:12px;padding:12px;color:var(--text);font-weight:700;font-size:14px;outline:none';pill.parentElement.appendChild(sel);
-      sel.addEventListener('change',()=>{active=false;accountType=sel.value;localStorage.setItem('izitrader_account_type',accountType);stop();connect();});
+      sel.addEventListener('change',()=>{active=false;accountType=sel.value;localStorage.setItem('izitrader_account_type',accountType);stop();connect()});
     }
-    const btn=$('.operate-btn');if(btn&&!btn.dataset.iziBound){btn.dataset.iziBound='1';btn.addEventListener('click',()=>{if(!ws)return;if(accountType==='real'&&!active&&!window.confirm('ATENÇÃO: isto permite COMPRAS REAIS na sua conta Deriv. Deseja continuar?'))return;active=!active;btn.textContent=active?(accountType==='real'?'PARAR ROBÔ REAL':'PARAR ROBÔ DEMO'):(accountType==='real'?'INICIAR ROBÔ REAL':'INICIAR ROBÔ DEMO');});}
-    if(btn){btn.disabled=!ws;btn.textContent=active?(accountType==='real'?'PARAR ROBÔ REAL':'PARAR ROBÔ DEMO'):(accountType==='real'?'INICIAR ROBÔ REAL':'INICIAR ROBÔ DEMO');}
+    const btn=$('.operate-btn');if(btn&&!btn.dataset.iziBound){btn.dataset.iziBound='1';btn.addEventListener('click',()=>{if(!ws)return;if(accountType==='real'&&!active&&!window.confirm('ATENÇÃO: isto permite COMPRAS REAIS na sua conta Deriv. Deseja continuar?'))return;active=!active;btn.textContent=active?(accountType==='real'?'PARAR ROBÔ REAL':'PARAR ROBÔ DEMO'):(accountType==='real'?'INICIAR ROBÔ REAL':'INICIAR ROBÔ DEMO')})}
+    if(btn){btn.disabled=!ws;btn.textContent=active?(accountType==='real'?'PARAR ROBÔ REAL':'PARAR ROBÔ DEMO'):(accountType==='real'?'INICIAR ROBÔ REAL':'INICIAR ROBÔ DEMO')}
   }
-  function stop(){clearTimeout(reconnectTimer);reconnectTimer=null;if(ws){try{ws.close()}catch{}ws=null;}ticks=[];proposal=null;contractId=null;buying=false;setStatus('A ligar…',false);}
+  function stop(){clearTimeout(reconnectTimer);reconnectTimer=null;if(ws){try{ws.close()}catch{}ws=null}ticks=[];proposal=null;contractId=null;buying=false;setStatus('A ligar…',false)}
 
-  function boot(){
-    bindUI();
-    setInterval(()=>{bindUI();currentBot();currentStake();currentSymbol();const b=$('.operate-btn');if(b)b.disabled=!ws;},500);
-    connect();
-  }
+  function boot(){bindUI();setInterval(()=>{bindUI();currentBot();currentStake();currentSymbol();const b=$('.operate-btn');if(b)b.disabled=!ws},500);connect()}
   window.IziDerivWS={connect,stop,setAccountType:t=>{accountType=t;localStorage.setItem('izitrader_account_type',t);stop();connect()},send};
   if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',boot);else boot();
 })();

@@ -88,6 +88,19 @@ function serveStatic(req, res) {
   if (!file.startsWith(path.resolve(__dirname) + path.sep)) return json(res, 403, { error: 'Forbidden' });
   fs.readFile(file, (err, data) => {
     if (err) return json(res, 404, { error: 'Not found' });
+
+    if (pathname === '/') {
+      let html = data.toString('utf8');
+      html = html.replace(
+        'href="https://track.deriv.com/_PZZnG4RWbBdZl7VyVw174GNd7ZgqdRLk/1/" target="_blank" rel="noopener" id="loginLink"',
+        'href="/api/auth/login" id="loginLink"'
+      );
+      if (!html.includes('/auth.js')) {
+        html = html.replace('</body>', '<script src="/auth.js"></script></body>');
+      }
+      data = Buffer.from(html, 'utf8');
+    }
+
     res.writeHead(200, { 'Content-Type': contentType(file), 'Cache-Control': pathname === '/' ? 'no-cache' : 'public, max-age=300' });
     res.end(data);
   });

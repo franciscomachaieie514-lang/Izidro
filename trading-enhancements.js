@@ -17,7 +17,7 @@ function syncStakeInput(){
     input.id='stakeInput';input.type='number';input.min=String(MIN_STAKE);input.step='0.01';input.inputMode='decimal';
     input.value=money(baseStake);input.setAttribute('aria-label','Valor da aposta');
     input.style.cssText='width:112px;background:var(--field);border:1px solid var(--border);border-radius:9px;color:var(--text);font-size:22px;font-weight:800;text-align:right;padding:5px 8px;outline:none;';
-    if(old)old.replaceWith(input);else row.appendChild(input);
+    if(old)old.replaceWith(input);else row.appendChild(input)
   }
   input.onchange=()=>{let n=Number(input.value);if(!Number.isFinite(n)||n<MIN_STAKE)n=MIN_STAKE;baseStake=Number(n.toFixed(2));localStorage.setItem('izitrader_stake',String(baseStake));if(level===0)input.value=money(baseStake);updateInfo()};
   let info=$('#martingaleInfo');
@@ -35,6 +35,7 @@ function installProposalInterceptor(){
       const m=typeof data==='string'?JSON.parse(data):null;
       if(m&&m.proposal===1&&m.basis==='stake'&&Number.isFinite(Number(m.amount))){
         m.amount=currentStake();
+        delete m.subscribe;
         data=JSON.stringify(m);
       }
     }catch(e){}

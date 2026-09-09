@@ -1,82 +1,58 @@
-/* IziTrader trading enhancements: editable stake, universal martingale, vertical stake controls, official-style WhatsApp mark. */
+/* IziTrader trading enhancements: stake dropdown, universal martingale, official-style WhatsApp mark. */
 (function(){
 'use strict';
 const MIN_STAKE=.35;
+const MAX_STAKE=10;
 const MAX_LEVEL=20;
-const STAKE_STEP=.05;
-let baseStake=Math.max(MIN_STAKE,Number(localStorage.getItem('izitrader_stake')||MIN_STAKE));
-let level=0;
-let nativeSend=null;
+const STAKES=[.35,.50];
+for(let v=1.50;v<=MAX_STAKE+.001;v+=.50)STAKES.push(Number(v.toFixed(2)));
+let baseStake=Math.max(MIN_STAKE,Math.min(MAX_STAKE,Number(localStorage.getItem('izitrader_stake')||MIN_STAKE)));
+if(!STAKES.includes(Number(baseStake.toFixed(2))))baseStake=MIN_STAKE;
+let level=0,nativeSend=null;
 const $=s=>document.querySelector(s);
 function money(n){return Number(n).toFixed(2)}
 function setBaseStake(value){
   let n=Number(value);
   if(!Number.isFinite(n)||n<MIN_STAKE)n=MIN_STAKE;
-  baseStake=Number(n.toFixed(2));
+  n=Math.min(MAX_STAKE,n);
+  const nearest=STAKES.reduce((a,b)=>Math.abs(b-n)<Math.abs(a-n)?b:a,STAKES[0]);
+  baseStake=Number(nearest.toFixed(2));
   level=0;
   localStorage.setItem('izitrader_stake',String(baseStake));
-  const input=$('#stakeInput');
-  if(input)input.value=money(baseStake);
+  const select=$('#stakeInput');if(select)select.value=money(baseStake);
   updateInfo();
 }
-function adjustStake(direction){
-  const current=Number(baseStake)||MIN_STAKE;
-  const next=current+(direction*STAKE_STEP);
-  setBaseStake(Math.max(MIN_STAKE,next));
+function buildStakeOptions(select){
+  select.innerHTML='';
+  STAKES.forEach(v=>{const o=document.createElement('option');o.value=money(v);o.textContent='$'+money(v);select.appendChild(o)});
+  select.value=money(baseStake);
 }
 function syncStakeInput(){
   const row=$('.stake-row');if(!row)return;
-  let input=$('#stakeInput');
-  if(!input){
-    const old=row.querySelector('.stake-value');
-    const controls=document.createElement('div');
-    controls.id='stakeControls';
-    controls.style.cssText='display:flex;align-items:center;justify-content:flex-end;gap:8px;width:auto;max-width:100%;';
-
-    const minus=document.createElement('button');
-    minus.id='stakeMinus';minus.type='button';minus.textContent='−';
-    minus.setAttribute('aria-label','Decrease stake');minus.title='Decrease stake';
-
-    input=document.createElement('input');
-    input.id='stakeInput';input.type='number';input.min=String(MIN_STAKE);input.step='0.01';input.inputMode='decimal';
-    input.value=money(baseStake);input.setAttribute('aria-label','Stake amount');
-
-    const plus=document.createElement('button');
-    plus.id='stakePlus';plus.type='button';plus.textContent='+';
-    plus.setAttribute('aria-label','Increase stake');plus.title='Increase stake';
-
-    const controlStyle='width:40px;height:40px;min-width:40px;border:1px solid var(--border);border-radius:10px;background:var(--field);color:var(--text);font-size:22px;font-weight:800;line-height:1;cursor:pointer;display:inline-flex;align-items:center;justify-content:center;touch-action:manipulation;-webkit-tap-highlight-color:transparent;user-select:none;';
-    minus.style.cssText=controlStyle;
-    plus.style.cssText=controlStyle;
-    input.style.cssText='width:112px;min-width:86px;background:var(--field);border:1px solid var(--border);border-radius:9px;color:var(--text);font-size:22px;font-weight:800;text-align:center;padding:7px 8px;outline:none;';
-
-    controls.appendChild(input);
-    const buttons=document.createElement('div');
-    buttons.id='stakeStepButtons';
-    buttons.style.cssText='display:flex;flex-direction:column;align-items:center;justify-content:center;gap:4px;min-width:40px;';
-    buttons.appendChild(plus);
-    buttons.appendChild(minus);
-    controls.appendChild(buttons);
-
-    if(old)old.replaceWith(controls);else row.appendChild(controls);
-
-    minus.addEventListener('click',()=>adjustStake(-1));
-    plus.addEventListener('click',()=>adjustStake(1));
-  }
-  input.onchange=()=>setBaseStake(input.value);
-  input.onblur=()=>setBaseStake(input.value);
-
+  let control=$('#stakeInput');
+  if(!control||control.tagName!=='SELECT'){
+    const old=control||row.querySelector('.stake-value');
+    const select=document.createElement('select');
+    select.id='stakeInput';
+    select.setAttribute('aria-label','Stake amount');
+    select.title='Select stake';
+    select.className='stake-select';
+    buildStakeOptions(select);
+    if(old)old.replaceWith(select);else row.appendChild(select);
+    control=select;
+  }else buildStakeOptions(control);
+  control.onchange=()=>setBaseStake(control.value);
+  control.value=money(baseStake);
   let info=$('#martingaleInfo');
   if(!info){info=document.createElement('div');info.id='martingaleInfo';info.style.cssText='margin-top:7px;text-align:right;font-size:10px;color:var(--muted);';row.parentElement.insertBefore(info,row.nextSibling)}
   updateInfo();
 }
 function currentStake(){return Number((baseStake*Math.pow(2,Math.min(level,MAX_LEVEL))).toFixed(2))}
 function updateInfo(){
-  const input=$('#stakeInput');
-  const next=currentStake();
-  if(input&&document.activeElement!==input)input.value=money(next);
+  const select=$('#stakeInput');
+  if(select&&select.tagName==='SELECT')select.value=money(baseStake);
   const info=$('#martingaleInfo');
-  if(info)info.textContent='Martingale '+level+'/'+MAX_LEVEL+' · próxima aposta $'+money(next);
+  if(info)info.textContent='Martingale '+level+'/'+MAX_LEVEL+' · próxima aposta $'+money(currentStake());
 }
 function installProposalInterceptor(){
   const Ctor=window.__IziNativeWebSocket||window.WebSocket;if(!Ctor||!Ctor.prototype)return;
@@ -85,11 +61,7 @@ function installProposalInterceptor(){
   const wrapped=function(data){
     try{
       const m=typeof data==='string'?JSON.parse(data):null;
-      if(m&&m.proposal===1&&m.basis==='stake'&&Number.isFinite(Number(m.amount))){
-        m.amount=currentStake();
-        delete m.subscribe;
-        data=JSON.stringify(m);
-      }
+      if(m&&m.proposal===1&&m.basis==='stake'&&Number.isFinite(Number(m.amount))){m.amount=currentStake();delete m.subscribe;data=JSON.stringify(m)}
     }catch(e){}
     return nativeSend.call(this,data);
   };
@@ -115,19 +87,18 @@ function installResponsiveStakeCss(){
   if($('#iziStakeControlsCss'))return;
   const s=document.createElement('style');s.id='iziStakeControlsCss';
   s.textContent=`
-    #stakeControls{flex-wrap:nowrap}
-    #stakeStepButtons{flex-shrink:0}
-    #stakeMinus:hover,#stakePlus:hover{border-color:var(--accent);transform:translateY(-1px)}
-    #stakeMinus:active,#stakePlus:active{transform:scale(.97)}
-    #stakeInput::-webkit-inner-spin-button,#stakeInput::-webkit-outer-spin-button{-webkit-appearance:none;margin:0}
-    #stakeInput{appearance:textfield}
-    @media(max-width:599px){#stakeControls{gap:6px}#stakeMinus,#stakePlus{width:42px;height:38px;min-width:42px;font-size:22px}#stakeStepButtons{gap:3px}#stakeInput{width:96px;min-width:78px;font-size:20px;padding:8px 5px}}
-    @media(min-width:600px){#stakeMinus,#stakePlus{width:42px;height:36px}#stakeInput{width:118px}}
+    .stake-row{display:flex;align-items:center;justify-content:space-between;gap:10px}
+    .stake-select{width:150px;min-width:120px;height:42px;padding:7px 34px 7px 12px;border:1px solid var(--border);border-radius:10px;background:var(--field);color:var(--text);font-size:18px;font-weight:800;text-align:center;outline:none;cursor:pointer;}
+    .stake-select:focus{border-color:var(--accent)}
+    #martingaleInfo{white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+    @media(max-width:599px){.stake-select{width:132px;min-width:118px;height:40px;font-size:17px}.stake-row{gap:8px}}
+    @media(min-width:600px){.stake-select{width:150px;height:42px}}
   `;
   document.head.appendChild(s);
 }
 function boot(){installResponsiveStakeCss();syncStakeInput();installProposalInterceptor();installWhatsApp();}
 window.addEventListener('izitrader:contract-closed',e=>applyResult(e.detail?.profit_loss??e.detail?.profit));
+window.addEventListener('izitrader:martingale',()=>setTimeout(syncStakeInput,0));
 window.addEventListener('izitrader:deriv-error',e=>{const m=String(e.detail?.message||'');if(/unknown contract proposal/i.test(m)){setConnectedStatus();setTimeout(boot,0)}});
 window.addEventListener('izitrader:ws-open',boot);
 if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',boot);else boot();

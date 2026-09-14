@@ -2,33 +2,56 @@ import { NextRequest, NextResponse } from 'next/server';
 import { exchangeCode } from '../../../../lib/oauth';
 import { getSession, PLATFORM_SESSION_COOKIE, saveDerivAccount } from '../../../../lib/platform-auth';
 
+const PRODUCTION_APP_URL = 'https://izidro.onrender.com';
+const PRODUCTION_CALLBACK_URL = `${PRODUCTION_APP_URL}/api/auth/callback`;
+
 export const dynamic = 'force-dynamic';
+export const revalidate = 0;
 
 export async function GET(request: NextRequest) {
-  const session = await getSession(request.cookies.get(PLATFORM_SESSION_COOKIE)?.value);
-  const baseUrl = process.env.APP_URL?.trim() || request.nextUrl.origin;
-  const params = request.nextUrl.searchParams;
-  const code = params.get('code');
-  const state = params.get('state');
-  const error = params.get('error');
-  if (!session) return NextResponse.redirect(`${baseUrl}/?auth_error=platform_account_required`);
-  if (error) return NextResponse.redirect(`${baseUrl}/?auth_error=${encodeURIComponent(params.get('error_description') || error)}`);
-  if (!code || !state) return NextResponse.redirect(`${baseUrl}/?auth_error=missing_oauth_parameters`);
-  if (state !== request.cookies.get('oauth_state')?.value) return NextResponse.redirect(`${baseUrl}/?auth_error=invalid_oauth_state`);
+  const platformSession = await getSession(request.cookies.get(PLATFORM_SESSION_COOKIE)?.value);
+  const searchParams = request.nextUrl.searchParams;
+  const code = searchParams.get('code');
+  const state = searchParams.get('state');
+  const oauthError = searchParams.get('error');
+  const oauthErrorDescription = searchParams.get('error_description');
+  const errorRedirect = (reason: string) =>
+    NextResponse.redirect(`${PRODUCTION_APP_URL}/?auth_error=${encodeURIComponent(reason)}`, { status: 302 });
+
+  if (!platformSession) return errorRedirect('platform_account_required');
+  if (oauthError) return errorRedirect(oauthErrorDescription || oauthError);
+  if (!code || !state) return errorRedirect('missing_oauth_parameters');
+
+  const storedState = request.cookies.get('oauth_state')?.value;
+  if (!storedState || state !== storedState) return errorRedirect('invalid_oauth_state');
+
   const verifier = request.cookies.get('oauth_verifier')?.value;
-  const redirectUri = request.cookies.get('oauth_redirect_uri')?.value;
-  const clientId = (process.env.DERIV_CLIENT_ID || process.env.DERIV_APP_ID || '').trim();
-  if (!verifier || !redirectUri || !clientId) return NextResponse.redirect(`${baseUrl}/?auth_error=oauth_configuration_missing`);
+  if (!verifier) return errorRedirect('missing_oauth_verifier');
+
+  const clientId = (process.env.DERIV_APP_ID || process.env.DERIV_CLIENT_ID || '').trim();
+  if (!clientId) {
+    return NextResponse.json({ error: 'OAuth server configuration is incomplete' }, { status: 500 });
+  }
+
   try {
-    const token = await exchangeCode(clientId,redirectUri,code,verifier);
-    await saveDerivAccount(session.id,token.access_token,token.refresh_token,token.expires_in);
-    const response = NextResponse.redirect(`${baseUrl}/?deriv_connected=1`);
+    const { access_token, refresh_token, expires_in } = await exchangeCode(
+      clientId,
+      PRODUCTION_CALLBACK_URL,
+      code,
+      verifier,
+    );
+
+    await saveDerivAccount(platformSession.id, access_token, refresh_token, expires_in);
+
+    const response = NextResponse.redirect(`${PRODUCTION_APP_URL}/?deriv_connected=1`, { status: 302 });
     response.cookies.delete('oauth_verifier');
     response.cookies.delete('oauth_state');
     response.cookies.delete('oauth_redirect_uri');
     return response;
-  } catch (err) {
-    console.error('[Izidro] Deriv OAuth callback failed',err);
-    return NextResponse.redirect(`${baseUrl}/?auth_error=oauth_exchange_failed`);
+  } catch (error) {
+    console.error('[OAuth] Callback/token exchange failed:', error);
+    const message = error instanceof Error ? error.message : String(error);
+    const safeReason = message.replace(/https?:\/\/[^\s]+/gi, '[url]').slice(0, 220);
+    return errorRedirect(`oauth_exchange_failed:${safeReason}`);
   }
 }

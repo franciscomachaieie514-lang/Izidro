@@ -1,5 +1,5 @@
 import { NextRequest, NextResponse } from 'next/server';
-import { createSession, createUser, PLATFORM_SESSION_COOKIE, safeErrorMessage } from '@/lib/platform-auth';
+import { createSession, createUser, PLATFORM_SESSION_COOKIE, safeErrorMessage } from '../../../../lib/platform-auth';
 
 export const dynamic = 'force-dynamic';
 

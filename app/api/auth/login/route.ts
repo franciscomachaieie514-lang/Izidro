@@ -1,6 +1,6 @@
 import { NextRequest, NextResponse } from 'next/server';
-import { generateCodeChallenge, generateCodeVerifier, generateState, getAuthorizeUrl } from '@/lib/oauth';
-import { getSession, PLATFORM_SESSION_COOKIE } from '@/lib/platform-auth';
+import { generateCodeChallenge, generateCodeVerifier, generateState, getAuthorizeUrl } from '../../../../lib/oauth';
+import { getSession, PLATFORM_SESSION_COOKIE } from '../../../../lib/platform-auth';
 
 export const dynamic = 'force-dynamic';
 

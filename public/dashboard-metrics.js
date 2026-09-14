@@ -41,13 +41,18 @@
     const result=item.querySelector('.result');
     const digit=item.querySelector('.digit');
     if(!result || !digit) return;
-    const raw=(digit.textContent||'').trim();
-    const value=raw.replace(/\$/g,'');
+
+    const rawDigit=(digit.textContent||'').trim();
+    const value=rawDigit.replace(/\$/g,'');
     const isWin=result.classList.contains('win') || /^\+/.test(value);
-    result.textContent=isWin?'GANHO':'PERDA';
-    digit.textContent=value;
-    digit.style.color=YELLOW;
-    result.style.color=YELLOW;
+    const nextResult=isWin?'GANHO':'PERDA';
+
+    // IMPORTANT: only mutate DOM when the displayed value actually changed.
+    // This prevents MutationObserver -> textContent -> MutationObserver infinite loops.
+    if(result.textContent!==nextResult) result.textContent=nextResult;
+    if(digit.textContent!==value) digit.textContent=value;
+    if(digit.style.color!==YELLOW) digit.style.color=YELLOW;
+    if(result.style.color!==YELLOW) result.style.color=YELLOW;
   }
 
   function formatHistory(){
@@ -60,8 +65,11 @@
   function setPositions(n){
     const value=Math.max(0,Number(n)||0);
     const el=$('#positionsValue');
-    if(el)el.textContent=String(value);
-    try{sessionStorage.setItem('izitrader_positions',String(value))}catch{}
+    if(el && el.textContent!==String(value)) el.textContent=String(value);
+    try{
+      const stored=sessionStorage.getItem('izitrader_positions');
+      if(stored!==String(value)) sessionStorage.setItem('izitrader_positions',String(value));
+    }catch{}
   }
 
   function syncExistingHistory(){

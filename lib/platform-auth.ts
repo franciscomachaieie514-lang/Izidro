@@ -3,8 +3,29 @@ import { promisify } from 'util';
 import { Pool } from 'pg';
 
 const scrypt = promisify(scryptCallback);
+
+function databaseConnectionString() {
+  const raw = process.env.DATABASE_URL;
+  if (!raw) return undefined;
+
+  // Render's Postgres URL must use the resolvable hostname. If a bare
+  // database resource hostname was pasted into DATABASE_URL, expand it.
+  try {
+    const url = new URL(raw);
+    if (url.hostname.startsWith('dpg-') && !url.hostname.includes('.')) {
+      url.hostname = `${url.hostname}.frankfurt-postgres.render.com`;
+      if (!url.port) url.port = '5432';
+      if (!url.searchParams.has('sslmode')) url.searchParams.set('sslmode', 'require');
+      return url.toString();
+    }
+  } catch {
+    // Let pg report malformed connection strings with its normal error.
+  }
+  return raw;
+}
+
 const pool = new Pool({
-  connectionString: process.env.DATABASE_URL,
+  connectionString: databaseConnectionString(),
   ssl: process.env.NODE_ENV === 'production' ? { rejectUnauthorized: false } : undefined,
 });
 

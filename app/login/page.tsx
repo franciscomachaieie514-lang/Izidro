@@ -1,4 +1,4 @@
-import AuthForm from '@/app/auth-form';
+import AuthForm from '../auth-form';
 
 export const metadata = { title: 'Entrar — Izitrader' };
 

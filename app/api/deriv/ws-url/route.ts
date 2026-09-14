@@ -23,7 +23,10 @@ export async function GET(request: NextRequest) {
     if (!response.ok || !data?.data?.url) {
       return NextResponse.json({ error: 'Unable to create Deriv WebSocket session', details: data }, { status: response.status || 502 });
     }
-    return NextResponse.json({ url: data.data.url });
+
+    // Keep both shapes for compatibility with the restored dashboard scripts.
+    // Deriv returns the authenticated URL at data.url; the frontend accepts either url or data.url.
+    return NextResponse.json({ url: data.data.url, data: { url: data.data.url } });
   } catch (error) {
     console.error('Deriv ws-url error:', error);
     return NextResponse.json({ error: 'Unable to create Deriv WebSocket session' }, { status: 500 });

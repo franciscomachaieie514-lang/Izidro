@@ -106,6 +106,15 @@ export async function saveDerivAccount(userId: string | number, accessToken: str
   );
 }
 
+export async function getDerivAccount(userId: string | number) {
+  await ensureSchema();
+  const result = await pool.query(
+    'SELECT access_token,refresh_token,expires_at FROM deriv_accounts WHERE user_id=$1 LIMIT 1',
+    [userId]
+  );
+  return result.rows[0] || null;
+}
+
 export async function hasDerivAccount(userId: string | number) {
   await ensureSchema();
   const result = await pool.query('SELECT id FROM deriv_accounts WHERE user_id=$1 LIMIT 1', [userId]);

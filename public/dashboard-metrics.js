@@ -1,4 +1,4 @@
-/* IziTrader dashboard metrics: restored visual treatment for P/L, Positions and recent results. */
+/* IziTrader dashboard metrics — screenshot-matched recent history + Positions. */
 (function(){
   'use strict';
   const YELLOW='#f5c04a';
@@ -9,31 +9,55 @@
     const s=document.createElement('style');
     s.id='iziDashboardMetricsStyle';
     s.textContent=`
-      .balance-row .positions-block{flex:1!important;min-width:0}
-      .balance-row .positions-block .value,
+      /* The reference dashboard keeps P/L in yellow. */
       .balance-row #pnl{color:${YELLOW}!important}
-      .balance-row .positions-block .label{color:var(--muted)}
-      #historyScroll .history-item .digit,
-      #historyScroll .history-item .result{color:${YELLOW}!important;font-weight:800!important}
+
+      /* Recent-history cards match the reference: compact amount + GANHO/PERDA. */
+      #historyScroll{display:flex!important;gap:10px;overflow-x:auto;overflow-y:hidden;touch-action:pan-x;-webkit-overflow-scrolling:touch}
+      #historyScroll .history-item{flex:0 0 calc(25% - 7.5px)!important;min-width:0!important;max-width:calc(25% - 7.5px)!important;padding:10px 7px!important;white-space:nowrap;overflow:hidden}
+      #historyScroll .history-item .bot,
+      #historyScroll .history-item .time{display:none!important}
+      #historyScroll .history-item .digit-row{display:flex;align-items:baseline;justify-content:center;gap:5px;min-width:0}
+      #historyScroll .history-item .digit{font-size:14px!important;font-weight:800!important;color:${YELLOW}!important}
+      #historyScroll .history-item .result,
       #historyScroll .history-item .result.win,
-      #historyScroll .history-item .result.loss{color:${YELLOW}!important}
-      #historyScroll .history-item .digit-row{display:flex;align-items:baseline;gap:6px}
-      #historyScroll .history-item .result{font-size:9px!important;white-space:nowrap}
-      @media(max-width:599px){.balance-row .divider{margin:0 10px}.balance-row .value{font-size:18px}.balance-row .label{font-size:10px}}
+      #historyScroll .history-item .result.loss{font-size:9px!important;font-weight:800!important;color:${YELLOW}!important;white-space:nowrap}
+
+      /* Positions belongs below the recent-history divider, as in the reference image. */
+      .izi-positions-footer{display:flex;align-items:center;justify-content:center;border-top:1px solid var(--border);margin-top:2px;padding-top:10px;font-size:13px;font-weight:800;letter-spacing:.03em;color:var(--muted)}
+      .izi-positions-footer .positions-label{margin-right:7px}
+      .izi-positions-footer .positions-value{color:var(--text);font-size:14px}
+
+      @media(max-width:599px){
+        .balance-row .value{font-size:18px}
+        .balance-row .label{font-size:10px}
+        #historyScroll .history-item{padding:10px 6px!important}
+      }
     `;
     document.head.appendChild(s);
   }
 
-  function ensurePositions(){
-    const row=$('.balance-row');
-    if(!row || $('#positionsValue')) return;
-    const divider=document.createElement('div');
-    divider.className='divider';
-    const block=document.createElement('div');
-    block.className='positions-block';
-    block.innerHTML='<div class="label">POSITIONS</div><div class="value" id="positionsValue">0</div>';
-    row.appendChild(divider);
-    row.appendChild(block);
+  function ensurePositionsFooter(){
+    const history=$('#historyScroll');
+    if(!history) return;
+    const card=history.closest('.card');
+    if(!card) return;
+
+    // Remove the previous version that incorrectly placed Positions in the balance row.
+    const oldBalance=$('.balance-row .positions-block');
+    if(oldBalance){
+      const oldDivider=oldBalance.previousElementSibling;
+      oldBalance.remove();
+      if(oldDivider && oldDivider.classList.contains('divider')) oldDivider.remove();
+    }
+
+    let footer=card.querySelector('.izi-positions-footer');
+    if(!footer){
+      footer=document.createElement('div');
+      footer.className='izi-positions-footer';
+      footer.innerHTML='<span class="positions-label">POSITIONS</span><span class="positions-value" id="positionsValue">0</span>';
+      card.appendChild(footer);
+    }
   }
 
   function formatResultItem(item){
@@ -47,8 +71,7 @@
     const isWin=result.classList.contains('win') || /^\+/.test(value);
     const nextResult=isWin?'GANHO':'PERDA';
 
-    // IMPORTANT: only mutate DOM when the displayed value actually changed.
-    // This prevents MutationObserver -> textContent -> MutationObserver infinite loops.
+    // Only mutate when necessary: prevents MutationObserver -> DOM -> MutationObserver loops.
     if(result.textContent!==nextResult) result.textContent=nextResult;
     if(digit.textContent!==value) digit.textContent=value;
     if(digit.style.color!==YELLOW) digit.style.color=YELLOW;
@@ -62,6 +85,7 @@
   function getPositions(){
     try{return Number(sessionStorage.getItem('izitrader_positions')||0)}catch{return 0}
   }
+
   function setPositions(n){
     const value=Math.max(0,Number(n)||0);
     const el=$('#positionsValue');
@@ -81,7 +105,7 @@
 
   function start(){
     installStyles();
-    ensurePositions();
+    ensurePositionsFooter();
     setPositions(getPositions());
     syncExistingHistory();
 

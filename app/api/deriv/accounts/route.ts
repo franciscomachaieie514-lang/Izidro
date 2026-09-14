@@ -11,8 +11,16 @@ export async function GET(request: NextRequest) {
     const account = await getDerivAccount(user.id);
     if (!account?.access_token) return NextResponse.json({ error: 'Deriv account not connected' }, { status: 404 });
 
+    const headers: Record<string,string> = {
+      Authorization: `Bearer ${account.access_token}`
+    };
+    // Keep the App ID on the REST boundary as well. OAuth does not require it,
+    // but PAT authentication does, and sending it is harmless for OAuth tokens.
+    const appId = (process.env.DERIV_APP_ID || process.env.DERIV_CLIENT_ID || '').trim();
+    if (appId) headers['Deriv-App-ID'] = appId;
+
     const response = await fetch(`${API_BASE}/trading/v1/options/accounts`, {
-      headers: { Authorization: `Bearer ${account.access_token}` },
+      headers,
       cache: 'no-store'
     });
     const data = await response.json();

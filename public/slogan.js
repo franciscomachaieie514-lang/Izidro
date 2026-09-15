@@ -34,7 +34,7 @@
     if (!document.getElementById('iziSloganCss')) {
       const style = document.createElement('style');
       style.id = 'iziSloganCss';
-      style.textContent = '.auth-brand,.brand{line-height:1.05}.izi-slogan{display:block;margin-top:4px;font-size:10px;font-weight:600;letter-spacing:.02em;color:var(--muted);white-space:nowrap;}';
+      style.textContent = '.auth-brand,.brand{line-height:1.05}.izi-slogan{display:block;margin-top:1px;font-size:10px;font-weight:600;line-height:1;letter-spacing:.02em;color:var(--muted);white-space:nowrap;}';
       document.head.appendChild(style);
     }
     ensure();

@@ -32,5 +32,5 @@ function Brand(){
   window.addEventListener('izitrader:language-change',normalize);
   return ()=>window.removeEventListener('izitrader:language-change',normalize);
  },[]);
- return <div className="brand" style={{display:'inline-flex',flexDirection:'column',alignItems:'flex-start',lineHeight:1.05}}><div className="brandName">Izi<span>trader</span></div><div style={{marginTop:4,fontSize:10,fontWeight:600,letterSpacing:'.02em',color:'#7c88a3',whiteSpace:'nowrap'}}>{SLOGANS[lang]}</div></div>
+ return <div className="brand" style={{display:'inline-flex',flexDirection:'column',alignItems:'flex-start',lineHeight:1.05}}><div style={{display:'flex',alignItems:'center',gap:10}}><div className="logo">I</div><div className="brandName">Izi<span>trader</span></div></div><div style={{marginTop:4,fontSize:10,fontWeight:600,letterSpacing:'.02em',color:'#7c88a3',whiteSpace:'nowrap',marginLeft:50}}>{SLOGANS[lang]}</div></div>
 }

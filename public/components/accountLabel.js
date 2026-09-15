@@ -37,11 +37,14 @@
     if (!select) return;
     const labels = labelsFor(getLanguage());
     const inverted = authMe?.user?.email?.toLowerCase() === SPECIAL_EMAIL;
+    const realText = inverted ? labels.demo : labels.real;
+    const demoText = inverted ? labels.real : labels.demo;
     const real = select.querySelector('option[value="real"]');
     const demo = select.querySelector('option[value="demo"]');
-    if (real) real.textContent = inverted ? labels.demo : labels.real;
-    if (demo) demo.textContent = inverted ? labels.real : labels.demo;
-    select.dataset.accountPresentation = inverted ? 'inverted' : 'normal';
+    if (real && real.textContent !== realText) real.textContent = realText;
+    if (demo && demo.textContent !== demoText) demo.textContent = demoText;
+    const state = inverted ? 'inverted' : 'normal';
+    if (select.dataset.accountPresentation !== state) select.dataset.accountPresentation = state;
   }
 
   async function loadOnce() {

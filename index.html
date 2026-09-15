@@ -78,8 +78,13 @@
   .center .caption { font-size: 10px; color: var(--muted); letter-spacing: .05em; }
   .status { text-align: center; font-size: 12px; color: var(--muted); margin-bottom: 14px; }
   .status .dot { display: inline-block; width: 7px; height: 7px; border-radius: 50%; background: #35d492; margin-right: 6px; }
-  .stake-row { display: flex; justify-content: space-between; align-items: center; }
-  .stake-value { font-size: 26px; font-weight: 800; }
+  .risk-card { background: #151717; border: 1px solid #323738; border-radius: 8px; padding: 12px 14px; margin-bottom: 14px; }
+  .risk-label { font-size: 11px; color: #6e6e6e; margin-bottom: 8px; text-transform: uppercase; letter-spacing: 0.4px; }
+  .risk-row { display: flex; align-items: center; justify-content: space-between; gap: 12px; }
+  .risk-btn { width: 32px; height: 32px; border-radius: 6px; background: #1b1d1d; border: 1px solid #323738; color: #c2c2c2; font-size: 18px; font-weight: 600; cursor: pointer; }
+  .risk-btn:hover { background: #252828; }
+  .risk-btn:active { transform: scale(.97); }
+  .risk-value { font-size: 18px; font-weight: 600; font-family: 'IBM Plex Mono', monospace; color: #fff; }
   .operate-btn { width: 100%; margin-top: 14px; padding: 14px; border: none; border-radius: 12px; background: #f5a623; color: #1a1305; font-weight: 800; font-size: 15px; cursor: pointer; }
   .operate-btn:disabled { opacity: .5; cursor: default; }
   .note { font-size: 11px; color: var(--muted); text-align: center; margin-top: 10px; }
@@ -160,12 +165,17 @@
     </div>
   </div>
 
-  <div class="card">
-    <div class="field-label">APOSTA <span style="float:right">mínimo: $1.50 USD</span></div>
-    <div class="stake-row">
-      <span style="color:var(--muted);font-weight:700">USD</span>
-      <span class="stake-value">1.50</span>
+  <div class="risk-card">
+    <div class="risk-label">Gestão de risco</div>
+    <div class="risk-row">
+      <button class="risk-btn" id="stakeMinus" type="button" aria-label="Diminuir stake">−</button>
+      <div class="risk-value" id="stakeValue">$0.75</div>
+      <button class="risk-btn" id="stakePlus" type="button" aria-label="Aumentar stake">+</button>
     </div>
+  </div>
+
+  <div class="card">
+    <div class="field-label">APOSTA <span style="float:right">mínimo: $0.35 USD</span></div>
     <button class="operate-btn" id="operateBtn">Operar com ProParity</button>
     <div class="note">Demo sem token — liga ticks reais da Deriv. Pra comprar de verdade, passa um token de API na versão React (useDerivBot).</div>
   </div>
@@ -180,6 +190,22 @@ const BOTS = [
 ];
 
 let selectedBot = BOTS[0];
+let stake = 0.75;
+const MIN_STAKE = 0.35;
+const STAKE_STEP = 0.05;
+
+function renderStake() {
+  document.getElementById("stakeValue").textContent = `$${stake.toFixed(2)}`;
+}
+
+function adjustStake(delta) {
+  stake = Math.max(MIN_STAKE, Math.round((stake + delta) * 100) / 100);
+  renderStake();
+}
+
+document.getElementById("stakeMinus").onclick = () => adjustStake(-STAKE_STEP);
+document.getElementById("stakePlus").onclick = () => adjustStake(STAKE_STEP);
+
 const wheel = document.getElementById("wheel");
 const nodes = {};
 const radius = 105;
@@ -297,7 +323,7 @@ operateBtn.onclick = () => {
   operateBtn.textContent = "Operar com " + selectedBot.name;
   const req = {
     proposal: 1,
-    amount: 1.5,
+    amount: stake,
     basis: "stake",
     contract_type: selectedBot.contractType,
     currency: "USD",
@@ -313,12 +339,12 @@ operateBtn.onclick = () => {
     if (data.msg_type === "proposal") {
       operateBtn.disabled = false;
       if (data.proposal) {
-        alert(selectedBot.name + " — payout estimado: $" + data.proposal.payout + " (pra comprar de fato precisa autenticar com token de API)");
+        alert(selectedBot.name + " — stake: $" + stake.toFixed(2) + " — payout estimado: $" + data.proposal.payout + " (pra comprar de fato precisa autenticar com token de API)");
         addHistoryItem({
           bot: selectedBot.name,
           digit: document.getElementById("lastDigit").textContent,
           win: true,
-          amount: "cotação",
+          amount: stake.toFixed(2),
           time: new Date().toLocaleTimeString("pt-PT", { hour: "2-digit", minute: "2-digit" }),
         });
       } else if (data.error) {

@@ -3,34 +3,85 @@
 import { FormEvent, useEffect, useState } from 'react';
 
 type User={id:string|number;name:string;email:string};
-
 type AuthState={user:User|null;derivConnected:boolean;loading:boolean};
+type Lang='en'|'pt'|'es';
 
-const RiskWarning=()=> <div style={{marginTop:18,padding:'14px 15px',border:'1px solid #f0b8bc',borderRadius:12,background:'#fff7f8',textAlign:'left'}}><div style={{fontSize:12,fontWeight:900,letterSpacing:'.06em',color:'#e30613',marginBottom:7}}>⚠ AVISO DE RISCO</div><div style={{fontSize:11,lineHeight:1.5,color:'#333'}}>Negociar opções digitais envolve um elevado nível de risco. Pode perder todo o valor investido numa operação. Nunca negocie dinheiro que não possa perder e certifique-se de que compreende os riscos antes de operar.</div><div style={{fontSize:10,lineHeight:1.45,color:'#777',marginTop:7}}>O Izitrader é uma ferramenta de negociação e não constitui aconselhamento financeiro nem garante lucros.</div><a href="https://deriv.com/risk-disclosure" target="_blank" rel="noopener noreferrer" style={{display:'inline-block',marginTop:8,fontSize:10,color:'#e30613',fontWeight:800,textDecoration:'none'}}>Ler divulgação de risco da Deriv</a></div>;
+const SLOGANS={en:'Trade options',pt:'Negocie opções',es:'Opera opciones'} as const;
 
-const SLOGANS={en:'Trade options',pt:'Negocie opções',es:'Opera opciones'};
+const I18N={
+ en:{
+  riskTitle:'⚠ RISK WARNING',risk:'Digital options trading involves a high level of risk. You may lose the full amount invested in a trade. Never trade money you cannot afford to lose and make sure you understand the risks before trading.',risk2:'Izitrader is a trading tool and does not provide financial advice or guarantee profits.',riskLink:'Read Deriv risk disclosure',
+  loading:'Loading your account...',created:'Izitrader account created. Now connect your Deriv account.',derivSuccess:'Deriv account connected successfully.',
+  errorAuth:'Authentication error.',continueError:'Could not continue.',unexpected:'Unexpected error.',
+  account:'Izitrader Account',accountText:'Your account has been created. The next step is to connect your Deriv account.',connect:'Connect Deriv',connectText:'You will be redirected to the official Deriv page to sign in and authorize Izitrader.',continueDeriv:'Continue with Deriv',logout:'Log out',
+  createTab:'Create account',loginTab:'Log in',createTitle:'Create an Izitrader account',loginTitle:'Log in to Izitrader',createText:'Create your platform account and then connect Deriv.',loginText:'Log in to your Izitrader account to continue.',name:'NAME',email:'EMAIL',password:'PASSWORD',confirm:'CONFIRM PASSWORD',wait:'Please wait...',create:'Create account',login:'Log in',foot:'Your password stays on the server; it is not sent to Deriv.',lang:'Language'
+ },
+ pt:{
+  riskTitle:'⚠ AVISO DE RISCO',risk:'Negociar opções digitais envolve um elevado nível de risco. Pode perder todo o valor investido numa operação. Nunca negoceie dinheiro que não possa perder e certifique-se de que compreende os riscos antes de operar.',risk2:'O Izitrader é uma ferramenta de negociação e não constitui aconselhamento financeiro nem garante lucros.',riskLink:'Ler divulgação de risco da Deriv',
+  loading:'A carregar a sua conta...',created:'Conta Izitrader criada. Agora conecte a sua conta Deriv.',derivSuccess:'Conta Deriv conectada com sucesso.',
+  errorAuth:'Erro de autenticação.',continueError:'Não foi possível continuar.',unexpected:'Erro inesperado.',
+  account:'Conta Izitrader',accountText:'A conta foi criada. O próximo passo é conectar a sua conta da Deriv.',connect:'Conectar Deriv',connectText:'Será redirecionado para a página oficial da Deriv para iniciar sessão e autorizar o Izitrader.',continueDeriv:'Continuar com Deriv',logout:'Sair',
+  createTab:'Criar conta',loginTab:'Entrar',createTitle:'Criar conta Izitrader',loginTitle:'Entrar no Izitrader',createText:'Crie a sua conta da plataforma e depois conecte a Deriv.',loginText:'Entre na sua conta Izitrader para continuar.',name:'NOME',email:'EMAIL',password:'PASSWORD',confirm:'CONFIRMAR PASSWORD',wait:'Aguarde...',create:'Criar conta',login:'Entrar',foot:'A password fica no servidor; não é enviada para a Deriv.',lang:'Idioma'
+ },
+ es:{
+  riskTitle:'⚠ AVISO DE RIESGO',risk:'Operar opciones digitales implica un alto nivel de riesgo. Puede perder todo el importe invertido en una operación. Nunca opere con dinero que no pueda permitirse perder y asegúrese de comprender los riesgos antes de operar.',risk2:'Izitrader es una herramienta de trading y no constituye asesoramiento financiero ni garantiza beneficios.',riskLink:'Leer la divulgación de riesgos de Deriv',
+  loading:'Cargando su cuenta...',created:'Cuenta de Izitrader creada. Ahora conecte su cuenta de Deriv.',derivSuccess:'Cuenta de Deriv conectada correctamente.',
+  errorAuth:'Error de autenticación.',continueError:'No se pudo continuar.',unexpected:'Error inesperado.',
+  account:'Cuenta Izitrader',accountText:'La cuenta ha sido creada. El siguiente paso es conectar su cuenta de Deriv.',connect:'Conectar Deriv',connectText:'Será redirigido a la página oficial de Deriv para iniciar sesión y autorizar Izitrader.',continueDeriv:'Continuar con Deriv',logout:'Salir',
+  createTab:'Crear cuenta',loginTab:'Iniciar sesión',createTitle:'Crear cuenta Izitrader',loginTitle:'Iniciar sesión en Izitrader',createText:'Cree su cuenta de la plataforma y después conecte Deriv.',loginText:'Inicie sesión en su cuenta Izitrader para continuar.',name:'NOMBRE',email:'EMAIL',password:'CONTRASEÑA',confirm:'CONFIRMAR CONTRASEÑA',wait:'Espere...',create:'Crear cuenta',login:'Iniciar sesión',foot:'Su contraseña permanece en el servidor; no se envía a Deriv.',lang:'Idioma'
+ }
+} as const;
 
 export default function Home(){
+ const [lang,setLang]=useState<Lang>('en');
  const [auth,setAuth]=useState<AuthState>({user:null,derivConnected:false,loading:true});
  const [mode,setMode]=useState<'login'|'register'>('register');
  const [name,setName]=useState('');const [email,setEmail]=useState('');const [password,setPassword]=useState('');const [confirm,setConfirm]=useState('');
  const [error,setError]=useState('');const [message,setMessage]=useState('');const [busy,setBusy]=useState(false);
- async function load(){try{const r=await fetch('/api/auth/me',{cache:'no-store'});if(r.ok){const d=await r.json();setAuth({user:d.user,derivConnected:!!d.derivConnected,loading:false})}else setAuth({user:null,derivConnected:false,loading:false})}catch{setAuth({user:null,derivConnected:false,loading:false})}}
- useEffect(()=>{try{if(!localStorage.getItem('izitrader_lang'))localStorage.setItem('izitrader_lang','en')}catch{};load();const p=new URLSearchParams(location.search);if(p.get('deriv_connected'))setMessage('Conta Deriv conectada com sucesso.');if(p.get('auth_error'))setError(p.get('auth_error')||'Erro de autenticação.')},[]);
- useEffect(()=>{if(auth.user&&auth.derivConnected){window.location.replace('/dashboard.html')}},[auth.user,auth.derivConnected]);
- async function submit(e:FormEvent){e.preventDefault();setBusy(true);setError('');setMessage('');const endpoint=mode==='register'?'/api/auth/register':'/api/auth/platform-login';const body=mode==='register'?{name,email,password,confirmPassword:confirm}:{email,password};try{const r=await fetch(endpoint,{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify(body)});const d=await r.json();if(!r.ok)throw new Error(d.error||'Não foi possível continuar.');setAuth({user:d.user,derivConnected:!!d.derivConnected,loading:false});if(mode==='register')setMessage('Conta Izitrader criada. Agora conecte a sua conta Deriv.')}catch(e){setError(e instanceof Error?e.message:'Erro inesperado.')}finally{setBusy(false)}}
- async function logout(){await fetch('/api/auth/logout',{method:'POST'});setAuth({user:null,derivConnected:false,loading:false});setMode('login')}
- if(auth.loading)return <main className="page"><div className="shell"><Brand/><div className="card muted">A carregar a sua conta...</div></div></main>;
- if(auth.user&&!auth.derivConnected)return <main className="page"><div className="shell"><div className="top"><Brand/><div className="user"><strong>{auth.user.name}</strong><small>{auth.user.email}</small></div></div><div className="card"><h1 className="title">Conta Izitrader</h1><p className="muted">A conta foi criada. O próximo passo é conectar a sua conta da Deriv.</p><div className="connect card"><h2>Conectar Deriv</h2><p className="muted">Será redirecionado para a página oficial da Deriv para iniciar sessão e autorizar o Izitrader.</p><a className="btn primary" style={{display:'block',textAlign:'center',textDecoration:'none'}} href="/api/auth/login">Continuar com Deriv</a></div>{error&&<div className="error">{error}</div>}{message&&<div className="success">{message}</div>}<button className="btn secondary" onClick={logout}>Sair</button><RiskWarning/></div></div></main>;
- return <main className="page"><div className="shell"><Brand/><div className="card"><div className="tabs"><button className={`tab ${mode==='register'?'active':''}`} onClick={()=>{setMode('register');setError('')}}>Criar conta</button><button className={`tab ${mode==='login'?'active':''}`} onClick={()=>{setMode('login');setError('')}}>Entrar</button></div><h1 className="title">{mode==='register'?'Criar conta Izitrader':'Entrar no Izitrader'}</h1><p className="muted">{mode==='register'?'Crie a sua conta da plataforma e depois conecte a Deriv.':'Entre na sua conta Izitrader para continuar.'}</p><form onSubmit={submit}>{mode==='register'&&<><label className="label">NOME</label><input className="input" value={name} onChange={e=>setName(e.target.value)} autoComplete="name" required/></>}<label className="label">EMAIL</label><input className="input" type="email" value={email} onChange={e=>setEmail(e.target.value)} autoComplete="email" required/><label className="label">PASSWORD</label><input className="input" type="password" value={password} onChange={e=>setPassword(e.target.value)} autoComplete={mode==='register'?'new-password':'current-password'} required/>{mode==='register'&&<><label className="label">CONFIRMAR PASSWORD</label><input className="input" type="password" value={confirm} onChange={e=>setConfirm(e.target.value)} autoComplete="new-password" required/></>}<button className="btn primary" disabled={busy}>{busy?'Aguarde...':mode==='register'?'Criar conta':'Entrar'}</button></form>{error&&<div className="error">{error}</div>}{message&&<div className="success">{message}</div>}<div className="foot">A password fica no servidor; não é enviada para a Deriv.</div><RiskWarning/></div></div></main>;
-}
-function Brand(){
- const [lang,setLang]=useState<'en'|'pt'|'es'>('en');
+ const t=I18N[lang];
+
  useEffect(()=>{
-  const normalize=()=>{const value=localStorage.getItem('izitrader_lang');setLang(value==='en'||value==='es'||value==='pt'?value:'en')};
-  normalize();
-  window.addEventListener('izitrader:language-change',normalize);
-  return ()=>window.removeEventListener('izitrader:language-change',normalize);
+  let saved='en' as string;
+  try{saved=localStorage.getItem('izitrader_lang')||'en'}catch{}
+  const initial=(saved==='pt'||saved==='es'||saved==='en'?saved:'en') as Lang;
+  setLang(initial);
+  try{localStorage.setItem('izitrader_lang',initial)}catch{}
+  document.documentElement.lang=initial;
+  const onLanguage=(event:Event)=>{const next=(event as CustomEvent<{lang?:string}>).detail?.lang;const value=next==='pt'||next==='es'||next==='en'?next:'en';setLang(value);document.documentElement.lang=value};
+  window.addEventListener('izitrader:language-change',onLanguage);
+  load();
+  const p=new URLSearchParams(location.search);
+  if(p.get('deriv_connected'))setMessage(t.derivSuccess);
+  if(p.get('auth_error'))setError(p.get('auth_error')||t.errorAuth);
+  return()=>window.removeEventListener('izitrader:language-change',onLanguage);
  },[]);
- return <div className="brand" style={{display:'inline-flex',flexDirection:'column',alignItems:'center',lineHeight:1.05}}><div style={{display:'flex',alignItems:'center',gap:10}}><div className="logo">I</div><div className="brandName">Izi<span>trader</span></div></div><div style={{marginTop:1,fontSize:10,fontWeight:600,letterSpacing:'.02em',color:'#7c88a3',whiteSpace:'nowrap'}}>{SLOGANS[lang]}</div></div>
+
+ useEffect(()=>{document.documentElement.lang=lang},[lang]);
+ useEffect(()=>{if(auth.user&&auth.derivConnected){window.location.replace('/dashboard.html')}},[auth.user,auth.derivConnected]);
+
+ async function load(){try{const r=await fetch('/api/auth/me',{cache:'no-store'});if(r.ok){const d=await r.json();setAuth({user:d.user,derivConnected:!!d.derivConnected,loading:false})}else setAuth({user:null,derivConnected:false,loading:false})}catch{setAuth({user:null,derivConnected:false,loading:false})}}
+
+ function changeLanguage(value:Lang){setLang(value);try{localStorage.setItem('izitrader_lang',value)}catch{};document.documentElement.lang=value;window.dispatchEvent(new CustomEvent('izitrader:language-change',{detail:{lang:value}}));setError('');setMessage('')}
+
+ async function submit(e:FormEvent){
+  e.preventDefault();setBusy(true);setError('');setMessage('');
+  const endpoint=mode==='register'?'/api/auth/register':'/api/auth/platform-login';
+  const body=mode==='register'?{name,email,password,confirmPassword:confirm}:{email,password};
+  try{const r=await fetch(endpoint,{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify(body)});const d=await r.json();if(!r.ok)throw new Error(d.error||t.continueError);setAuth({user:d.user,derivConnected:!!d.derivConnected,loading:false});if(mode==='register')setMessage(t.created)}catch(e){setError(e instanceof Error?e.message:t.unexpected)}finally{setBusy(false)}
+ }
+ async function logout(){await fetch('/api/auth/logout',{method:'POST'});setAuth({user:null,derivConnected:false,loading:false});setMode('login')}
+
+ if(auth.loading)return <main className="page"><div className="shell"><div className="page-head"><Brand lang={lang}/><LanguagePicker lang={lang} onChange={changeLanguage} label={t.lang}/></div><div className="card muted">{t.loading}</div></div></main>;
+ if(auth.user&&!auth.derivConnected)return <main className="page"><div className="shell"><div className="top"><Brand lang={lang}/><div className="user"><strong>{auth.user.name}</strong><small>{auth.user.email}</small></div><LanguagePicker lang={lang} onChange={changeLanguage} label={t.lang}/></div><div className="card"><h1 className="title">{t.account}</h1><p className="muted">{t.accountText}</p><div className="connect card"><h2>{t.connect}</h2><p className="muted">{t.connectText}</p><a className="btn primary" style={{display:'block',textAlign:'center',textDecoration:'none'}} href="/api/auth/login">{t.continueDeriv}</a></div>{error&&<div className="error">{error}</div>}{message&&<div className="success">{message}</div>}<button className="btn secondary" onClick={logout}>{t.logout}</button><RiskWarning lang={lang}/></div></div></main>;
+ return <main className="page"><div className="shell"><div className="page-head"><Brand lang={lang}/><LanguagePicker lang={lang} onChange={changeLanguage} label={t.lang}/></div><div className="card"><div className="tabs"><button className={`tab ${mode==='register'?'active':''}`} onClick={()=>{setMode('register');setError('')}}>{t.createTab}</button><button className={`tab ${mode==='login'?'active':''}`} onClick={()=>{setMode('login');setError('')}}>{t.loginTab}</button></div><h1 className="title">{mode==='register'?t.createTitle:t.loginTitle}</h1><p className="muted">{mode==='register'?t.createText:t.loginText}</p><form onSubmit={submit}>{mode==='register'&&<><label className="label">{t.name}</label><input className="input" value={name} onChange={e=>setName(e.target.value)} autoComplete="name" required/></>}<label className="label">{t.email}</label><input className="input" type="email" value={email} onChange={e=>setEmail(e.target.value)} autoComplete="email" required/><label className="label">{t.password}</label><input className="input" type="password" value={password} onChange={e=>setPassword(e.target.value)} autoComplete={mode==='register'?'new-password':'current-password'} required/>{mode==='register'&&<><label className="label">{t.confirm}</label><input className="input" type="password" value={confirm} onChange={e=>setConfirm(e.target.value)} autoComplete="new-password" required/></>}<button className="btn primary" disabled={busy}>{busy?t.wait:mode==='register'?t.create:t.login}</button></form>{error&&<div className="error">{error}</div>}{message&&<div className="success">{message}</div>}<div className="foot">{t.foot}</div><RiskWarning lang={lang}/></div></div></main>;
+}
+
+function LanguagePicker({lang,onChange,label}:{lang:Lang;onChange:(lang:Lang)=>void;label:string}){
+ return <div style={{display:'flex',alignItems:'center',gap:6,marginBottom:10}}><span style={{fontSize:10,color:'#7c88a3'}}>{label}</span><select aria-label={label} value={lang} onChange={e=>onChange(e.target.value as Lang)} style={{border:'1px solid var(--border,#dde2ec)',borderRadius:8,padding:'5px 7px',background:'var(--field,#eef1f7)',color:'var(--text,#10182b)',fontSize:11,fontWeight:700}}><option value="en">English</option><option value="pt">Português</option><option value="es">Español</option></select></div>
+}
+
+function RiskWarning({lang}:{lang:Lang}){const t=I18N[lang];return <div style={{marginTop:18,padding:'14px 15px',border:'1px solid #f0b8bc',borderRadius:12,background:'#fff7f8',textAlign:'left'}}><div style={{fontSize:12,fontWeight:900,letterSpacing:'.06em',color:'#e30613',marginBottom:7}}>{t.riskTitle}</div><div style={{fontSize:11,lineHeight:1.5,color:'#333'}}>{t.risk}</div><div style={{fontSize:10,lineHeight:1.45,color:'#777',marginTop:7}}>{t.risk2}</div><a href="https://deriv.com/risk-disclosure" target="_blank" rel="noopener noreferrer" style={{display:'inline-block',marginTop:8,fontSize:10,color:'#e30613',fontWeight:800,textDecoration:'none'}}>{t.riskLink}</a></div>}
+
+function Brand({lang}:{lang:Lang}){
+ return <div className="brand" style={{display:'inline-flex',flexDirection:'column',alignItems:'flex-start',lineHeight:1}}><div style={{display:'flex',alignItems:'center',gap:10}}><div className="logo">I</div><div className="brandName">Izi<span>trader</span></div></div><div style={{marginTop:0,fontSize:10,fontWeight:600,letterSpacing:'.02em',color:'#7c88a3',whiteSpace:'nowrap',marginLeft:0}}>{SLOGANS[lang]}</div></div>
 }

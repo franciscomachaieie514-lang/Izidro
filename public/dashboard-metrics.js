@@ -1,7 +1,7 @@
 /* IziTrader dashboard metrics — closed-trade history, Positions and page i18n. */
 (function(){
   'use strict';
-  const YELLOW='#f5c04a', RED='#e24b4a';
+  const YELLOW='#f5c04a', RED='var(--red)';
   const SIGNED=/^[+-]\$?\d+(?:[.,]\d{1,2})?$/;
   const $=s=>document.querySelector(s);
   const seenClosed=new Set();
@@ -15,13 +15,12 @@
     if($('#iziDashboardMetricsStyle'))return;
     const s=document.createElement('style');s.id='iziDashboardMetricsStyle';
     s.textContent=`
-      .balance-row #pnl{color:${YELLOW}!important}
+      .balance-row #pnl{color:var(--text)!important}
       #historyScroll{display:flex!important;gap:8px!important;overflow-x:auto!important;overflow-y:hidden!important;touch-action:pan-x;-webkit-overflow-scrolling:touch}
       #historyScroll .history-item{flex:0 0 calc(25% - 6px)!important;width:calc(25% - 6px)!important;min-width:0!important;max-width:calc(25% - 6px)!important;height:54px!important;padding:8px 3px!important;display:flex!important;align-items:center!important;justify-content:center!important;overflow:hidden!important;white-space:nowrap!important;background:var(--field)!important}
       body.light #historyScroll .history-item,html[data-theme="light"] #historyScroll .history-item{background:#e3e6eb!important;border-color:#d0d5dd!important}
       #historyScroll .history-item .bot,#historyScroll .history-item .time{display:none!important}
       #historyScroll .history-item .digit-row{display:flex!important;align-items:center!important;justify-content:center!important;gap:3px!important;width:100%!important;min-width:0!important;overflow:hidden!important;white-space:nowrap!important}
-      /* NR (+1, -4, +$1.00) is white; result word is the status color. */
       #historyScroll .history-item .digit{font-size:12px!important;font-weight:800!important;color:#fff!important;white-space:nowrap!important;flex:0 0 auto!important;line-height:1!important}
       body.light #historyScroll .history-item .digit,html[data-theme="light"] #historyScroll .history-item .digit{color:#111827!important}
       #historyScroll .history-item .result{font-size:10px!important;font-weight:900!important;white-space:nowrap!important;flex:0 0 auto!important;line-height:1!important}
@@ -41,6 +40,6 @@
   function translateText(root){const dict=translations[currentLang]||translations.pt,walker=document.createTreeWalker(root,NodeFilter.SHOW_TEXT),nodes=[];let n;while(n=walker.nextNode())nodes.push(n);nodes.forEach(node=>{const raw=node.nodeValue||'',trimmed=raw.trim();if(trimmed&&dict[trimmed])node.nodeValue=raw.replace(trimmed,dict[trimmed])});document.documentElement.lang=currentLang;formatHistory()}
   function setLanguage(lang){currentLang=translations[lang]?lang:'pt';try{localStorage.setItem('izitrader_language',currentLang)}catch{}translateText(document.body)}
   function bindLanguage(){document.querySelectorAll('.language-item[data-lang]').forEach(el=>{if(el.dataset.iziLangBound)return;el.addEventListener('click',()=>setLanguage(el.dataset.lang));el.dataset.iziLangBound='1'});let saved='pt';try{saved=localStorage.getItem('izitrader_language')||'pt'}catch{}currentLang=translations[saved]?saved:'pt';translateText(document.body)}
-  function start(){installStyles();ensurePositionsFooter();setPositions(getPositions());formatHistory();bindLanguage();window.addEventListener('izitrader:contract-closed',e=>{const d=e?.detail||{},id=String(d.contract_id||d.contractId||'');if(id&&seenClosed.has(id))return;if(id)seenClosed.add(id);setPositions(getPositions()+1);requestAnimationFrame(formatHistory)});const h=$('#historyScroll');if(h&&!h.dataset.metricsObserver){const observer=new MutationObserver(()=>{formatHistory();bindLanguage()});observer.observe(h,{childList:true,subtree:true});h.dataset.metricsObserver='1'}const pnl=$('#pnl');if(pnl)pnl.style.color=YELLOW}
+  function start(){installStyles();ensurePositionsFooter();setPositions(getPositions());formatHistory();bindLanguage();window.addEventListener('izitrader:contract-closed',e=>{const d=e?.detail||{},id=String(d.contract_id||d.contractId||'');if(id&&seenClosed.has(id))return;if(id)seenClosed.add(id);setPositions(getPositions()+1);requestAnimationFrame(()=>{formatHistory();const pnl=$('#pnl');if(pnl){const raw=String(pnl.textContent||'').trim().replace(/\s+/g,'').replace(',','.');const m=raw.match(/^([+-]?)\$?(-?\d+(?:\.\d{1,2})?)$/);if(m){const n=Number((m[1]||'')+m[2]);pnl.style.setProperty('color',n<0?'var(--red)':n>0?YELLOW:'var(--text)','important')}}}})}
   if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',start,{once:true});else start();
 })();

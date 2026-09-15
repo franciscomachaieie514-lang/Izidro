@@ -34,7 +34,7 @@
   }
 
   function bind() {
-    const currentTheme = applyTheme(getTheme());
+    let currentTheme = applyTheme(getTheme());
     const button = document.getElementById('themeBtn');
     if (!button || button.dataset.iziThemeToggle === '1') return;
 
@@ -43,8 +43,8 @@
     button.replaceWith(replacement);
     replacement.dataset.iziThemeToggle = '1';
     replacement.addEventListener('click', function () {
-      saveTheme(currentTheme === 'light' ? 'dark' : 'light');
-      currentTheme = getTheme();
+      currentTheme = currentTheme === 'light' ? 'dark' : 'light';
+      saveTheme(currentTheme);
     });
   }
 

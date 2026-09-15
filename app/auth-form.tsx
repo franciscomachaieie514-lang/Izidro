@@ -47,6 +47,12 @@ export default function AuthForm({ mode }: { mode: 'login' | 'register' }) {
         {error && <div className="error">{error}</div>}
         <p className="foot">{mode === 'register' ? 'Já tem uma conta? ' : 'Ainda não tem uma conta? '}<Link href={mode === 'register' ? '/login' : '/register'} style={{ color: '#e30613', fontWeight: 700 }}>{mode === 'register' ? 'Entrar' : 'Criar conta'}</Link></p>
         <p className="foot">A sua password é protegida no servidor e não é enviada para a Deriv.</p>
+        <div style={{ marginTop: 18, padding: '14px 15px', border: '1px solid #f0b8bc', borderRadius: 12, background: '#fff7f8', textAlign: 'left' }}>
+          <div style={{ fontSize: 12, fontWeight: 900, letterSpacing: '.06em', color: '#e30613', marginBottom: 7 }}>⚠ AVISO DE RISCO</div>
+          <div style={{ fontSize: 11, lineHeight: 1.5, color: '#333' }}>Negociar opções digitais envolve um elevado nível de risco. Pode perder todo o valor investido numa operação. Nunca negocie dinheiro que não possa perder e certifique-se de que compreende os riscos antes de operar.</div>
+          <div style={{ fontSize: 10, lineHeight: 1.45, color: '#777', marginTop: 7 }}>O Izitrader é uma ferramenta de negociação e não constitui aconselhamento financeiro nem garante lucros.</div>
+          <a href="https://deriv.com/risk-disclosure" target="_blank" rel="noopener noreferrer" style={{ display: 'inline-block', marginTop: 8, fontSize: 10, color: '#e30613', fontWeight: 800, textDecoration: 'none' }}>Ler divulgação de risco da Deriv</a>
+        </div>
       </div>
     </div></main>
   );

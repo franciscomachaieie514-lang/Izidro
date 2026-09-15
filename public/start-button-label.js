@@ -8,11 +8,8 @@
     const button=document.querySelector('.operate-btn');
     if(!button)return;
     const raw=String(button.textContent||'').trim();
-    if(/^(STOP|PARAR)/i.test(raw)){
-      button.textContent='STOP BOT';
-      return;
-    }
-    button.textContent='START BOT';
+    const label=/^(STOP|PARAR)/i.test(raw)?'STOP BOT':'START BOT';
+    if(button.textContent!==label)button.textContent=label;
   }
 
   function install(){
@@ -26,7 +23,10 @@
     window.addEventListener('izitrader:ws-open',normalize);
     window.addEventListener('izitrader:account-label-ready',normalize);
     window.addEventListener('izitrader:language-change',normalize);
-    window.addEventListener('izitrader:robot-start',()=>{const b=document.querySelector('.operate-btn');if(b)b.textContent='STOP BOT'});
+    window.addEventListener('izitrader:robot-start',()=>{
+      const b=document.querySelector('.operate-btn');
+      if(b&&b.textContent!=='STOP BOT')b.textContent='STOP BOT';
+    });
   }
 
   if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',install,{once:true});

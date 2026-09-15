@@ -1,21 +1,19 @@
-/* IziTrader trading enhancements: working +/- stake controls, universal martingale, selected stake used for orders. */
+/* IziTrader trading enhancements: working +/- stake controls, selected stake used for orders. */
 (function(){
 'use strict';
 const MIN_STAKE=.35;
-const MAX_STAKE=10;
-const STEP=.05;
-const MAX_LEVEL=20;
+const STEP=.10;
 const $=s=>document.querySelector(s);
-let baseStake=Math.max(MIN_STAKE,Math.min(MAX_STAKE,Number(localStorage.getItem('izitrader_stake')||MIN_STAKE)));
-if(!Number.isFinite(baseStake))baseStake=MIN_STAKE;
+let baseStake=Number(localStorage.getItem('izitrader_stake'));
+if(!Number.isFinite(baseStake)||baseStake<MIN_STAKE)baseStake=MIN_STAKE;
+baseStake=Number(baseStake.toFixed(2));
 let level=0,nativeSend=null;
 function money(n){return Number(n).toFixed(2)}
-function selectedBaseStake(){return Math.min(MAX_STAKE,Math.max(MIN_STAKE,Number(baseStake)||MIN_STAKE))}
+function selectedBaseStake(){return Math.max(MIN_STAKE,Number(baseStake)||MIN_STAKE)}
 function setBaseStake(value){
   let n=Number(value);
-  if(!Number.isFinite(n))n=MIN_STAKE;
-  n=Math.min(MAX_STAKE,Math.max(MIN_STAKE,n));
-  baseStake=Number((Math.round(n*100)/100).toFixed(2));
+  if(!Number.isFinite(n)||n<MIN_STAKE)n=MIN_STAKE;
+  baseStake=Number(n.toFixed(2));
   level=0;
   try{localStorage.setItem('izitrader_stake',String(baseStake))}catch{}
   renderStake();
@@ -25,9 +23,8 @@ function setBaseStake(value){
 function renderStake(){
   const value=$('.stake-value');
   if(value)value.textContent=money(baseStake);
-  const minus=$('#stakeMinus'),plus=$('#stakePlus');
+  const minus=$('#stakeMinus');
   if(minus)minus.disabled=baseStake<=MIN_STAKE;
-  if(plus)plus.disabled=baseStake>=MAX_STAKE;
   window.izitraderStake=baseStake;
 }
 function mountStakeControls(){
@@ -40,14 +37,14 @@ function mountStakeControls(){
     minus.id='stakeMinus';minus.type='button';minus.className='stake-control';minus.textContent='−';
     minus.setAttribute('aria-label','Diminuir aposta');
     row.insertBefore(minus,value);
-    minus.addEventListener('click',()=>setBaseStake(baseStake-STEP));
+    minus.addEventListener('click',()=>setBaseStake(selectedBaseStake()-STEP));
   }
   if(!$('#stakePlus')){
     const plus=document.createElement('button');
     plus.id='stakePlus';plus.type='button';plus.className='stake-control';plus.textContent='+';
     plus.setAttribute('aria-label','Aumentar aposta');
     row.appendChild(plus);
-    plus.addEventListener('click',()=>setBaseStake(baseStake+STEP));
+    plus.addEventListener('click',()=>setBaseStake(selectedBaseStake()+STEP));
   }
   if(!$('#iziStakeControlsCss')){
     const s=document.createElement('style');s.id='iziStakeControlsCss';
@@ -57,16 +54,16 @@ function mountStakeControls(){
   renderStake();
   return true;
 }
-function currentStake(){return Number((selectedBaseStake()*Math.pow(2,Math.min(level,MAX_LEVEL))).toFixed(2))}
+function currentStake(){return selectedBaseStake()}
 function updateInfo(){
   const row=$('.stake-row');if(!row)return;
   let info=$('#martingaleInfo');
   if(!info){info=document.createElement('div');info.id='martingaleInfo';info.style.cssText='margin-top:7px;text-align:right;font-size:10px;color:var(--muted);';row.parentElement.insertBefore(info,row.nextSibling)}
-  info.textContent='Martingale '+level+'/'+MAX_LEVEL+' · próxima aposta $'+money(currentStake());
+  info.textContent='Aposta atual $'+money(currentStake());
 }
 function installProposalInterceptor(){
   const Ctor=window.__IziNativeWebSocket||window.WebSocket;if(!Ctor||!Ctor.prototype)return;
-  if(Ctor.prototype.__iziMartingalePatched)return;
+  if(Ctor.prototype.__iziStakePatched)return;
   nativeSend=Ctor.prototype.send;
   const wrapped=function(data){
     try{
@@ -77,22 +74,22 @@ function installProposalInterceptor(){
     }catch(e){}
     return nativeSend.call(this,data);
   };
-  wrapped.__iziOriginal=nativeSend;Ctor.prototype.send=wrapped;Ctor.prototype.__iziMartingalePatched=true;
+  wrapped.__iziOriginal=nativeSend;Ctor.prototype.send=wrapped;Ctor.prototype.__iziStakePatched=true;
 }
 function setConnectedStatus(){const type=localStorage.getItem('izitrader_account_type')==='demo'?'Demo':'Real';const el=$('#statusText');if(el)el.textContent='Conta '+type+' ligada';const dot=$('.status .dot');if(dot)dot.style.background='#35d492'}
 function updatePnlColor(profit){
   const el=$('#pnl');if(!el)return;
   const n=Number(profit);
   if(Number.isFinite(n)&&n<0)el.style.color='var(--red)';
-  else if(Number.isFinite(n)&&n>0)el.style.color='var(--green)';
+  else if(Number.isFinite(n)&&n>0)el.style.color='var(--yellow,#f5c542)';
   else el.style.color='var(--text)';
 }
 function applyResult(profit){
   const p=Number(profit);if(!Number.isFinite(p))return;
   updatePnlColor(p);
-  if(p<0)level=Math.min(MAX_LEVEL,level+1);else level=0;
+  level=0;
   updateInfo();
-  window.dispatchEvent(new CustomEvent('izitrader:martingale',{detail:{level,baseStake:selectedBaseStake(),stake:currentStake(),maxLevel:MAX_LEVEL,profit:p}}));
+  window.dispatchEvent(new CustomEvent('izitrader:martingale',{detail:{level,baseStake:selectedBaseStake(),stake:currentStake(),profit:p}}));
 }
 function installWhatsApp(){
   const a=$('.whatsapp-btn');if(!a)return;

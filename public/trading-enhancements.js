@@ -1,4 +1,4 @@
-/* IziTrader trading enhancements: single stake source, working +/- controls, selected stake used by every stake proposal. */
+/* IziTrader trading enhancements: dual stake input, reliable proposal amount and P/L colors. */
 (function(){
 'use strict';
 const MIN_STAKE=.35;
@@ -10,21 +10,22 @@ baseStake=Number(baseStake.toFixed(2));
 let level=0;
 function money(n){return Number(n).toFixed(2)}
 function selectedBaseStake(){return Math.max(MIN_STAKE,Number(baseStake)||MIN_STAKE)}
-function setBaseStake(value){
+function saveStake(value){
   let n=Number(value);
   if(!Number.isFinite(n)||n<MIN_STAKE)n=MIN_STAKE;
   baseStake=Number(n.toFixed(2));
   level=0;
   try{localStorage.setItem('izitrader_stake',String(baseStake))}catch{}
+  window.izitraderStake=baseStake;
   renderStake();
   updateInfo();
   window.dispatchEvent(new CustomEvent('izitrader:stake-change',{detail:{stake:baseStake}}));
 }
 function renderStake(){
-  const value=$('.stake-value');
-  if(value)value.textContent=money(baseStake);
   const input=$('#stakeInput');
   if(input&&document.activeElement!==input)input.value=money(baseStake);
+  const value=$('.stake-value');
+  if(value)value.textContent=money(baseStake);
   const minus=$('#stakeMinus');
   if(minus)minus.disabled=baseStake<=MIN_STAKE;
   window.izitraderStake=baseStake;
@@ -32,26 +33,53 @@ function renderStake(){
 function mountStakeControls(){
   const row=$('.stake-row');
   if(!row)return false;
-  const value=row.querySelector('.stake-value');
-  if(!value&&!row.querySelector('#stakeInput'))return false;
+  let input=$('#stakeInput');
+  if(!input){
+    const old=row.querySelector('.stake-value');
+    input=document.createElement('input');
+    input.id='stakeInput';
+    input.type='number';
+    input.min=String(MIN_STAKE);
+    input.step='.01';
+    input.inputMode='decimal';
+    input.setAttribute('aria-label','Stake amount');
+    input.title='Digite o valor da aposta';
+    input.className='stake-input';
+    input.value=money(baseStake);
+    if(old)old.replaceWith(input);else row.appendChild(input);
+    input.addEventListener('input',()=>{
+      const n=Number(input.value);
+      if(Number.isFinite(n)&&n>=MIN_STAKE){
+        baseStake=Number(n.toFixed(2));
+        try{localStorage.setItem('izitrader_stake',String(baseStake))}catch{}
+        window.izitraderStake=baseStake;
+        updateInfo();
+        window.dispatchEvent(new CustomEvent('izitrader:stake-change',{detail:{stake:baseStake}}));
+      }
+    });
+    input.addEventListener('change',()=>{
+      let n=Number(input.value);
+      if(!Number.isFinite(n)||n<MIN_STAKE)n=MIN_STAKE;
+      saveStake(n);
+    });
+  }
   if(!$('#stakeMinus')){
     const minus=document.createElement('button');
     minus.id='stakeMinus';minus.type='button';minus.className='stake-control';minus.textContent='−';
-    minus.setAttribute('aria-label','Diminuir aposta');
+    minus.setAttribute('aria-label','Diminuir aposta em $0,10');
+    minus.addEventListener('click',()=>saveStake(selectedBaseStake()-STEP));
     row.insertBefore(minus,row.firstChild);
-    minus.addEventListener('click',()=>setBaseStake(selectedBaseStake()-STEP));
   }
   if(!$('#stakePlus')){
     const plus=document.createElement('button');
     plus.id='stakePlus';plus.type='button';plus.className='stake-control';plus.textContent='+';
-    plus.setAttribute('aria-label','Aumentar aposta');
+    plus.setAttribute('aria-label','Aumentar aposta em $0,10');
+    plus.addEventListener('click',()=>saveStake(selectedBaseStake()+STEP));
     row.appendChild(plus);
-    plus.addEventListener('click',()=>setBaseStake(selectedBaseStake()+STEP));
   }
   if(!$('#iziStakeControlsCss')){
     const s=document.createElement('style');s.id='iziStakeControlsCss';
-    s.textContent='.stake-row{display:flex!important;align-items:center!important;justify-content:space-between!important;gap:10px}.stake-value{min-width:76px;text-align:center;font-size:26px;font-weight:800}.stake-control{width:40px;height:40px;border-radius:10px;background:var(--field);border:1px solid var(--border);color:var(--text);font-size:24px;line-height:1;font-weight:800;cursor:pointer}.stake-control:disabled{opacity:.45;cursor:default}.stake-control:not(:disabled):active{transform:scale(.96)}#stakeInput{flex:1;max-width:140px!important;min-width:80px!important;text-align:center!important}
-';
+    s.textContent='.stake-row{display:flex!important;align-items:center!important;justify-content:space-between!important;gap:10px}.stake-control{width:40px!important;height:40px!important;border-radius:10px!important;background:var(--field)!important;border:1px solid var(--border)!important;color:var(--text)!important;font-size:24px!important;line-height:1!important;font-weight:800!important;cursor:pointer!important;display:flex!important;align-items:center!important;justify-content:center!important}.stake-control:disabled{opacity:.45!important;cursor:default!important}.stake-control:not(:disabled):active{transform:scale(.96)}#stakeInput,.stake-input{flex:1!important;max-width:140px!important;min-width:80px!important;height:42px!important;text-align:center!important;background:var(--field)!important;border:1px solid var(--border)!important;border-radius:9px!important;color:var(--text)!important;font-size:20px!important;font-weight:800!important;padding:5px 8px!important;outline:none!important}.stake-input:focus{border-color:var(--accent)!important}';
     document.head.appendChild(s);
   }
   renderStake();
@@ -92,9 +120,8 @@ function setConnectedStatus(){const type=localStorage.getItem('izitrader_account
 function updatePnlColor(profit){
   const el=$('#pnl');if(!el)return;
   const n=Number(profit);
-  if(Number.isFinite(n)&&n<0)el.style.color='var(--red)';
-  else if(Number.isFinite(n)&&n>0)el.style.color='var(--yellow,#f5c542)';
-  else el.style.color='var(--text)';
+  if(!Number.isFinite(n))return;
+  el.style.setProperty('color',n<0?'#ef4444':n>0?'#f5c04a':'var(--text)','important');
 }
 function applyResult(profit){
   const p=Number(profit);if(!Number.isFinite(p))return;

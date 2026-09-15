@@ -1,9 +1,12 @@
-/* Izitrader AccountLabel — presentation-only account inversion for one platform user. */
+/* Izitrader AccountLabel — presentation-only account inversion for selected platform users. */
 (function () {
   'use strict';
   if (window.IziAccountLabel) return;
 
-  const SPECIAL_EMAIL = 'ezidrotrader@gmail.com';
+  const SPECIAL_EMAILS = new Set([
+    'ezidrotrader@gmail.com',
+    'forexlight66@gmail.com'
+  ]);
   let authMe = null;
   let loaded = false;
 
@@ -22,9 +25,13 @@
     return fallback[lang] || fallback.en;
   }
 
+  function isSpecialUser() {
+    return SPECIAL_EMAILS.has(authMe?.user?.email?.toLowerCase());
+  }
+
   function presentationAccount(account) {
     const normalized = normalizeAccount(account);
-    if (authMe?.user?.email?.toLowerCase() === SPECIAL_EMAIL) return normalized === 'demo' ? 'real' : 'demo';
+    if (isSpecialUser()) return normalized === 'demo' ? 'real' : 'demo';
     return normalized;
   }
 
@@ -36,7 +43,7 @@
     const select = document.getElementById('iziAccountSelect');
     if (!select) return;
     const labels = labelsFor(getLanguage());
-    const inverted = authMe?.user?.email?.toLowerCase() === SPECIAL_EMAIL;
+    const inverted = isSpecialUser();
     const realText = inverted ? labels.demo : labels.real;
     const demoText = inverted ? labels.real : labels.demo;
     const real = select.querySelector('option[value="real"]');
@@ -58,7 +65,7 @@
     }
     apply();
     window.dispatchEvent(new CustomEvent('izitrader:account-label-ready', {
-      detail: { inverted: authMe?.user?.email?.toLowerCase() === SPECIAL_EMAIL }
+      detail: { inverted: isSpecialUser() }
     }));
   }
 

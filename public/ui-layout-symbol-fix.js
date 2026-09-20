@@ -9,8 +9,8 @@ function symbols(){
   const btn=document.getElementById('symbolBtn'),menu=document.getElementById('symbolMenu');
   if(!btn||!menu||btn.dataset.uiLayoutSymbols)return;
   btn.dataset.uiLayoutSymbols='1';
-  const items=[['R_100','Volatility 100'],['R_75','Volatility 75'],['R_50','Volatility 50'],['R_25','Volatility 25'],['R_10','Volatility 10']];
-  function open(e){e.preventDefault();e.stopPropagation();menu.innerHTML=items.map(x=>`<div class="symbol-item" data-symbol="${x[0]}"><span class="symbol-name">${x[0]}</span><span class="symbol-desc">${x[1]}</span></div>`).join('');menu.classList.add('open');menu.style.display='block';menu.style.zIndex='1000';}
+  const items=[['V10','Volatility 10'],['V15','Volatility 15 (1s)'],['V25','Volatility 25'],['V30','Volatility 30 (1s)'],['V50','Volatility 50'],['V75','Volatility 75'],['V90','Volatility 90 (1s)'],['V100','Volatility 100'],['V150','Volatility 150 (1s)'],['V250','Volatility 250 (1s)'],['V10_1S','Volatility 10 (1s)'],['V25_1S','Volatility 25 (1s)'],['V50_1S','Volatility 50 (1s)'],['V75_1S','Volatility 75 (1s)'],['V100_1S','Volatility 100 (1s)']];
+  function open(e){e.preventDefault();e.stopPropagation();menu.innerHTML=items.map(x=>`<div class="symbol-item" data-symbol="${x[0]}"><span class="symbol-name">${x[1]}</span></div>`).join('');menu.classList.add('open');menu.style.display='block';menu.style.zIndex='1000';}
   btn.addEventListener('click',open,true);
   menu.addEventListener('click',e=>{const item=e.target.closest('.symbol-item');if(!item)return;e.stopPropagation();const code=item.dataset.symbol;const sel=document.getElementById('selectedSymbol');if(sel)sel.textContent=code;localStorage.setItem('izitrader_symbol',code);menu.classList.remove('open');menu.style.display='none';window.dispatchEvent(new CustomEvent('izitrader:symbol-change',{detail:{symbol:code}}));});
   document.addEventListener('click',e=>{if(!menu.contains(e.target)&&e.target!==btn){menu.classList.remove('open');menu.style.display='none';}});

@@ -16,6 +16,7 @@
     const m=text.match(/[0-9]/);return m?Number(m[0]):null;
   };
   const getWindow=()=>history.slice(-windowSize);
+  const getLang=()=>{try{return localStorage.getItem('izitrader_language')||document.documentElement.lang||'en'}catch{return'en'}};
   const render=()=>{
     const sample=getWindow();
     const counts=Array(10).fill(0);sample.forEach(d=>counts[d]++);
@@ -27,7 +28,7 @@
       node.classList.toggle('active',history.length>0&&history[history.length-1]===d);
     });
     const center=document.querySelector('.center .digit');if(center&&history.length)center.textContent=String(history[history.length-1]);
-    const caption=document.querySelector('.center .caption');if(caption)caption.textContent=history.length?`${windowSize} TICKS`:'AGUARDANDO TICKS';
+    const caption=document.querySelector('.center .caption');if(caption){const lang=getLang();caption.textContent=history.length?`${windowSize} ${lang==='pt'?'TICKS':lang==='es'?'TICKS':'TICKS'}`:(lang==='pt'?'AGUARDANDO TICKS':lang==='es'?'ESPERANDO TICKS':'WAITING FOR TICKS')}
     const btn=document.getElementById('analysisBtn');if(btn)btn.textContent=`${windowSize} TICKS`;
   };
   const addTick=detail=>{
@@ -51,6 +52,7 @@
     }));
   };
   readStoredHistory();
+  window.addEventListener('izitrader:language-change',render);
   window.addEventListener('izitrader:tick',e=>addTick(e.detail));
   if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',()=>{setupWindowMenu();render();});
   else{setupWindowMenu();render();}

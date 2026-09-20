@@ -2,10 +2,10 @@
 (function(){
 'use strict';
 const NativeWS=window.__IziNativeWebSocket||window.WebSocket;
-const SYMBOLS={R_10:'1HZ10V',R_25:'1HZ25V',R_50:'1HZ50V',R_75:'1HZ75V',R_100:'1HZ100V'};
+const SYMBOLS={V10:'R_10',V15:'1HZ15V',V25:'R_25',V30:'1HZ30V',V50:'R_50',V75:'R_75',V90:'1HZ90V',V100:'R_100',V150:'1HZ150V',V250:'1HZ250V',V10_1S:'1HZ10V',V25_1S:'1HZ25V',V50_1S:'1HZ50V',V75_1S:'1HZ75V',V100_1S:'1HZ100V'};
 const CONTRACTS={EVEN:'DIGITEVEN',ODD:'DIGITODD',OVER:'DIGITOVER',UNDER:'DIGITUNDER',RISE:'CALL',FALL:'PUT',DIFFER:'DIGITDIFF',MATCH:'DIGITMATCH'};
 let ws=null,reconnectTimer=null,pingTimer=null,stopped=false,reconnectDelay=1000;
-let accountType=localStorage.getItem('izitrader_account_type')||'real',uiSymbol=localStorage.getItem('izitrader_symbol')||'R_100',symbol=SYMBOLS[uiSymbol]||SYMBOLS.R_100,botName=localStorage.getItem('izitrader_bot')||'ProParity';
+let accountType=localStorage.getItem('izitrader_account_type')||'real',uiSymbol=localStorage.getItem('izitrader_symbol')||'V100',symbol=SYMBOLS[uiSymbol]||SYMBOLS.R_100,botName=localStorage.getItem('izitrader_bot')||'ProParity';
 let baseStake=Math.max(.35,Number(localStorage.getItem('izitrader_stake')||.35)),stake=baseStake,martingaleLevel=0;
 const MARTINGALE_MAX_LEVEL=20;
 let active=false,buying=false,proposal=null,contractId=null,sessionPnl=0,ticks=[],closedIds=new Set(),accountIdValue=null,connected=false,authorized=false;

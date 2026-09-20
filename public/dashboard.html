@@ -42,8 +42,24 @@ const hist=$('#historyScroll'),opsCount=$('#opsCount');let operationCount=Number
 function moneyValue(c){const n=Number(c?.profit??c?.pnl??c?.amount??c?.payout??0);return Number.isFinite(n)?Math.abs(n).toFixed(2):'0.00'}
 function renderChip(item,c,result){const won=result==='WON',lost=result==='LOST';const value=moneyValue(c);item.className='chip '+(won?'win':lost?'loss':'');item.innerHTML='<span>'+(won?'+$':lost?'-$':'$')+value+'</span><span class="chip-tag">'+(won?'GANHO':lost?'PERDA':'ABERTO')+'</span>'}
 function updateOps(){opsCount.textContent=operationCount;localStorage.setItem('izitrader_operations',String(operationCount))}
-window.addEventListener('izitrader:buy',e=>{const c=e.detail||{},item=document.createElement('div');item.className='chip';item.dataset.contractId=c.contract_id||'';renderChip(item,c,'OPEN');hist.prepend(item);operationCount++;updateOps();while(hist.children.length>20)hist.lastElementChild.remove()});
-window.addEventListener('izitrader:contract-closed',e=>{const c=e.detail||{},item=[...hist.children].find(x=>x.dataset.contractId===String(c.contract_id||''));if(!item)return;renderChip(item,c,String(c.result||'').toUpperCase())});
+window.addEventListener('izitrader:buy',()=>{});
+window.addEventListener('izitrader:contract-closed',e=>{
+  const c=e.detail||{},id=String(c.contract_id||'');
+  if(!id)return;
+  let item=[...hist.children].find(x=>x.dataset.contractId===id);
+  const result=String(c.result||'').toUpperCase();
+  const wasClosed=item?.dataset.closed==='1';
+  if(!item){
+    item=document.createElement('div');
+    item.dataset.contractId=id;
+    hist.prepend(item);
+  }
+  item.dataset.closed='1';
+  renderChip(item,c,result);
+  if(!wasClosed)operationCount++;
+  updateOps();
+  while(hist.children.length>20)hist.lastElementChild.remove();
+});
 $('#iziAccountSelect').value=localStorage.getItem('izitrader_account_type')||'real';$('#iziAccountSelect').addEventListener('change',e=>{window.IziDerivWS?.setAccountType?.(e.target.value);ob.textContent='▶ Start Robot'});ob.textContent='▶ Start Robot';$('#sairBtn').addEventListener('click',async()=>{try{await fetch('/api/auth/logout',{method:'POST',credentials:'same-origin'})}catch{}location.reload()});
 </script>
 <script src="/auth.js"></script>

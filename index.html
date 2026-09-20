@@ -92,15 +92,15 @@
   .operate-btn { width: 100%; margin-top: 14px; padding: 14px; border: none; border-radius: 12px; background: #f5a623; color: #1a1305; font-weight: 800; font-size: 15px; cursor: pointer; }
   .operate-btn:disabled { opacity: .5; cursor: default; }
   .note { font-size: 11px; color: var(--muted); text-align: center; margin-top: 10px; }
-  .history-scroll { display: flex; gap: 10px; overflow-x: auto; padding-bottom: 4px; -webkit-overflow-scrolling: touch; scrollbar-width: thin; }
-  .history-item { flex: 0 0 auto; min-width: 128px; background: var(--field); border-radius: 12px; padding: 10px 12px; border: 1px solid var(--border); }
-  .history-item .bot { font-size: 11px; color: var(--muted); margin-bottom: 6px; }
-  .history-item .digit-row { display: flex; align-items: baseline; gap: 6px; }
-  .history-item .digit { font-size: 20px; font-weight: 800; }
-  .history-item .result { font-size: 12px; font-weight: 700; }
+  .history-scroll { display: flex; gap: 6px; overflow-x: auto; padding-bottom: 4px; -webkit-overflow-scrolling: touch; scrollbar-width: thin; }
+  .history-item { flex: 0 0 auto; min-width: 90px; background: var(--field); border-radius: 10px; padding: 8px 8px; border: 1px solid var(--border); }
+  .history-item .bot { font-size: 9px; color: var(--muted); margin-bottom: 4px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+  .history-item .digit-row { display: flex; align-items: baseline; gap: 4px; }
+  .history-item .digit { font-size: 15px; font-weight: 800; }
+  .history-item .result { font-size: 10px; font-weight: 700; }
   .result.win { color: #35d492; }
   .result.loss { color: #e24b4a; }
-  .history-item .time { font-size: 10px; color: var(--muted); margin-top: 4px; }
+  .history-item .time { font-size: 8px; color: var(--muted); margin-top: 3px; }
 </style>
 </head>
 <body>

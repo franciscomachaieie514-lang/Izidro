@@ -47,7 +47,7 @@ window.addEventListener('izitrader:contract-closed',e=>{
   const c=e.detail||{},id=String(c.contract_id||'');
   if(!id)return;
   let item=[...hist.children].find(x=>x.dataset.contractId===id);
-  const result=String(c.result||'').toUpperCase();
+  const result=String(c.result||((Number(c.profit_loss??c.profit)<0)?'LOST':'WON')).toUpperCase();
   const wasClosed=item?.dataset.closed==='1';
   if(!item){
     item=document.createElement('div');

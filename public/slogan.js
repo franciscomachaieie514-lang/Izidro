@@ -10,7 +10,7 @@
   };
 
   function getLanguage() {
-    return localStorage.getItem('izitrader_lang') || document.documentElement.lang || 'en';
+    return localStorage.getItem('izitrader_language') || document.documentElement.lang || 'en';
   }
 
   function apply() {

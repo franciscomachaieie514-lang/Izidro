@@ -1,10 +1,16 @@
-<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512">
-<rect width="512" height="512" rx="112" fill="#0a0f1c"/>
-<rect x="18" y="18" width="476" height="476" rx="96" fill="none" stroke="#22304a" stroke-width="2"/>
-<path d="M 128 336 L 208 256 L 264 306 L 384 176" fill="none" stroke="#e24b4a" stroke-width="22" stroke-linecap="round" stroke-linejoin="round"/>
-<path d="M 384 176 L 384 244" fill="none" stroke="#e24b4a" stroke-width="22" stroke-linecap="round"/>
-<path d="M 384 176 L 316 176" fill="none" stroke="#e24b4a" stroke-width="22" stroke-linecap="round"/>
-<circle cx="128" cy="336" r="16" fill="#e24b4a"/>
-<circle cx="264" cy="306" r="16" fill="#ffffff"/>
-<circle cx="384" cy="176" r="16" fill="#ffffff"/>
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 560 160">
+  <rect width="560" height="160" rx="20" fill="#e24b4a"/>
+
+  <g transform="translate(24,24)">
+    <path d="M 20 88 L 44 66 L 62 80 L 96 44"
+          fill="none" stroke="#ffffff" stroke-width="8" stroke-linecap="round" stroke-linejoin="round"/>
+    <path d="M 96 44 L 96 64" fill="none" stroke="#ffffff" stroke-width="8" stroke-linecap="round"/>
+    <path d="M 96 44 L 76 44" fill="none" stroke="#ffffff" stroke-width="8" stroke-linecap="round"/>
+    <circle cx="20" cy="88" r="6" fill="#ffffff"/>
+    <circle cx="62" cy="80" r="6" fill="#0a0f1c"/>
+    <circle cx="96" cy="44" r="6" fill="#0a0f1c"/>
+  </g>
+
+  <text x="160" y="92" font-family="Arial, Helvetica, sans-serif" font-size="52" font-weight="800" fill="#ffffff">Izi<tspan fill="#0a0f1c">trader</tspan></text>
+  <text x="162" y="118" font-family="Arial, Helvetica, sans-serif" font-size="15" font-weight="600" letter-spacing="2" fill="#ffffff" fill-opacity="0.8">TRADE OPTIONS</text>
 </svg>

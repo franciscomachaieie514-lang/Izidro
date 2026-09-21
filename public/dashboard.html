@@ -1709,6 +1709,26 @@ $('#iziAccountSelect').value=localStorage.getItem('izitrader_account_type')||'re
   const stopBtn=$('#stageStopBtn');
   if(stopBtn)stopBtn.onclick=()=>{window.IziDerivWS?.stop?.();setStage(0)};
 })();
+<script>
+/* Keep the operation stage in the correct DOM section for each form factor. */
+(function syncResponsiveStagePlacement(){
+  const stage=document.getElementById('stageTracker');
+  const history=document.getElementById('historyScroll');
+  const aula=document.querySelector('.dashboard-center .aula-strip');
+  if(!stage||!history)return;
+  const mobile=window.matchMedia('(max-width: 899px)').matches;
+  if(mobile){
+    history.parentElement?.appendChild(stage);
+  }else if(aula){
+    aula.after(stage);
+  }
+  stage.dataset.layoutMode=mobile?'mobile':'pc';
+}
+window.addEventListener('resize',syncResponsiveStagePlacement);
+window.addEventListener('orientationchange',syncResponsiveStagePlacement);
+if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',syncResponsiveStagePlacement);
+else syncResponsiveStagePlacement();
+</script>
 </script>
 <script src="/auth.js"></script>
 <script src="/language-symbols-fix.js"></script>

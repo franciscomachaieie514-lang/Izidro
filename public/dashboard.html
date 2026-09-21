@@ -907,6 +907,62 @@ body.dark .icon-btn,body.dark .sair-btn{background:var(--field);color:var(--text
     font-family:ui-monospace,SFMono-Regular,Menlo,monospace;
   }
 }
+
+/* ===== Final top alignment: mirror METAS, tighten BOT, raise AULA ===== */
+@media (min-width:1200px){
+  /* 25 TICKS mirrors METAS: same distance from the wheel area edge. */
+  .wheel-area .analysis-wrap{
+    left:-34px!important;
+    transform:none!important;
+    margin-left:0!important;
+  }
+
+  /* Keep the Bot card comfortably inside the History card width. */
+  .dashboard-left .row3{
+    grid-template-columns:minmax(115px,.72fr) minmax(150px,.88fr) minmax(78px,.52fr)!important;
+    gap:8px!important;
+  }
+
+  .dashboard-left .row3 > div:nth-child(2){
+    max-width:170px!important;
+  }
+
+  /* Raise Aula and let its block extend vertically through the upper dashboard area,
+     from the Profit/Loss level toward the Bet block. */
+  .dashboard-left .row3{
+    position:relative!important;
+  }
+
+  .dashboard-left .row3 > div:nth-child(3){
+    position:relative!important;
+    margin-top:-92px!important;
+    padding-top:0!important;
+    align-self:start!important;
+    min-height:140px!important;
+  }
+
+  .dashboard-left .row3 > div:nth-child(3) .pill-aula{
+    min-height:140px!important;
+    display:flex!important;
+    align-items:center!important;
+    justify-content:center!important;
+  }
+}
+
+@media (min-width:1600px){
+  .dashboard-left .row3 > div:nth-child(2){
+    max-width:165px!important;
+  }
+
+  .dashboard-left .row3 > div:nth-child(3){
+    margin-top:-98px!important;
+    min-height:148px!important;
+  }
+
+  .dashboard-left .row3 > div:nth-child(3) .pill-aula{
+    min-height:148px!important;
+  }
+}
 </style>
 </head>
 <body>

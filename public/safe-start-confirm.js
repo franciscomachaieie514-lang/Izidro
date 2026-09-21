@@ -44,7 +44,8 @@
         return;
       }
       const account=String(localStorage.getItem('izitrader_account_type')||'real').toLowerCase();
-      const starting=/^INICIAR ROBÔ REAL$/i.test((b.textContent||'').trim()) || /operar com/i.test((b.textContent||'').trim())&&account==='real';
+      const label=(b.textContent||'').replace(/\s+/g,' ').trim();
+      const starting=account==='real' && /^(▶\s*)?(INICIAR ROBÔ|INICIAR ROBOT|START ROBOT|START ROBÔ)$/i.test(label);
       if(account==='real'&&starting){
         e.preventDefault();
         e.stopImmediatePropagation();

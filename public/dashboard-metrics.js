@@ -18,16 +18,9 @@ function ensurePositionsFooter(){
    card.appendChild(footer);
  }
 }
-function setPositionState(state){
- const tracker=$('#positionTracker');if(!tracker)return;
- const order={analysis:0,open:1,closed:2},idx=order[state]??0;
- tracker.dataset.state=state;
- tracker.querySelectorAll('.stage-dot,.stage-labels span').forEach(()=>{});
-}
-function updatePositionLabels(){ }
 function normalizeAmount(raw){let v=String(raw??'').trim().replace(/\s+/g,'').replace(',','.');if(!SIGNED.test(v))return null;const sign=v[0],hasDollar=v[1]==='$',number=v.slice(hasDollar?2:1),parsed=Number(number);if(!Number.isFinite(parsed))return null;return sign+(hasDollar?'$':'')+String(Math.round(parsed*100)/100)}
 function formatHistory(){const row=$('#historyRow');if(!row)return;row.querySelectorAll('.chip').forEach(item=>{const value=item.querySelector('span:first-child'),tag=item.querySelector('.chip-tag');if(!value||!tag)return;const raw=value.textContent.trim().replace(/\s+/g,'').replace(',','.');const m=raw.match(/^([+-])\$?(\d+(?:\.\d{1,2})?)$/);if(!m)return;const win=m[1]==='+';value.textContent=(win?'+':'-')+'$'+Number(m[2]).toFixed(2);tag.textContent=(translations[currentLang]||translations.pt)[win?'GANHO':'PERDA'];item.classList.toggle('win',win);item.classList.toggle('loss',!win)});const count=$('#opsCount');if(count)count.textContent=String(row.querySelectorAll('.chip[data-closed="1"]').length)}
-function translateText(root){const dict=translations[currentLang]||translations.pt,walker=document.createTreeWalker(root,NodeFilter.SHOW_TEXT),nodes=[];let n;while(n=walker.nextNode())nodes.push(n);nodes.forEach(node=>{const raw=node.nodeValue||'',trimmed=raw.trim();if(trimmed&&dict[trimmed])node.nodeValue=raw.replace(trimmed,dict[trimmed])});document.documentElement.lang=currentLang;formatHistory();updatePositionLabels();const ob=$('#operateBtn');if(ob)ob.textContent=dict['▶ Start Robot']||'▶ Start Robot';window.dispatchEvent(new CustomEvent('izitrader:language-change',{detail:{lang:currentLang}}))}
+function translateText(root){const dict=translations[currentLang]||translations.pt,walker=document.createTreeWalker(root,NodeFilter.SHOW_TEXT),nodes=[];let n;while(n=walker.nextNode())nodes.push(n);nodes.forEach(node=>{const raw=node.nodeValue||'',trimmed=raw.trim();if(trimmed&&dict[trimmed])node.nodeValue=raw.replace(trimmed,dict[trimmed])});document.documentElement.lang=currentLang;formatHistory();const ob=$('#operateBtn');if(ob)ob.textContent=dict['▶ Start Robot']||'▶ Start Robot';window.dispatchEvent(new CustomEvent('izitrader:language-change',{detail:{lang:currentLang}}))}
 function setLanguage(lang){currentLang=translations[lang]?lang:'pt';try{localStorage.setItem('izitrader_language',currentLang)}catch{}translateText(document.body)}
 function bindLanguage(){document.querySelectorAll('.language-item[data-lang]').forEach(el=>{if(el.dataset.iziLangBound)return;el.addEventListener('click',()=>setLanguage(el.dataset.lang));el.dataset.iziLangBound='1'});let saved='pt';try{saved=localStorage.getItem('izitrader_language')||'pt'}catch{}currentLang=translations[saved]?saved:'pt';translateText(document.body)}
 function getPositions(){try{const n=Number(sessionStorage.getItem('izitrader_positions')||0);return Number.isFinite(n)&&n>0?n:0}catch{return 0}}

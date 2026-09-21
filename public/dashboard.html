@@ -1823,9 +1823,23 @@ body.dark .icon-btn,body.dark .sair-btn{background:var(--field);color:var(--text
 <script>
 const BOTS=[{id:'proparity',name:'ProParity',desc:'Ganha em dígito par',contractType:'DIGITEVEN'},{id:'octawin',name:'Octawin',desc:'Ganha se o dígito for menor que 8',contractType:'DIGITUNDER',barrier:'8'},{id:'oddez',name:'OddEz',desc:'Ganha em dígito ímpar',contractType:'DIGITODD'},{id:'tradesix',name:'TradeSix',desc:'Ganha se o dígito for maior que 6',contractType:'DIGITOVER',barrier:'6'}];
 let selectedBot=BOTS[0],selectedSymbol='V100';
-const $=s=>document.querySelector(s), wheel=$('#wheel'), nodes={};
-function positionWheelNodes(){const size=wheel.clientWidth||260,center=size/2,radius=size*.405,nodeSize=44;for(let i=0;i<10;i++){const a=i/10*2*Math.PI-Math.PI/2,x=center+radius*Math.cos(a)-nodeSize/2,y=center+radius*Math.sin(a)-nodeSize/2,n=nodes[i];if(n){n.style.left=x+'px';n.style.top=y+'px'}}}
-for(let i=0;i<10;i++){const n=document.createElement('div');n.className='digit-node';n.innerHTML=i+'<div class="pct">--</div>';wheel.appendChild(n);nodes[i]=n}
+const $=s=>document.querySelector(s), wheel=$('#wheel');
+function positionWheelNodes(){
+  if(!wheel)return;
+  const size=wheel.clientWidth||260,center=size/2,radius=Math.max(0,size/2-22-14),nodeSize=44;
+  wheel.querySelectorAll(':scope>.digit-node').forEach(n=>{
+    const i=Number(n.dataset.digit);
+    if(!Number.isFinite(i))return;
+    const a=i/10*2*Math.PI-Math.PI/2;
+    n.style.left=(center+radius*Math.cos(a)-nodeSize/2)+'px';
+    n.style.top=(center+radius*Math.sin(a)-nodeSize/2)+'px';
+    n.style.width=nodeSize+'px';
+    n.style.height=nodeSize+'px';
+    n.style.display='flex';
+    n.style.visibility='visible';
+    n.style.opacity='1';
+  });
+}
 positionWheelNodes();window.addEventListener('resize',positionWheelNodes);
 const db=$('#dropdownBtn'),dm=$('#dropdownMenu'),bn=$('#selectedBotName'),ob=$('#operateBtn');BOTS.forEach(b=>{const x=document.createElement('div');x.className='dropdown-item';x.innerHTML='<div class="name">'+b.name+'</div><div class="desc">'+b.desc+'</div>';x.onclick=()=>{selectedBot=b;bn.textContent=b.name;dm.classList.remove('open')};dm.appendChild(x)});db.onclick=e=>{e.stopPropagation();dm.classList.toggle('open')};
 const sb=$('#symbolBtn'),sm=$('#symbolMenu'),ss=$('#selectedSymbol');sb.onclick=e=>{e.stopPropagation();sm.classList.toggle('open')};document.querySelectorAll('.symbol-item').forEach(x=>x.onclick=()=>{selectedSymbol=x.dataset.symbol;ss.textContent=x.querySelector('.symbol-name')?.textContent||selectedSymbol;try{localStorage.setItem('izitrader_symbol',selectedSymbol)}catch{};sm.classList.remove('open')});
@@ -1893,9 +1907,11 @@ $('#iziAccountSelect').value=localStorage.getItem('izitrader_account_type')||'re
   const stopBtn=$('#stageStopBtn');
   if(stopBtn)stopBtn.onclick=()=>{window.IziDerivWS?.stop?.();setStage(0)};
 })();
+</script>
 <script>
 (function(){
   'use strict';
+
   function placeStage(){
     const stage=document.getElementById('stageTracker');
     const history=document.getElementById('historyScroll');
@@ -1904,13 +1920,16 @@ $('#iziAccountSelect').value=localStorage.getItem('izitrader_account_type')||'re
     const aula=document.querySelector('.aula-strip');
     const mobile=window.matchMedia('(max-width:599px)').matches;
 
-    if(stage && card && center){
-      if(mobile){
-        if(stage.parentElement!==card) card.appendChild(stage);
-      }else if(aula && aula.parentElement===center){
-        if(stage.parentElement!==center) center.appendChild(stage);
-        aula.after(stage);
-      }
+    if(!stage)return;
+
+    if(mobile){
+      if(card && stage.parentElement!==card) card.appendChild(stage);
+      return;
+    }
+
+    if(center && aula && stage.parentElement!==center){
+      center.appendChild(stage);
+      aula.after(stage);
     }
   }
 
@@ -1921,17 +1940,21 @@ $('#iziAccountSelect').value=localStorage.getItem('izitrader_account_type')||'re
     const center=wheel.querySelector(':scope>.center');
     const size=Math.min(wheel.clientWidth||300,wheel.clientHeight||300);
     const cp=size/2,node=44,radius=Math.max(0,size/2-node/2-14);
+
     nodes.forEach(n=>{
       const d=Number(n.dataset.digit);
       if(!Number.isFinite(d))return;
       const a=d*Math.PI*2/10-Math.PI/2;
       n.style.left=(cp+radius*Math.cos(a)-node/2)+'px';
       n.style.top=(cp+radius*Math.sin(a)-node/2)+'px';
+      n.style.width=node+'px';
+      n.style.height=node+'px';
       n.style.display='flex';
       n.style.visibility='visible';
       n.style.opacity='1';
       n.style.transform='none';
     });
+
     if(center){
       center.style.left='50%';
       center.style.top='50%';
@@ -1943,6 +1966,7 @@ $('#iziAccountSelect').value=localStorage.getItem('izitrader_account_type')||'re
     placeStage();
     positionWheel();
     requestAnimationFrame(positionWheel);
+    setTimeout(placeStage,100);
   }
 
   if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',run,{once:true});

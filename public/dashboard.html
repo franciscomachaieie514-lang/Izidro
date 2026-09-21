@@ -1552,6 +1552,43 @@ body.dark .icon-btn,body.dark .sair-btn{background:var(--field);color:var(--text
     position:absolute!important;
   }
 }
+
+/* ===== FINAL: stage directly below Recent History + permanent 0-9 wheel ticks ===== */
+.history-card #stageTracker{
+  width:100%!important;
+  margin:10px 0 0!important;
+  padding:10px 12px!important;
+  border-top:1px solid var(--border)!important;
+  border-radius:10px!important;
+}
+.history-card #stageTracker .stage-steps{min-width:0!important}
+#wheel>.digit-node{
+  position:absolute!important;
+  width:44px!important;
+  height:44px!important;
+  display:flex!important;
+  visibility:visible!important;
+  opacity:1!important;
+  z-index:2!important;
+}
+#wheel>.digit-node .pct{font-size:9px!important;color:var(--muted)!important;font-weight:400!important}
+#wheel>.digit-node.active{background:#3b82f6!important;color:#fff!important}
+#wheel>.center{z-index:5!important}
+@media(max-width:899px){
+  .history-card #stageTracker{
+    display:flex!important;
+    position:static!important;
+    min-height:48px!important;
+  }
+}
+@media(min-width:900px){
+  .history-card #stageTracker{
+    display:flex!important;
+    position:static!important;
+    min-height:52px!important;
+  }
+}
+
 </style>
 </head>
 <body>
@@ -1693,6 +1730,16 @@ body.dark .icon-btn,body.dark .sair-btn{background:var(--field);color:var(--text
         </div>
 
         <div class="wheel" id="wheel">
+          <div class="digit-node" data-digit="0">0<div class="pct">0.0%</div></div>
+          <div class="digit-node" data-digit="1">1<div class="pct">0.0%</div></div>
+          <div class="digit-node" data-digit="2">2<div class="pct">0.0%</div></div>
+          <div class="digit-node" data-digit="3">3<div class="pct">0.0%</div></div>
+          <div class="digit-node" data-digit="4">4<div class="pct">0.0%</div></div>
+          <div class="digit-node" data-digit="5">5<div class="pct">0.0%</div></div>
+          <div class="digit-node" data-digit="6">6<div class="pct">0.0%</div></div>
+          <div class="digit-node" data-digit="7">7<div class="pct">0.0%</div></div>
+          <div class="digit-node" data-digit="8">8<div class="pct">0.0%</div></div>
+          <div class="digit-node" data-digit="9">9<div class="pct">0.0%</div></div>
           <div class="center">
             <div class="digit" id="lastDigit">–</div>
             <div class="caption">ÚLTIMO DÍGITO</div>
@@ -1815,54 +1862,71 @@ $('#iziAccountSelect').value=localStorage.getItem('izitrader_account_type')||'re
 <script>
 (function(){
   'use strict';
-  function layout(){
+
+  function placeStageBelowHistory(){
     const stage=document.getElementById('stageTracker');
+    const history=document.getElementById('historyScroll');
+    const card=history?.closest('.history-card');
+    if(stage && card && stage.parentElement!==card){
+      card.appendChild(stage);
+    }
+  }
+
+  function placeAula(){
     const aula=document.querySelector('.aula-strip');
     const row3=document.querySelector('.row3');
     const center=document.querySelector('.dashboard-center');
-    const status=center?.querySelector('.status');
+    if(!aula)return;
     const mobile=window.matchMedia('(max-width:899px)').matches;
-    if(aula){
-      aula.hidden=false;
-      if(mobile){
-        if(row3 && aula.parentElement!==row3) row3.appendChild(aula);
-        aula.style.removeProperty('display');
-        aula.style.removeProperty('position');
-        aula.style.removeProperty('left');
-        aula.style.removeProperty('right');
-        aula.style.removeProperty('top');
-      }else if(center){
-        if(aula.parentElement!==center) center.insertBefore(aula,center.children[1]||null);
-      }
-    }
-    if(stage && center && status){
-      if(mobile){
-        if(stage.parentElement!==center) center.appendChild(stage);
-        if(stage.previousElementSibling!==status) status.after(stage);
-      }else{
-        if(aula && aula.parentElement===center) aula.after(stage);
-      }
+    if(mobile && row3 && aula.parentElement!==row3){
+      row3.appendChild(aula);
+    }else if(!mobile && center && aula.parentElement!==center){
+      center.insertBefore(aula,center.children[1]||null);
     }
   }
-  function wheel(){
-    const w=document.getElementById('wheel');
-    if(!w)return;
-    const center=w.querySelector('.center');
-    const nodes=[...w.querySelectorAll(':scope>.digit-node')];
-    const size=w.clientWidth||300, cp=size/2, node=44, radius=Math.max(0,size/2-node/2-14);
+
+  function positionWheel(){
+    const wheel=document.getElementById('wheel');
+    if(!wheel)return;
+    const nodes=[...wheel.querySelectorAll(':scope>.digit-node')];
+    const center=wheel.querySelector(':scope>.center');
+    const size=Math.min(wheel.clientWidth||300,wheel.clientHeight||300);
+    const cp=size/2, node=44;
+    const radius=Math.max(0,size/2-node/2-14);
+
     nodes.forEach(n=>{
-      const m=(n.textContent||'').match(/^([0-9])/); if(!m)return;
-      const d=Number(m[1]), a=d*Math.PI*2/10-Math.PI/2;
-      n.style.left=(cp+radius*Math.cos(a)-node/2)+'px';
-      n.style.top=(cp+radius*Math.sin(a)-node/2)+'px';
-      n.style.width=node+'px'; n.style.height=node+'px';
-      n.style.display='flex'; n.style.visibility='visible'; n.style.opacity='1';
-      n.dataset.digit=String(d);
+      const d=Number(n.dataset.digit);
+      if(!Number.isFinite(d))return;
+      const angle=d*Math.PI*2/10-Math.PI/2;
+      n.style.left=(cp+radius*Math.cos(angle)-node/2)+'px';
+      n.style.top=(cp+radius*Math.sin(angle)-node/2)+'px';
+      n.style.width=node+'px';
+      n.style.height=node+'px';
+      n.style.display='flex';
+      n.style.visibility='visible';
+      n.style.opacity='1';
+      n.style.transform='none';
     });
-    if(center){center.style.left='50%';center.style.top='50%';center.style.transform='translate(-50%,-50%)'}
+    if(center){
+      center.style.left='50%';
+      center.style.top='50%';
+      center.style.transform='translate(-50%,-50%)';
+    }
   }
-  function run(){layout();wheel();setTimeout(wheel,100);}
-  if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',run,{once:true});else run();
+
+  function run(){
+    placeStageBelowHistory();
+    placeAula();
+    positionWheel();
+    requestAnimationFrame(positionWheel);
+    setTimeout(positionWheel,150);
+  }
+
+  if(document.readyState==='loading'){
+    document.addEventListener('DOMContentLoaded',run,{once:true});
+  }else{
+    run();
+  }
   window.addEventListener('resize',run);
   window.addEventListener('orientationchange',run);
 })();

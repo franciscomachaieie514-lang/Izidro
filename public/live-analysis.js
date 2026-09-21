@@ -29,7 +29,7 @@
     });
     const center=document.querySelector('.center .digit');if(center&&history.length)center.textContent=String(history[history.length-1]);
     const caption=document.querySelector('.center .caption');if(caption){const lang=getLang();caption.textContent=history.length?`${windowSize} ${lang==='pt'?'TICKS':lang==='es'?'TICKS':'TICKS'}`:(lang==='pt'?'AGUARDANDO TICKS':lang==='es'?'ESPERANDO TICKS':'WAITING FOR TICKS')}
-    const btn=document.getElementById('analysisBtn');if(btn)btn.textContent=`${windowSize} TICKS`;
+    const btn=document.getElementById('analysisLabel');if(btn)btn.textContent=`${windowSize} TICKS`;
   };
   const addTick=detail=>{
     if(!detail||detail.epoch===lastEpoch)return;

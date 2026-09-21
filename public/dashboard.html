@@ -1658,6 +1658,55 @@ body.dark .icon-btn,body.dark .sair-btn{background:var(--field);color:var(--text
     justify-content:center!important;
   }
 }
+
+/* ===== FINAL: ticks/metas corners, visible chevrons, symbol dropdown ===== */
+.wheel-area{overflow:visible!important}
+.wheel-area .analysis-wrap{
+  left:-8px!important;
+  right:auto!important;
+  z-index:1000!important;
+}
+.wheel-area .target-wrap{
+  right:-8px!important;
+  left:auto!important;
+  z-index:1000!important;
+}
+.wheel-area .analysis-btn,
+.wheel-area .target-btn{
+  display:flex!important;
+  align-items:center!important;
+  gap:4px!important;
+  white-space:nowrap!important;
+}
+.dropdown-chevron{
+  display:inline-flex!important;
+  align-items:center!important;
+  justify-content:center!important;
+  font-size:17px!important;
+  line-height:1!important;
+  font-weight:900!important;
+  margin-left:5px!important;
+}
+.symbol-dropdown{position:relative!important;z-index:5000!important}
+#symbolBtn{position:relative!important;z-index:5001!important;cursor:pointer!important;pointer-events:auto!important}
+#symbolMenu{
+  position:absolute!important;
+  z-index:99999!important;
+  pointer-events:auto!important;
+  max-height:280px!important;
+  overflow-y:auto!important;
+}
+#symbolMenu.open{display:block!important;visibility:visible!important;opacity:1!important}
+#symbolMenu .symbol-item{
+  display:flex!important;
+  visibility:visible!important;
+  pointer-events:auto!important;
+  cursor:pointer!important;
+}
+@media(max-width:899px){
+  .wheel-area .analysis-wrap{left:-4px!important}
+  .wheel-area .target-wrap{right:-4px!important}
+}
 </style>
 </head>
 <body>
@@ -1844,7 +1893,7 @@ body.dark .icon-btn,body.dark .sair-btn{background:var(--field);color:var(--text
         <div class="symbol-dropdown">
           <button class="dropdown-btn" id="symbolBtn">
             <span id="selectedSymbol">Volatility 100</span>
-            <span>▾</span>
+            <span class="dropdown-chevron" aria-hidden="true">⌄</span>
           </button>
 
           <div class="symbol-menu" id="symbolMenu"></div>
@@ -1877,7 +1926,20 @@ function positionWheelNodes(){
 }
 positionWheelNodes();window.addEventListener('resize',positionWheelNodes);
 const db=$('#dropdownBtn'),dm=$('#dropdownMenu'),bn=$('#selectedBotName'),ob=$('#operateBtn');BOTS.forEach(b=>{const x=document.createElement('div');x.className='dropdown-item';x.innerHTML='<div class="name">'+b.name+'</div><div class="desc">'+b.desc+'</div>';x.onclick=()=>{selectedBot=b;bn.textContent=b.name;dm.classList.remove('open')};dm.appendChild(x)});db.onclick=e=>{e.stopPropagation();dm.classList.toggle('open')};
-const sb=$('#symbolBtn'),sm=$('#symbolMenu'),ss=$('#selectedSymbol');sb.onclick=e=>{e.stopPropagation();sm.classList.toggle('open')};document.querySelectorAll('.symbol-item').forEach(x=>x.onclick=()=>{selectedSymbol=x.dataset.symbol;ss.textContent=x.querySelector('.symbol-name')?.textContent||selectedSymbol;try{localStorage.setItem('izitrader_symbol',selectedSymbol)}catch{};sm.classList.remove('open')});
+const sb=$('#symbolBtn'),sm=$('#symbolMenu'),ss=$('#selectedSymbol');
+if(sb&&sm){
+  sb.onclick=e=>{e.preventDefault();e.stopPropagation();sm.classList.toggle('open');};
+  sm.addEventListener('click',e=>{
+    const x=e.target.closest('.symbol-item');
+    if(!x)return;
+    e.preventDefault();e.stopPropagation();
+    selectedSymbol=x.dataset.symbol||selectedSymbol;
+    ss.textContent=x.querySelector('.symbol-name')?.textContent||selectedSymbol;
+    try{localStorage.setItem('izitrader_symbol',selectedSymbol)}catch{}
+    sm.classList.remove('open');
+    window.dispatchEvent(new CustomEvent('izitrader:symbol-change',{detail:{symbol:selectedSymbol}}));
+  });
+}
 const tb=$('#themeBtn');(function(){const saved=localStorage.getItem('izitrader_theme');if(saved==='dark')document.body.classList.add('dark');function sync(){const dark=document.body.classList.contains('dark');tb.textContent=dark?'☀️':'🌙';tb.title=dark?'Modo claro':'Modo escuro'}sync();tb.onclick=()=>{document.body.classList.toggle('dark');localStorage.setItem('izitrader_theme',document.body.classList.contains('dark')?'dark':'light');sync()}})();
 const menu=$('#menu'),lo=$('#languageOptions');$('#menuBtn').onclick=e=>{e.stopPropagation();menu.classList.toggle('open')};$('#menuLang').onclick=e=>{e.stopPropagation();lo.classList.toggle('open')};$('#menuSettings').onclick=()=>alert('Definições');$('#menuHelp').onclick=()=>alert('Central de ajuda');
 const ab=$('#analysisBtn'),am=$('#analysisMenu');let analysisWindow=25;ab.onclick=e=>{e.stopPropagation();am.classList.toggle('open')};document.querySelectorAll('.analysis-item').forEach(x=>x.onclick=()=>{analysisWindow=Number(x.dataset.window);document.querySelectorAll('.analysis-item').forEach(y=>y.classList.remove('active'));x.classList.add('active');ab.textContent=analysisWindow+' TICKS';am.classList.remove('open');window.IziLiveAnalysis?.setWindow?.(analysisWindow)});
@@ -1900,7 +1962,6 @@ window.addEventListener('izitrader:contract-closed',e=>{
     hist.appendChild(item);
   }
   item.dataset.closed='1';
-  item.dataset.date = new Date().toLocaleString('pt-PT', {day:'2-digit', month:'2-digit', year:'numeric', hour:'2-digit', minute:'2-digit'});
   renderChip(item,c,result);
   if(!wasClosed)operationCount++;
   updateOps();

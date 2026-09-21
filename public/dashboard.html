@@ -176,13 +176,170 @@ body.dark .icon-btn,body.dark .sair-btn{background:var(--field);color:var(--text
 
 
 
-/* Align analysis/targets with the actual wheel edges */
-.analysis-wrap{left:calc(50% - 160px)}
-.target-wrap{right:calc(50% - 160px)}
-@media (max-width: 899px){
-  .analysis-wrap{left:calc(50% - 140px)}
-  .target-wrap{right:calc(50% - 140px)}
+
+
+/* ===== Approved responsive dashboard layout ===== */
+.dashboard-layout{
+  width:100%;
+  max-width:none;
+  margin:0;
+  display:grid;
+  grid-template-columns:minmax(270px,20vw) minmax(360px,1fr) minmax(280px,22vw);
+  gap:20px;
+  align-items:start;
 }
+
+.dashboard-left,
+.dashboard-center,
+.dashboard-right{
+  min-width:0;
+  width:100%;
+}
+
+.dashboard-center{
+  display:flex;
+  flex-direction:column;
+  align-items:center;
+}
+
+.dashboard-center .status{
+  width:100%;
+  min-height:34px;
+  display:flex;
+  align-items:center;
+  justify-content:center;
+  margin:0 0 8px;
+}
+
+.dashboard-right{
+  display:flex;
+  flex-direction:column;
+  gap:16px;
+}
+
+.dashboard-right .card{
+  width:100%;
+  margin:0;
+}
+
+.wheel-area{
+  position:relative;
+  width:min(100%,520px);
+  aspect-ratio:1;
+  display:flex;
+  align-items:center;
+  justify-content:center;
+  margin:0 auto;
+}
+
+.wheel{
+  width:100%!important;
+  height:100%!important;
+  max-width:none!important;
+  max-height:none!important;
+  min-width:0!important;
+  min-height:0!important;
+  margin:0;
+}
+
+.wheel-area .analysis-wrap{
+  left:0;
+  top:0;
+  z-index:10;
+}
+
+.wheel-area .target-wrap{
+  right:0;
+  top:0;
+  z-index:10;
+}
+
+.wheel-area .analysis-btn,
+.wheel-area .target-btn{
+  padding:6px 0;
+}
+
+@media (min-width:1500px){
+  .dashboard-layout{
+    grid-template-columns:minmax(300px,21vw) minmax(500px,1fr) minmax(320px,23vw);
+    gap:28px;
+  }
+
+  .wheel-area{
+    width:min(100%,560px);
+  }
+}
+
+@media (max-width:1199px){
+  .dashboard-layout{
+    grid-template-columns:minmax(240px,1fr) minmax(300px,1.1fr);
+    gap:16px;
+  }
+
+  .dashboard-left{
+    grid-column:1;
+  }
+
+  .dashboard-center{
+    grid-column:2;
+  }
+
+  .dashboard-right{
+    grid-column:1 / -1;
+    display:grid;
+    grid-template-columns:1fr 1fr;
+    gap:16px;
+  }
+}
+
+@media (max-width:899px){
+  body{
+    padding:18px 14px 64px;
+  }
+
+  .dashboard-layout{
+    display:grid;
+    grid-template-columns:1fr;
+    gap:14px;
+  }
+
+  .dashboard-left,
+  .dashboard-center,
+  .dashboard-right{
+    grid-column:auto;
+    width:100%;
+  }
+
+  .dashboard-right{
+    display:flex;
+    flex-direction:column;
+    gap:14px;
+  }
+
+  .wheel-area{
+    width:min(100%,430px);
+  }
+}
+
+@media (max-width:599px){
+  body{
+    padding:12px 10px 60px;
+  }
+
+  .dashboard-layout{
+    gap:12px;
+  }
+
+  .wheel-area{
+    width:min(100%,300px);
+  }
+
+  .row3{
+    grid-template-columns:1fr 1.2fr .8fr;
+    gap:8px;
+  }
+}
+
 </style>
 </head>
 <body>
@@ -190,51 +347,182 @@ body.dark .icon-btn,body.dark .sair-btn{background:var(--field);color:var(--text
 <div class="auth-page" id="sessionLoading"><div class="auth-card"><img class="auth-logo" src="/favicon.svg" alt="Izitrader"><div class="auth-brand">Izi<span>trader</span></div><div class="auth-title">A verificar a sessão...</div><p class="auth-subtitle">Aguarde enquanto ligamos à sua conta.</p></div></div>
 <div class="app hidden" id="appPage">
   <div class="header"><img class="logo" src="/favicon.svg" alt="Izitrader"><div class="brand">Izi<span>trader</span></div><div class="header-actions"><button class="icon-btn" id="themeBtn">☀️</button><button class="icon-btn" id="menuBtn">•••</button><button class="sair-btn" id="sairBtn">Sair</button><div class="menu" id="menu"><div class="menu-item" id="menuSettings">Definições</div><div class="menu-item" id="menuLang">Idioma ▸</div><div class="language-options" id="languageOptions"><div class="language-item" data-lang="en">🇬🇧 English</div><div class="language-item" data-lang="pt">🇵🇹 Português</div><div class="language-item" data-lang="es">🇪🇸 Español</div></div><div class="menu-item" id="menuHelp">Ajuda</div></div></div></div>
-  <div class="dashboard-layout">
-    <div class="dashboard-left">
-  <div class="card balance-row"><div><div class="label">SALDO</div><div class="value" id="balance">A carregar...</div></div><div class="divider"></div><div><div class="label">LUCRO/PERDA</div><div class="value profit" id="pnl">+$0.00</div><div class="profit-ops"><span id="opsLabel">OPERAÇÕES</span> <b id="opsCount">0</b></div></div></div>
-  <div class="row3"><div><div class="field-label">TIPO DE CONTA</div><select class="account-select" id="iziAccountSelect"><option value="real">Real</option><option value="demo">Demo</option></select></div><div><div class="field-label">BOT</div><div class="dropdown"><button class="dropdown-btn" id="dropdownBtn"><span id="selectedBotName">ProParity</span><span>▾</span></button><div class="dropdown-menu" id="dropdownMenu"></div></div></div><div><div class="field-label">AULA</div><div class="pill pill-aula">▶</div></div></div>
-  <div class="history-card"><div class="history-head"><div class="history-title">HISTÓRICO RECENTE</div><div class="history-hint">deslize para ver mais →</div></div><div class="history-row" id="historyScroll"></div><div class="history-stage stage-tracker" id="stageTracker">
-    <button class="stage-stop-btn" id="stageStopBtn" type="button" aria-label="Stop Robot" title="Stop Robot"><span></span></button>
-    <div class="stage-steps">
-      <div class="stage-dots">
-        <span class="stage-dot active" id="stageDot0"></span>
-        <span class="stage-line" id="stageLine0"></span>
-        <span class="stage-dot" id="stageDot1"></span>
-        <span class="stage-line" id="stageLine1"></span>
-        <span class="stage-dot" id="stageDot2"></span>
+  <main class="dashboard-layout">
+
+    <section class="dashboard-left">
+
+      <div class="card balance-row">
+        <div>
+          <div class="label">SALDO</div>
+          <div class="value" id="balance">A carregar...</div>
+        </div>
+
+        <div class="divider"></div>
+
+        <div>
+          <div class="label">LUCRO/PERDA</div>
+          <div class="value profit" id="pnl">+$0.00</div>
+
+          <div class="profit-ops">
+            <span id="opsLabel">OPERAÇÕES</span>
+            <b id="opsCount">0</b>
+          </div>
+        </div>
       </div>
-      <div class="stage-labels">
-        <span class="active" id="stageLabel0">ANALISANDO</span>
-        <span id="stageLabel1">ABERTO</span>
-        <span id="stageLabel2">FECHADO</span>
+
+      <div class="row3">
+        <div>
+          <div class="field-label">TIPO DE CONTA</div>
+          <select class="account-select" id="iziAccountSelect">
+            <option value="real">Real</option>
+            <option value="demo">Demo</option>
+          </select>
+        </div>
+
+        <div>
+          <div class="field-label">BOT</div>
+          <div class="dropdown">
+            <button class="dropdown-btn" id="dropdownBtn">
+              <span id="selectedBotName">ProParity</span>
+              <span>▾</span>
+            </button>
+            <div class="dropdown-menu" id="dropdownMenu"></div>
+          </div>
+        </div>
+
+        <div>
+          <div class="field-label">AULA</div>
+          <div class="pill pill-aula">▶</div>
+        </div>
       </div>
-    </div>
-  </div></div>
-    </div>
-    <div class="dashboard-right">
-  <div class="status"><span class="dot"></span><span id="statusText">A ligar à Deriv...</span></div>
-  <div class="wheel-wrap"><div class="analysis-wrap"><button class="analysis-btn" id="analysisBtn">25 TICKS</button><div class="analysis-menu" id="analysisMenu"><div class="analysis-item active" data-window="25">25 ticks</div><div class="analysis-item" data-window="100">100 ticks</div><div class="analysis-item" data-window="200">200 ticks</div><div class="analysis-item" data-window="500">500 ticks</div><div class="analysis-item" data-window="1000">1000 ticks</div></div></div><div class="target-wrap"><button class="target-btn" id="targetBtn">METAS</button><div class="target-menu" id="targetMenu"><div class="target-title">Setup de metas</div><div class="target-field"><label>Meta de lucros (USD)</label><input id="profitTarget" type="number" min="0" step="0.01"></div><div class="target-field"><label>Meta de perdas (USD)</label><input id="lossTarget" type="number" min="0" step="0.01"></div><button class="target-save" id="targetSave">Guardar metas</button><div class="target-status" id="targetStatus">Nenhuma meta definida</div></div></div><div class="wheel" id="wheel"><div class="center"><div class="digit" id="lastDigit">–</div><div class="caption">ÚLTIMO DÍGITO</div></div></div></div>
-  <div class="card"><div class="field-label">APOSTA <span style="float:right">mínimo: $0.35 USD</span></div><div class="stake-row"><span style="color:var(--muted);font-weight:700">USD</span><span class="stake-value">0.35</span></div><button class="operate-btn" id="operateBtn">▶ Start Robot</button><div class="note">Ligação segura à Deriv — saldo e ticks em tempo real.</div></div>
-  <div class="card symbol-card"><div class="field-label">SÍMBOLO</div><div class="symbol-dropdown"><button class="dropdown-btn" id="symbolBtn"><span id="selectedSymbol">Volatility 100</span><span>▾</span></button><div class="symbol-menu" id="symbolMenu">
-<div class="symbol-item" data-symbol="V10"><span class="symbol-name">Volatility 10</span></div>
-<div class="symbol-item" data-symbol="V15"><span class="symbol-name">Volatility 15 (1s)</span></div>
-<div class="symbol-item" data-symbol="V25"><span class="symbol-name">Volatility 25</span></div>
-<div class="symbol-item" data-symbol="V30"><span class="symbol-name">Volatility 30 (1s)</span></div>
-<div class="symbol-item" data-symbol="V50"><span class="symbol-name">Volatility 50</span></div>
-<div class="symbol-item" data-symbol="V75"><span class="symbol-name">Volatility 75</span></div>
-<div class="symbol-item" data-symbol="V90"><span class="symbol-name">Volatility 90 (1s)</span></div>
-<div class="symbol-item" data-symbol="V100"><span class="symbol-name">Volatility 100</span></div>
-<div class="symbol-item" data-symbol="V150"><span class="symbol-name">Volatility 150 (1s)</span></div>
-<div class="symbol-item" data-symbol="V250"><span class="symbol-name">Volatility 250 (1s)</span></div>
-<div class="symbol-item" data-symbol="V10_1S"><span class="symbol-name">Volatility 10 (1s)</span></div>
-<div class="symbol-item" data-symbol="V25_1S"><span class="symbol-name">Volatility 25 (1s)</span></div>
-<div class="symbol-item" data-symbol="V50_1S"><span class="symbol-name">Volatility 50 (1s)</span></div>
-<div class="symbol-item" data-symbol="V75_1S"><span class="symbol-name">Volatility 75 (1s)</span></div>
-<div class="symbol-item" data-symbol="V100_1S"><span class="symbol-name">Volatility 100 (1s)</span></div>
-</div></div></div>
-</div>    </div>
-  </div>
+
+      <section class="history-card">
+        <div class="history-head">
+          <div class="history-title">HISTÓRICO RECENTE</div>
+          <div class="history-hint">deslize para ver mais →</div>
+        </div>
+
+        <div class="history-row" id="historyScroll"></div>
+
+        <div class="history-stage stage-tracker" id="stageTracker">
+          <button
+            class="stage-stop-btn"
+            id="stageStopBtn"
+            type="button"
+            aria-label="Stop Robot"
+            title="Stop Robot"
+          >
+            <span></span>
+          </button>
+
+          <div class="stage-steps">
+            <div class="stage-dots">
+              <span class="stage-dot active" id="stageDot0"></span>
+              <span class="stage-line" id="stageLine0"></span>
+              <span class="stage-dot" id="stageDot1"></span>
+              <span class="stage-line" id="stageLine1"></span>
+              <span class="stage-dot" id="stageDot2"></span>
+            </div>
+
+            <div class="stage-labels">
+              <span class="active" id="stageLabel0">ANALISANDO</span>
+              <span id="stageLabel1">ABERTO</span>
+              <span id="stageLabel2">FECHADO</span>
+            </div>
+          </div>
+        </div>
+      </section>
+
+    </section>
+
+    <section class="dashboard-center">
+
+      <div class="status">
+        <span class="dot"></span>
+        <span id="statusText">A ligar à Deriv...</span>
+      </div>
+
+      <div class="wheel-area">
+
+        <div class="analysis-wrap">
+          <button class="analysis-btn" id="analysisBtn">25 TICKS</button>
+
+          <div class="analysis-menu" id="analysisMenu">
+            <div class="analysis-item active" data-window="25">25 ticks</div>
+            <div class="analysis-item" data-window="100">100 ticks</div>
+            <div class="analysis-item" data-window="200">200 ticks</div>
+            <div class="analysis-item" data-window="500">500 ticks</div>
+            <div class="analysis-item" data-window="1000">1000 ticks</div>
+          </div>
+        </div>
+
+        <div class="target-wrap">
+          <button class="target-btn" id="targetBtn">METAS</button>
+
+          <div class="target-menu" id="targetMenu">
+            <div class="target-title">Setup de metas</div>
+
+            <div class="target-field">
+              <label>Meta de lucros (USD)</label>
+              <input id="profitTarget" type="number" min="0" step="0.01">
+            </div>
+
+            <div class="target-field">
+              <label>Meta de perdas (USD)</label>
+              <input id="lossTarget" type="number" min="0" step="0.01">
+            </div>
+
+            <button class="target-save" id="targetSave">Guardar metas</button>
+            <div class="target-status" id="targetStatus">Nenhuma meta definida</div>
+          </div>
+        </div>
+
+        <div class="wheel" id="wheel">
+          <div class="center">
+            <div class="digit" id="lastDigit">–</div>
+            <div class="caption">ÚLTIMO DÍGITO</div>
+          </div>
+        </div>
+
+      </div>
+    </section>
+
+    <aside class="dashboard-right">
+
+      <div class="card">
+        <div class="field-label">
+          APOSTA
+          <span style="float:right">mínimo: $0.35 USD</span>
+        </div>
+
+        <div class="stake-row">
+          <span style="color:var(--muted);font-weight:700">USD</span>
+          <span class="stake-value">0.35</span>
+        </div>
+
+        <button class="operate-btn" id="operateBtn">▶ Start Robot</button>
+
+        <div class="note">
+          Ligação segura à Deriv — saldo e ticks em tempo real.
+        </div>
+      </div>
+
+      <div class="card symbol-card">
+        <div class="field-label">SÍMBOLO</div>
+
+        <div class="symbol-dropdown">
+          <button class="dropdown-btn" id="symbolBtn">
+            <span id="selectedSymbol">Volatility 100</span>
+            <span>▾</span>
+          </button>
+
+          <div class="symbol-menu" id="symbolMenu"></div>
+        </div>
+      </div>
+
+    </aside>
+
+  </main>
 <a class="whatsapp-btn" href="https://wa.me/258842522538?text=Ol%C3%A1%2C%20preciso%20de%20suporte%20no%20Izitrader" target="_blank" rel="noopener" aria-label="Suporte">☎</a>
 <script>
 const BOTS=[{id:'proparity',name:'ProParity',desc:'Ganha em dígito par',contractType:'DIGITEVEN'},{id:'octawin',name:'Octawin',desc:'Ganha se o dígito for menor que 8',contractType:'DIGITUNDER',barrier:'8'},{id:'oddez',name:'OddEz',desc:'Ganha em dígito ímpar',contractType:'DIGITODD'},{id:'tradesix',name:'TradeSix',desc:'Ganha se o dígito for maior que 6',contractType:'DIGITOVER',barrier:'6'}];

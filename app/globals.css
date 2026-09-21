@@ -77,3 +77,13 @@ html,body{width:100%;min-height:100%;overflow-x:hidden}
 @media (min-width:900px){
   .card > .risk-warning{margin-top:34px!important}
 }
+
+/* Final full-screen sizing */
+@media (min-width:900px){
+  .page{padding:32px 40px 48px;align-items:stretch}
+  .shell{max-width:none;width:100%;min-height:calc(100dvh - 80px)}
+  .page-head{width:100%;padding-left:2px;padding-right:2px}
+  .card{width:100%;min-height:calc(100dvh - 150px);display:flex;flex-direction:column}
+  .auth-form{width:100%;max-width:none;grid-template-columns:repeat(2,minmax(0,1fr));flex:0 0 auto}
+  .form-submit{max-width:620px}
+}

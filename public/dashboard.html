@@ -1873,39 +1873,7 @@ $('#iziAccountSelect').value=localStorage.getItem('izitrader_account_type')||'re
     });
   }
 
-  function bindFinalDropdowns(){
-    const ab=document.getElementById('analysisBtn');
-    const am=document.getElementById('analysisMenu');
-    const tb=document.getElementById('targetBtn');
-    const tm=document.getElementById('targetMenu');
-    const sb=document.getElementById('symbolBtn');
-    const sm=document.getElementById('symbolMenu');
-
-    if(ab&&am&&!ab.dataset.finalBound){
-      ab.dataset.finalBound='1';
-      ab.addEventListener('click',e=>{
-        e.preventDefault();e.stopPropagation();
-        am.classList.toggle('open');
-        am.style.display=am.classList.contains('open')?'block':'none';
-      });
-    }
-    if(tb&&tm&&!tb.dataset.finalBound){
-      tb.dataset.finalBound='1';
-      tb.addEventListener('click',e=>{
-        e.preventDefault();e.stopPropagation();
-        tm.classList.toggle('open');
-        tm.style.display=tm.classList.contains('open')?'block':'none';
-      });
-    }
-    if(sb&&sm&&!sb.dataset.finalBound){
-      sb.dataset.finalBound='1';
-      sb.addEventListener('click',e=>{
-        e.preventDefault();e.stopPropagation();
-        sm.classList.toggle('open');
-        sm.style.display=sm.classList.contains('open')?'block':'none';
-      });
-    }
-  }
+  function bindFinalDropdowns(){ /* original dashboard handlers own these controls */ }
 
   function placeStage(){
     const stage=document.getElementById('stageTracker');
@@ -1923,7 +1891,6 @@ $('#iziAccountSelect').value=localStorage.getItem('izitrader_account_type')||'re
   }
 
   function run(){
-    bindFinalDropdowns();
     positionAllWheelDigits();
     placeStage();
     requestAnimationFrame(positionAllWheelDigits);

@@ -118,6 +118,15 @@ $('#iziAccountSelect').value=localStorage.getItem('izitrader_account_type')||'re
       resetTimer=setTimeout(()=>setStage(0),3000);
     }
   });
+  const stageText={en:{labels:['ANALYZING','OPEN','CLOSED'],stop:'Stop Robot'},pt:{labels:['ANALISANDO','ABERTO','FECHADO'],stop:'Parar Robô'},es:{labels:['ANALIZANDO','ABIERTO','CERRADO'],stop:'Detener Robot'}};
+  function applyStageLanguage(){
+    const lang=localStorage.getItem('izitrader_language')||localStorage.getItem('izitrader_lang')||'pt';
+    const t=stageText[lang]||stageText.pt;
+    labels.forEach((l,i)=>{if(l)l.textContent=t.labels[i]});
+    const stopBtn=$('#stageStopBtn');if(stopBtn){stopBtn.title=t.stop;stopBtn.setAttribute('aria-label',t.stop)}
+  }
+  applyStageLanguage();
+  window.addEventListener('izitrader:language-change',applyStageLanguage);
   const stopBtn=$('#stageStopBtn');
   if(stopBtn)stopBtn.onclick=()=>{window.IziDerivWS?.stop?.();setStage(0)};
 })();

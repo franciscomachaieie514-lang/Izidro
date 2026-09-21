@@ -614,6 +614,61 @@ body.dark .icon-btn,body.dark .sair-btn{background:var(--field);color:var(--text
     max-width:360px!important;max-height:360px!important;
   }
 }
+
+/* ===== Refined desktop spacing: move center/right content outward ===== */
+@media (min-width:1200px){
+  .dashboard-layout{
+    grid-template-columns:minmax(300px,27%) minmax(500px,1fr) minmax(330px,28%)!important;
+    gap:14px 34px!important;
+  }
+
+  .dashboard-center{
+    transform:translateX(34px);
+    width:calc(100% - 34px)!important;
+  }
+
+  .dashboard-right{
+    transform:translateX(22px);
+    width:calc(100% - 22px)!important;
+  }
+
+  .wheel-area{
+    width:min(100%,560px)!important;
+  }
+}
+
+@media (min-width:1600px){
+  .dashboard-layout{
+    grid-template-columns:minmax(340px,25%) minmax(560px,1fr) minmax(360px,30%)!important;
+    gap:18px 42px!important;
+  }
+
+  .dashboard-center{
+    transform:translateX(42px);
+    width:calc(100% - 42px)!important;
+  }
+
+  .dashboard-right{
+    transform:translateX(34px);
+    width:calc(100% - 34px)!important;
+  }
+
+  .wheel-area{
+    width:min(100%,610px)!important;
+  }
+}
+
+@media (min-width:1200px) and (max-height:850px){
+  .dashboard-center{
+    transform:translateX(26px);
+    width:calc(100% - 26px)!important;
+  }
+
+  .dashboard-right{
+    transform:translateX(16px);
+    width:calc(100% - 16px)!important;
+  }
+}
 </style>
 </head>
 <body>

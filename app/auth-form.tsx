@@ -43,6 +43,13 @@ export default function AuthForm({ mode }: { mode: 'login' | 'register' }) {
           <label className="label" htmlFor="password">PASSWORD</label><input id="password" className="input" type="password" value={password} onChange={(e) => setPassword(e.target.value)} autoComplete={mode === 'register' ? 'new-password' : 'current-password'} minLength={8} required />
           {mode === 'register' && <><label className="label" htmlFor="confirmPassword">CONFIRMAR PASSWORD</label><input id="confirmPassword" className="input" type="password" value={confirmPassword} onChange={(e) => setConfirmPassword(e.target.value)} autoComplete="new-password" minLength={8} required /></>}
           <button className="btn primary" type="submit" disabled={busy}>{busy ? 'Aguarde...' : mode === 'register' ? 'Criar conta' : 'Entrar'}</button>
+          {mode === 'login' && (
+            <div style={{ textAlign: 'right', marginTop: 10 }}>
+              <Link href="/forgot-password" style={{ color: '#e30613', fontSize: 12, fontWeight: 700, textDecoration: 'none' }}>
+                Esqueceu a password?
+              </Link>
+            </div>
+          )}
         </form>
         {error && <div className="error">{error}</div>}
         <p className="foot">{mode === 'register' ? 'Já tem uma conta? ' : 'Ainda não tem uma conta? '}<Link href={mode === 'register' ? '/login' : '/register'} style={{ color: '#e30613', fontWeight: 700 }}>{mode === 'register' ? 'Entrar' : 'Criar conta'}</Link></p>

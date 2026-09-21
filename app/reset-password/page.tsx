@@ -1,10 +1,10 @@
 'use client';
 
-import { FormEvent, useState } from 'react';
+import { FormEvent, Suspense, useState } from 'react';
 import Link from 'next/link';
 import { useSearchParams } from 'next/navigation';
 
-export default function ResetPasswordPage() {
+function ResetPasswordForm() {
   const params = useSearchParams();
   const token = params.get('token') || '';
   const [password, setPassword] = useState('');
@@ -31,30 +31,38 @@ export default function ResetPasswordPage() {
   }
 
   return (
+    <div className="card">
+      {done ? <>
+        <h1 className="title">Password alterada</h1>
+        <p className="muted">A sua password foi redefinida com sucesso. Já pode entrar na plataforma.</p>
+        <Link href="/login" className="btn primary" style={{display:'block',textAlign:'center',textDecoration:'none',marginTop:16}}>Entrar</Link>
+      </> : <>
+        <h1 className="title">Nova password</h1>
+        <p className="muted">Escolha uma nova password para a sua conta Izitrader.</p>
+        <form onSubmit={submit}>
+          <label className="label" htmlFor="password">NOVA PASSWORD</label>
+          <input id="password" className="input" type="password" value={password} onChange={e=>setPassword(e.target.value)} autoComplete="new-password" minLength={8} required />
+          <label className="label" htmlFor="confirmPassword">CONFIRMAR PASSWORD</label>
+          <input id="confirmPassword" className="input" type="password" value={confirmPassword} onChange={e=>setConfirmPassword(e.target.value)} autoComplete="new-password" minLength={8} required />
+          <button className="btn primary" type="submit" disabled={busy || !token}>{busy ? 'A guardar...' : 'Redefinir password'}</button>
+        </form>
+        {!token && <div className="error">Link de recuperação inválido ou incompleto.</div>}
+        {error && <div className="error">{error}</div>}
+        <p className="foot"><Link href="/login" style={{color:'#e30613',fontWeight:700}}>Voltar ao login</Link></p>
+      </>}
+    </div>
+  );
+}
+
+export default function ResetPasswordPage() {
+  return (
     <main className="page"><div className="shell">
       <Link href="/" className="brand" style={{ textDecoration:'none', color:'inherit' }}>
         <div className="logo">I</div><div className="brandName">Izi<span>trader</span></div>
       </Link>
-      <div className="card">
-        {done ? <>
-          <h1 className="title">Password alterada</h1>
-          <p className="muted">A sua password foi redefinida com sucesso. Já pode entrar na plataforma.</p>
-          <Link href="/login" className="btn primary" style={{display:'block',textAlign:'center',textDecoration:'none',marginTop:16}}>Entrar</Link>
-        </> : <>
-          <h1 className="title">Nova password</h1>
-          <p className="muted">Escolha uma nova password para a sua conta Izitrader.</p>
-          <form onSubmit={submit}>
-            <label className="label" htmlFor="password">NOVA PASSWORD</label>
-            <input id="password" className="input" type="password" value={password} onChange={e=>setPassword(e.target.value)} autoComplete="new-password" minLength={8} required />
-            <label className="label" htmlFor="confirmPassword">CONFIRMAR PASSWORD</label>
-            <input id="confirmPassword" className="input" type="password" value={confirmPassword} onChange={e=>setConfirmPassword(e.target.value)} autoComplete="new-password" minLength={8} required />
-            <button className="btn primary" type="submit" disabled={busy || !token}>{busy ? 'A guardar...' : 'Redefinir password'}</button>
-          </form>
-          {!token && <div className="error">Link de recuperação inválido ou incompleto.</div>}
-          {error && <div className="error">{error}</div>}
-          <p className="foot"><Link href="/login" style={{color:'#e30613',fontWeight:700}}>Voltar ao login</Link></p>
-        </>}
-      </div>
+      <Suspense fallback={<div className="card"><p className="muted">A carregar...</p></div>}>
+        <ResetPasswordForm />
+      </Suspense>
     </div></main>
   );
 }

@@ -1201,6 +1201,33 @@ body.dark .icon-btn,body.dark .sair-btn{background:var(--field);color:var(--text
   }
 }
 
+
+/* ===== Operation stage directly below AULA, same width as 25 TICKS ↔ METAS ===== */
+@media (min-width:1200px){
+  .dashboard-center{
+    position:relative!important;
+  }
+  .dashboard-center .center-stage-strip{
+    display:block!important;
+    position:absolute!important;
+    z-index:7!important;
+    top:112px!important;
+    left:0!important;
+    right:0!important;
+    width:auto!important;
+    margin:0!important;
+    padding:0!important;
+  }
+  .dashboard-center .center-stage-strip .stage-tracker{
+    width:100%!important;
+    min-height:48px!important;
+    margin:0!important;
+  }
+}
+@media (min-width:1600px){
+  .dashboard-center .center-stage-strip{top:112px!important}
+}
+
 </style>
 </head>
 <body>
@@ -1261,34 +1288,7 @@ body.dark .icon-btn,body.dark .sair-btn{background:var(--field);color:var(--text
 
         <div class="history-row" id="historyScroll"></div>
 
-        <div class="history-stage stage-tracker" id="stageTracker">
-          <button
-            class="stage-stop-btn"
-            id="stageStopBtn"
-            type="button"
-            aria-label="Stop Robot"
-            title="Stop Robot"
-          >
-            <span></span>
-          </button>
-
-          <div class="stage-steps">
-            <div class="stage-dots">
-              <span class="stage-dot active" id="stageDot0"></span>
-              <span class="stage-line" id="stageLine0"></span>
-              <span class="stage-dot" id="stageDot1"></span>
-              <span class="stage-line" id="stageLine1"></span>
-              <span class="stage-dot" id="stageDot2"></span>
-            </div>
-
-            <div class="stage-labels">
-              <span class="active" id="stageLabel0">ANALISANDO</span>
-              <span id="stageLabel1">ABERTO</span>
-              <span id="stageLabel2">FECHADO</span>
-            </div>
-          </div>
-        </div>
-      </section>
+    </section>
 
     </section>
 
@@ -1303,6 +1303,35 @@ body.dark .icon-btn,body.dark .sair-btn{background:var(--field);color:var(--text
       <div class="aula-label">AULA</div>
       <div class="pill pill-aula">▶</div>
     </div>
+
+      <div class="history-stage stage-tracker" id="stageTracker">
+        <button
+          class="stage-stop-btn"
+          id="stageStopBtn"
+          type="button"
+          aria-label="Stop Robot"
+          title="Stop Robot"
+        >
+          <span></span>
+        </button>
+
+        <div class="stage-steps">
+          <div class="stage-dots">
+            <span class="stage-dot active" id="stageDot0"></span>
+            <span class="stage-line" id="stageLine0"></span>
+            <span class="stage-dot" id="stageDot1"></span>
+            <span class="stage-line" id="stageLine1"></span>
+            <span class="stage-dot" id="stageDot2"></span>
+          </div>
+
+          <div class="stage-labels">
+            <span class="active" id="stageLabel0">ANALISANDO</span>
+            <span id="stageLabel1">ABERTO</span>
+            <span id="stageLabel2">FECHADO</span>
+          </div>
+        </div>
+      </div>
+  
 
       <div class="wheel-area">
 

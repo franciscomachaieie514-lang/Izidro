@@ -380,6 +380,43 @@ body.dark .icon-btn,body.dark .sair-btn{background:var(--field);color:var(--text
   .dashboard-layout{min-height:calc(100vh - 68px);gap:14px}
   .wheel-area{width:min(100%,calc(100vh - 125px));min-height:420px}
 }
+
+/* ===== Align wheel below account/bot controls ===== */
+@media (min-width:1200px){
+  .dashboard-center{
+    padding-top:126px;
+    box-sizing:border-box;
+  }
+
+  .dashboard-center .status{
+    margin-bottom:10px;
+  }
+
+  .wheel-area{
+    width:min(100%,600px,calc(100vh - 260px));
+    min-height:0;
+  }
+}
+
+@media (min-width:1600px){
+  .dashboard-center{
+    padding-top:132px;
+  }
+
+  .wheel-area{
+    width:min(100%,640px,calc(100vh - 250px));
+  }
+}
+
+@media (min-width:1200px) and (max-height:800px){
+  .dashboard-center{
+    padding-top:105px;
+  }
+
+  .wheel-area{
+    width:min(100%,520px,calc(100vh - 215px));
+  }
+}
 </style>
 </head>
 <body>

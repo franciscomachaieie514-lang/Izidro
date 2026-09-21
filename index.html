@@ -6,7 +6,8 @@
 <meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate" />
 <meta http-equiv="Pragma" content="no-cache" />
 <meta http-equiv="Expires" content="0" />
-<meta name="app-version" content="2026-09-15-stake-controls-2" />
+<meta name="app-version" content="2026-09-21-izitrader-logo" />
+<link rel="icon" type="image/svg+xml" href="/izitrader-icon.svg" />
 <title>Izitrader — demo</title>
 <style>
   * { box-sizing: border-box; }
@@ -40,7 +41,8 @@
   }
   .app { width: 100%; max-width: 420px; }
   .header { display: flex; align-items: center; gap: 10px; margin-bottom: 20px; }
-  .logo { width: 40px; height: 40px; border-radius: 10px; background: linear-gradient(135deg,#f5a623,#ffd166); display: flex; align-items: center; justify-content: center; font-weight: 800; color: #1a1305; flex-shrink: 0; }
+  .logo { width: 40px; height: 40px; border-radius: 10px; overflow: hidden; flex-shrink: 0; display: flex; align-items: center; justify-content: center; background: var(--field); border: 1px solid var(--border); }
+  .logo img { width: 100%; height: 100%; display: block; object-fit: cover; }
   .brand { font-size: 20px; font-weight: 700; margin-right: auto; color: var(--text); }
   .brand span { color: #f5c04a; }
   .header-actions { display: flex; align-items: center; gap: 8px; position: relative; }
@@ -106,7 +108,7 @@
 <body>
 <div class="app">
   <div class="header">
-    <div class="logo">I</div>
+    <div class="logo"><img src="/izitrader-icon.svg" alt="Izitrader" /></div>
     <div class="brand">Izi<span>trader</span></div>
     <div class="header-actions">
       <button class="icon-btn" id="themeBtn" aria-label="Alternar tema" title="Alternar tema claro/escuro">☀️</button>

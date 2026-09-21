@@ -6,7 +6,7 @@ pt:{balance:'SALDO',pnl:'LUCRO/PERDA',account:'TIPO DE CONTA',bot:'BOT',classroo
 es:{balance:'SALDO',pnl:'GANANCIA/PÉRDIDA',account:'TIPO DE CUENTA',bot:'BOT',classroom:'LECCIÓN',history:'HISTORIAL RECIENTE',slide:'desliza para ver más →',last:'ÚLTIMO DÍGITO',stake:'APUESTA',minimum:'mínimo: $0.35 USD',symbol:'SÍMBOLO',start:'▶ INICIAR ROBOT',stop:'■ DETENER ROBOT',settings:'Ajustes',language:'Idioma',help:'Ayuda',goals:'OBJETIVOS',profitTarget:'Meta de ganancias (USD)',lossTarget:'Meta de pérdidas (USD)',save:'Guardar objetivos',noTarget:'Sin objetivo definido',accountReal:'Real',accountDemo:'Demo',statusConnecting:'Conectando a Deriv…',statusReal:'Cuenta Real conectada',statusDemo:'Cuenta Demo conectada',analyzing:'ANALIZANDO',open:'ABIERTO',closed:'CERRADO',robot:'Robot activo — esperando señal',martingale:'Martingale ON',nextStake:'próxima apuesta',gain:'GANANCIA',loss:'PÉRDIDA',positions:'POSICIONES',operations:'OPERACIONES'}
 }};
 const BOT_TEXT={en:{proparity:'Wins on even digits',octawin:'Wins if the digit is below 8',oddez:'Wins on odd digits',tradesix:'Wins if the digit is above 6'},pt:{proparity:'Ganha em dígito par',octawin:'Ganha se o dígito for menor que 8',oddez:'Ganha em dígito ímpar',tradesix:'Ganha se o dígito for maior que 6'},es:{proparity:'Gana con dígito par',octawin:'Gana si el dígito es menor que 8',oddez:'Gana con dígito impar',tradesix:'Gana si el dígito es mayor que 6'}};
-let current='en',observerStarted=false;
+let current='en';
 const getLang=()=>{try{return localStorage.getItem('izitrader_language')||localStorage.getItem('izitrader_lang')||'en'}catch{return'en'}};
 function setText(id,text){const e=document.getElementById(id);if(e)e.textContent=text}
 function replaceKnownText(root,t){
@@ -28,7 +28,7 @@ function applyLanguage(){
  current=getLang();const t=T[current]||T.en;localStorage.setItem('izitrader_language',current);localStorage.setItem('izitrader_lang',current);document.documentElement.lang=current;
  setText('menuSettings',t.settings);setText('menuLang',t.language+' ▸');setText('menuHelp',t.help);setText('sairBtn',current==='en'?'Logout':current==='es'?'Salir':'Sair');
  setText('opsLabel',t.operations);setText('stageLabel0',t.analyzing);setText('stageLabel1',t.open);setText('stageLabel2',t.closed);
- setText('statusText',t.statusConnecting);setText('analysisBtn',document.getElementById('analysisBtn')?.textContent||'25 TICKS');setText('targetBtn',t.goals);setText('targetSave',t.save);setText('targetStatus',t.noTarget);setText('lastDigit',document.getElementById('lastDigit')?.textContent||'–');setText('operateBtn',t.start);
+ const status=document.getElementById('statusText');if(status){const v=status.textContent||'';const connected=/connected|ligad|ligada|ligado|conectad|conectada|conectado/i.test(v);const demo=/demo/i.test(v);status.textContent=connected?(demo?t.statusDemo:t.statusReal):t.statusConnecting}setText('analysisBtn',document.getElementById('analysisBtn')?.textContent||'25 TICKS');setText('targetBtn',t.goals);setText('targetSave',t.save);setText('targetStatus',t.noTarget);setText('lastDigit',document.getElementById('lastDigit')?.textContent||'–');setText('operateBtn',t.start);
  const labels=document.querySelectorAll('.row3 .field-label');if(labels[0])labels[0].textContent=t.account;if(labels[1])labels[1].textContent=t.bot;if(labels[2])labels[2].textContent=t.classroom;
  const bl=document.querySelector('.balance-row .label');if(bl)bl.textContent=t.balance;const pnl=document.querySelectorAll('.balance-row .label')[1];if(pnl)pnl.textContent=t.pnl;
  const h=document.querySelector('.history-title');if(h)h.textContent=t.history;const hint=document.querySelector('.history-hint');if(hint)hint.textContent=t.slide;
@@ -52,8 +52,7 @@ function ensureSymbols(){
  if(b&&!b.dataset.iziSymbolsFix){b.dataset.iziSymbolsFix='1';b.addEventListener('click',e=>{e.preventDefault();e.stopPropagation();ensureSymbols();m.classList.add('open');m.style.display='block'},{capture:true})}
 }
 function bindLanguages(){document.querySelectorAll('.language-item[data-lang]').forEach(item=>{if(item.dataset.iziLangBound)return;item.dataset.iziLangBound='1';item.addEventListener('click',e=>{e.preventDefault();e.stopPropagation();setLanguage(item.dataset.lang);document.getElementById('languageOptions')?.classList.remove('open');document.getElementById('menu')?.classList.remove('open')})})}
-function watchDynamic(){if(observerStarted)return;observerStarted=true;const target=document.getElementById('appPage')||document.body;new MutationObserver(()=>{replaceKnownText(target,T[current]||T.en)}).observe(target,{subtree:true,childList:true,characterData:true})}
-function boot(){current=getLang();applyLanguage();ensureSymbols();bindLanguages();watchDynamic();setTimeout(applyLanguage,200);setTimeout(applyLanguage,700)}
+function boot(){current=getLang();applyLanguage();ensureSymbols();bindLanguages();setTimeout(applyLanguage,200);setTimeout(applyLanguage,700)}
 if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',boot);else boot();
 window.addEventListener('izitrader:language-change',()=>applyLanguage());
 window.addEventListener('izitrader:contract-closed',()=>setTimeout(applyLanguage,0));

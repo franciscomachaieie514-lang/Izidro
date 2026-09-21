@@ -28,7 +28,17 @@
 .wheel-area #wheel{position:absolute!important;left:50%!important;top:40px!important;transform:translateX(-50%)!important;width:300px!important;height:300px!important;min-width:300px!important;min-height:300px!important;max-width:300px!important;max-height:300px!important;margin:0!important}
 }
 @media(max-width:399px){.wheel-area .analysis-btn,.wheel-area .target-btn{min-width:78px!important;padding-left:8px!important;padding-right:8px!important;font-size:9px!important}.wheel-area #wheel{width:286px!important;height:286px!important;min-width:286px!important;min-height:286px!important;max-width:286px!important;max-height:286px!important}}
-`;const s=document.getElementById('iziProfessionalUi')||document.createElement('style');s.id='iziProfessionalUi';s.textContent=css;if(!s.parentNode)document.head.appendChild(s);
+`
+/* ===== PC: 25 TICKS and METAS flank Account connected ===== */
+@media(min-width:900px){
+  .dashboard-center{position:relative!important}
+  .dashboard-center>.status{position:relative!important;z-index:10001!important;margin:6px 0 14px!important;text-align:center!important}
+  .dashboard-center>.wheel-area{position:static!important;overflow:visible!important}
+  .dashboard-center>.wheel-area>.analysis-wrap{position:absolute!important;top:0!important;left:0!important;right:auto!important;margin:0!important;z-index:10002!important}
+  .dashboard-center>.wheel-area>.target-wrap{position:absolute!important;top:0!important;right:0!important;left:auto!important;margin:0!important;z-index:10002!important}
+  .dashboard-center>.wheel-area>.wheel{position:relative!important}
+}
+;const s=document.getElementById('iziProfessionalUi')||document.createElement('style');s.id='iziProfessionalUi';s.textContent=css;if(!s.parentNode)document.head.appendChild(s);
 function loadLanguageModule(){if(document.querySelector('script[data-language-symbols-fix]'))return;const x=document.createElement('script');x.src='/language-symbols-fix.js';x.dataset.languageSymbolsFix='1';document.body.appendChild(x)}
 function alignWheel(){const w=document.getElementById('wheel');if(!w)return;const rect=w.getBoundingClientRect(),cx=rect.width/2,cy=rect.height/2,nodes=[...w.querySelectorAll('.digit-node')];if(nodes.length!==10)return;const maxNode=Math.max(...nodes.map(n=>{const r=n.getBoundingClientRect();return Math.max(r.width,r.height)}));const safety=Math.max(12,maxNode*.35);const radius=Math.max(0,Math.min(rect.width,rect.height)/2-maxNode/2-safety);nodes.forEach((n,i)=>{const angle=i*Math.PI*2/10-Math.PI/2;n.style.left=(cx+radius*Math.cos(angle))+'px';n.style.top=(cy+radius*Math.sin(angle))+'px';n.style.transform='translate(-50%,-50%)'});const c=w.querySelector('.center');if(c){c.style.left='50%';c.style.top='50%';c.style.transform='translate(-50%,-50%)'}}
 function apply(){const theme=localStorage.getItem('izitrader_theme')||'light';document.documentElement.dataset.theme=theme==='dark'?'dark':'light';document.body.classList.toggle('light',theme!=='dark');const b=document.getElementById('themeBtn');if(b){b.textContent=theme==='light'?'🌙':'☀️';b.title=theme==='light'?'Dark mode':'Light mode';b.setAttribute('aria-label',b.title)}alignWheel()}

@@ -1,46 +1,74 @@
-(()=>{const css=`:root{--bg:#0f1115;--card:#171a21;--field:#20242d;--text:#f5f7fa;--muted:#8f98a8;--border:#2b313c;--accent:var(--red);--green:#22c55e;--red:#FF444F}body{background:var(--bg);color:var(--text);transition:background .2s,color .2s}.auth-logo,.logo{background:var(--red)!important;color:#fff!important}.auth-brand span,.brand span{color:var(--red)!important}.auth-primary,.operate-btn,.target-save{background:var(--red)!important;color:#fff!important}.wheel{border-color:var(--red)!important}.center .digit{color:var(--red)!important}.status .dot{background:var(--red)!important}.row3{grid-template-columns:minmax(160px,.8fr) minmax(260px,1.5fr) minmax(90px,.45fr);gap:12px}.dropdown-btn,.account-select,.operate-btn{min-height:42px}.dropdown-btn{background:var(--field);border:1px solid var(--border)}.account-select{text-align:left}.header-actions{gap:7px}.icon-btn,.sair-btn{transition:transform .15s,border-color .15s}.icon-btn:hover,.sair-btn:hover{border-color:var(--red);transform:translateY(-1px)}#historyScroll{height:38px!important;max-height:38px!important;overflow-x:auto!important;overflow-y:hidden!important;display:flex!important;flex-wrap:nowrap!important;gap:6px!important;scrollbar-width:none!important}#historyScroll::-webkit-scrollbar{display:none}.history-item{flex:0 0 calc(25% - 5px)!important;height:34px!important;min-width:calc(25% - 5px)!important;background:var(--field)!important;border:1px solid var(--border)!important}.history-item .bot,.history-item .time{display:none!important}.history-item .digit{font-size:12px!important}.history-item .result{font-size:9px!important;font-weight:800}.history-item .result.win{color:#f5c04a!important}.history-item .result.loss{color:var(--red)!important}#historyFooter{margin-top:7px;padding-top:7px;border-top:1px solid var(--border);display:flex;justify-content:center;gap:7px;font-size:10px;font-weight:800;color:var(--muted)}#historyFooter strong{color:var(--text);font-size:12px}.menu,.dropdown-menu,.symbol-menu,.analysis-menu,.target-menu{background:var(--card);border-color:var(--border);box-shadow:0 14px 30px rgba(0,0,0,.28)}.symbol-menu{max-height:none!important;overflow:visible!important}.symbol-item{display:flex!important;visibility:visible!important;opacity:1!important}.symbol-item+.symbol-item{border-top:1px solid var(--border)}body.light{--bg:#f3f5f8;--card:#fff;--field:#f7f8fa;--text:#111827;--muted:#6b7280;--border:#d9dee7;--accent:var(--red);--green:#16a34a;--red:#FF444F}html[data-theme="light"]{--bg:#f3f5f8;--card:#fff;--field:#f7f8fa;--text:#111827;--muted:#6b7280;--border:#d9dee7;--accent:var(--red);--green:#16a34a;--red:#FF444F}html[data-theme="light"] body{background:var(--bg);color:var(--text)}@media(min-width:900px){.app{display:grid;grid-template-columns:minmax(0,1.35fr) minmax(340px,.85fr);gap:14px}.header,.balance-row,.row3,.status,.card:has(#historyScroll){grid-column:1/-1}.wheel-wrap{grid-column:1;min-height:410px;display:flex;align-items:center;justify-content:center}.wheel{width:min(40vw,360px);height:min(40vw,360px);max-width:360px;max-height:360px;min-width:300px;min-height:300px;position:relative;overflow:visible}.digit-node{width:46px;height:46px}.wheel .center{z-index:3}.wheel-wrap .analysis-wrap,.wheel-wrap .target-wrap{z-index:5}.card:has(.stake-row){grid-column:2}.symbol-card{grid-column:2}}@media(min-width:600px) and (max-width:899px){body{padding-left:20px;padding-right:20px}.app{max-width:820px}.wheel{width:320px;height:320px}.wheel-wrap{min-height:350px;align-items:center}.history-item{flex-basis:calc(20% - 5px)!important;min-width:calc(20% - 5px)!important}}@media(max-width:599px){body{padding:24px 12px 80px}.app{width:100%;max-width:420px}.card{padding:16px;margin-bottom:16px}.header{margin-bottom:20px}.row3{grid-template-columns:1fr 1.4fr .8fr;gap:10px;margin-bottom:16px}.wheel-wrap{display:flex;justify-content:center;margin:20px 0;position:relative;padding-top:10px}.wheel{width:260px!important;height:260px!important;min-width:260px!important;min-height:260px!important;max-width:260px!important;max-height:260px!important;position:relative;overflow:visible}.digit-node{width:44px!important;height:44px!important}.history-item{flex:0 0 calc(25% - 5px)!important;min-width:calc(25% - 5px)!important}.history-scroll{gap:5px}.symbol-menu{max-height:none!important;overflow:visible!important}}
-/* ===== Izitrader consolidated controls: one visual source of truth ===== */
-.wheel-area{position:relative!important;overflow:visible!important}
-.wheel-area .analysis-wrap{left:-8px!important;right:auto!important;top:0!important;z-index:10000!important}
-.wheel-area .target-wrap{right:-8px!important;left:auto!important;top:0!important;z-index:10000!important}
-.wheel-area .analysis-btn,.wheel-area .target-btn{display:flex!important;align-items:center!important;gap:4px!important;white-space:nowrap!important;position:relative!important;padding-right:14px!important}
-.wheel-area .analysis-btn::after,.wheel-area .target-btn::after{content:"⌄";display:inline-flex!important;align-items:center!important;justify-content:center!important;font-size:16px!important;font-weight:900!important;line-height:1!important;position:absolute!important;right:0!important;top:50%;transform:translateY(-50%)!important}
-#symbolBtn{position:relative!important;z-index:50001!important;pointer-events:auto!important;cursor:pointer!important}
-#symbolMenu{position:absolute!important;z-index:50000!important;max-height:260px!important;overflow-y:auto!important;overflow-x:hidden!important;pointer-events:auto!important}
-#symbolMenu.open{display:block!important;visibility:visible!important;opacity:1!important}
-#symbolMenu .symbol-item{display:flex!important;visibility:visible!important;pointer-events:auto!important;cursor:pointer!important}
-@media(max-width:899px){.wheel-area .analysis-wrap{left:-4px!important}.wheel-area .target-wrap{right:-4px!important}.wheel-area .analysis-btn,.wheel-area .target-btn{padding-right:12px!important}}
-@media(max-width:599px){.wheel-area .analysis-wrap{left:-2px!important}.wheel-area .target-wrap{right:-2px!important}}
-/* final desktop/mobile control correction */
-.wheel-area .analysis-wrap,.wheel-area .target-wrap{top:0!important;transform:none!important;margin:0!important;z-index:10000!important}
-.wheel-area .analysis-wrap{left:0!important;right:auto!important}
-.wheel-area .target-wrap{right:0!important;left:auto!important}
-.wheel-area .analysis-btn,.wheel-area .target-btn{width:148px!important;min-height:44px!important;height:44px!important;padding:12px 14px!important;margin:0!important;background:var(--field)!important;border:1px solid var(--border)!important;border-radius:12px!important;color:var(--text)!important;font-weight:700!important;font-size:14px!important;line-height:20px!important;display:flex!important;align-items:center!important;justify-content:space-between!important;gap:10px!important;cursor:pointer!important;box-shadow:none!important;white-space:nowrap!important}
-.wheel-area .analysis-btn .dropdown-chevron,.wheel-area .target-btn .dropdown-chevron{display:inline-flex!important;align-items:center!important;justify-content:center!important;flex:0 0 auto!important;margin-left:auto!important;font-size:15px!important;line-height:1!important;font-weight:900!important}
-.wheel-area .analysis-btn::after,.wheel-area .target-btn::after{content:none!important;display:none!important}
-@media(min-width:900px){.wheel-area .analysis-wrap{top:0!important;left:0!important}.wheel-area .target-wrap{top:0!important;right:0!important}}
-@media(max-width:899px){
-.wheel-area{width:100%!important;max-width:none!important;height:340px!important;min-height:340px!important;margin:0 auto!important}
-.wheel-area .analysis-wrap{top:0!important;left:0!important;right:auto!important}
-.wheel-area .target-wrap{top:0!important;right:0!important;left:auto!important}
-.wheel-area .analysis-btn,.wheel-area .target-btn{width:auto!important;min-width:84px!important;max-width:118px!important;height:34px!important;min-height:34px!important;padding:7px 9px!important;border-radius:10px!important;font-size:10px!important;line-height:14px!important;gap:5px!important}
-.wheel-area .analysis-btn .dropdown-chevron,.wheel-area .target-btn .dropdown-chevron{font-size:12px!important;margin-left:4px!important}
-.wheel-area #wheel{position:absolute!important;left:50%!important;top:40px!important;transform:translateX(-50%)!important;width:300px!important;height:300px!important;min-width:300px!important;min-height:300px!important;max-width:300px!important;max-height:300px!important;margin:0!important}
+(()=>{'use strict';
+if(window.__iziProfessionalUiV2)return;
+window.__iziProfessionalUiV2=true;
+
+const css=
+":root{--red:#e24b4a;--accent:#e24b4a}"+
+"body{background:var(--bg);color:var(--text)}"+
+".dashboard-control-row{width:100%;max-width:700px;margin:0 auto 12px;display:grid;grid-template-columns:minmax(90px,1fr) auto minmax(90px,1fr);align-items:center;gap:12px;position:relative;z-index:50}"+
+".dashboard-control-row .analysis-wrap,.dashboard-control-row .target-wrap{position:relative;top:auto;left:auto;right:auto;z-index:51}"+
+".dashboard-control-row .analysis-wrap{justify-self:start}"+
+".dashboard-control-row .target-wrap{justify-self:end}"+
+".dashboard-control-row .status{width:auto!important;min-height:34px;margin:0!important;padding:0 10px;display:flex!important;align-items:center;justify-content:center;white-space:nowrap;text-align:center}"+
+".dashboard-control-row .analysis-btn,.dashboard-control-row .target-btn{min-height:36px;display:inline-flex!important;align-items:center;justify-content:center;gap:5px;border:1px solid var(--border);border-radius:10px;background:var(--field);color:var(--text);padding:7px 10px!important;font-size:10px;font-weight:800;line-height:1}"+
+".dashboard-control-row .dropdown-chevron{display:inline-block!important;font-size:12px;line-height:1}"+
+".dashboard-control-row .analysis-menu{left:0;right:auto;top:calc(100% + 6px)}"+
+".dashboard-control-row .target-menu{right:0;left:auto;top:calc(100% + 6px)}"+
+".dashboard-center{padding-top:0!important}"+
+".wheel-area{position:relative!important;width:min(100%,650px)!important;margin:0 auto!important;display:flex!important;align-items:center!important;justify-content:center!important}"+
+".wheel-area>.wheel{position:relative!important;margin:0 auto!important}"+
+".dashboard-right .symbol-menu{z-index:1000!important}"+
+"@media(max-width:899px){"+
+".dashboard-control-row{max-width:none;grid-template-columns:1fr auto 1fr;gap:6px;margin:0 0 10px}"+
+".dashboard-control-row .analysis-btn,.dashboard-control-row .target-btn{min-width:72px;min-height:32px;padding:6px 8px!important;font-size:9px}"+
+".dashboard-control-row .status{font-size:10px;padding:0 4px;min-width:0}"+
+".wheel-area{width:min(100%,430px)!important;aspect-ratio:1}"+
+".wheel-area>.wheel{width:100%!important;height:100%!important;min-width:0!important;min-height:0!important;max-width:none!important;max-height:none!important}"+
+"}"+
+"@media(max-width:399px){.dashboard-control-row .analysis-btn,.dashboard-control-row .target-btn{min-width:68px;font-size:8px;padding-inline:7px!important}}";
+
+let style=document.getElementById('iziProfessionalUi');
+if(!style){style=document.createElement('style');style.id='iziProfessionalUi';document.head.appendChild(style)}
+style.textContent=css;
+
+function alignWheel(){
+ const w=document.getElementById('wheel');
+ if(!w)return;
+ const rect=w.getBoundingClientRect();
+ const cx=rect.width/2,cy=rect.height/2;
+ const nodes=[...w.querySelectorAll(':scope>.digit-node')];
+ if(nodes.length!==10)return;
+ const nodeSize=Math.max(36,Math.min(44,rect.width*0.14));
+ const radius=Math.max(0,Math.min(rect.width,rect.height)/2-nodeSize/2-14);
+ nodes.forEach((n,i)=>{
+  const angle=i*Math.PI*2/10-Math.PI/2;
+  n.style.width=nodeSize+'px';
+  n.style.height=nodeSize+'px';
+  n.style.left=(cx+radius*Math.cos(angle)-nodeSize/2)+'px';
+  n.style.top=(cy+radius*Math.sin(angle)-nodeSize/2)+'px';
+  n.style.transform='none';
+  n.style.display='flex';
+  n.style.visibility='visible';
+  n.style.opacity='1';
+ });
+ const center=w.querySelector(':scope>.center');
+ if(center){center.style.left='50%';center.style.top='50%';center.style.transform='translate(-50%,-50%)'}
 }
-@media(max-width:399px){.wheel-area .analysis-btn,.wheel-area .target-btn{min-width:78px!important;padding-left:8px!important;padding-right:8px!important;font-size:9px!important}.wheel-area #wheel{width:286px!important;height:286px!important;min-width:286px!important;min-height:286px!important;max-width:286px!important;max-height:286px!important}}
-`
-/* ===== PC: 25 TICKS and METAS flank Account connected ===== */
-@media(min-width:900px){
-  .dashboard-center{position:relative!important}
-  .dashboard-center>.status{position:relative!important;z-index:10001!important;margin:6px 0 14px!important;text-align:center!important}
-  .dashboard-center>.wheel-area{position:static!important;overflow:visible!important}
-  .dashboard-center>.wheel-area>.analysis-wrap{position:absolute!important;top:0!important;left:0!important;right:auto!important;margin:0!important;z-index:10002!important}
-  .dashboard-center>.wheel-area>.target-wrap{position:absolute!important;top:0!important;right:0!important;left:auto!important;margin:0!important;z-index:10002!important}
-  .dashboard-center>.wheel-area>.wheel{position:relative!important}
+
+function applyTheme(){
+ const theme=localStorage.getItem('izitrader_theme')==='dark'?'dark':'light';
+ document.documentElement.dataset.theme=theme;
+ document.body.classList.toggle('dark',theme==='dark');
+ document.body.classList.toggle('light',theme!=='dark');
+ const b=document.getElementById('themeBtn');
+ if(b){b.textContent=theme==='light'?'🌙':'☀️';b.title=theme==='light'?'Dark mode':'Light mode'}
+ alignWheel();
 }
-;const s=document.getElementById('iziProfessionalUi')||document.createElement('style');s.id='iziProfessionalUi';s.textContent=css;if(!s.parentNode)document.head.appendChild(s);
-function loadLanguageModule(){if(document.querySelector('script[data-language-symbols-fix]'))return;const x=document.createElement('script');x.src='/language-symbols-fix.js';x.dataset.languageSymbolsFix='1';document.body.appendChild(x)}
-function alignWheel(){const w=document.getElementById('wheel');if(!w)return;const rect=w.getBoundingClientRect(),cx=rect.width/2,cy=rect.height/2,nodes=[...w.querySelectorAll('.digit-node')];if(nodes.length!==10)return;const maxNode=Math.max(...nodes.map(n=>{const r=n.getBoundingClientRect();return Math.max(r.width,r.height)}));const safety=Math.max(12,maxNode*.35);const radius=Math.max(0,Math.min(rect.width,rect.height)/2-maxNode/2-safety);nodes.forEach((n,i)=>{const angle=i*Math.PI*2/10-Math.PI/2;n.style.left=(cx+radius*Math.cos(angle))+'px';n.style.top=(cy+radius*Math.sin(angle))+'px';n.style.transform='translate(-50%,-50%)'});const c=w.querySelector('.center');if(c){c.style.left='50%';c.style.top='50%';c.style.transform='translate(-50%,-50%)'}}
-function apply(){const theme=localStorage.getItem('izitrader_theme')||'light';document.documentElement.dataset.theme=theme==='dark'?'dark':'light';document.body.classList.toggle('light',theme!=='dark');const b=document.getElementById('themeBtn');if(b){b.textContent=theme==='light'?'🌙':'☀️';b.title=theme==='light'?'Dark mode':'Light mode';b.setAttribute('aria-label',b.title)}alignWheel()}
-function consolidate(){const sb=document.getElementById('symbolBtn'),sm=document.getElementById('symbolMenu');if(sb&&!sb.dataset.iziUnifiedSymbols){sb.dataset.iziUnifiedSymbols='1';sb.addEventListener('click',e=>{e.preventDefault();e.stopImmediatePropagation();if(window.ensureIzitraderSymbols)window.ensureIzitraderSymbols();if(sm){sm.classList.add('open');sm.style.display='block';sm.style.visibility='visible';sm.style.opacity='1'}},true)}alignWheel();requestAnimationFrame(alignWheel)}
-function start(){loadLanguageModule();apply();consolidate();alignWheel();requestAnimationFrame(alignWheel);setTimeout(consolidate,100);setTimeout(consolidate,500);const w=document.getElementById('wheel');if(w&&window.ResizeObserver&&!w.dataset.iziObserved){const ro=new ResizeObserver(()=>requestAnimationFrame(alignWheel));ro.observe(w);w.dataset.iziObserved='1'}}if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',start);else start();window.addEventListener('resize',()=>requestAnimationFrame(alignWheel));window.addEventListener('storage',e=>{if(e.key==='izitrader_theme')apply()});window.addEventListener('izitrader:theme-change',apply);})();
+
+function boot(){applyTheme();requestAnimationFrame(alignWheel)}
+if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',boot,{once:true});else boot();
+window.addEventListener('resize',()=>requestAnimationFrame(alignWheel));
+window.addEventListener('orientationchange',()=>requestAnimationFrame(alignWheel));
+window.addEventListener('storage',e=>{if(e.key==='izitrader_theme')applyTheme()});
+window.addEventListener('izitrader:theme-change',applyTheme);
+})();

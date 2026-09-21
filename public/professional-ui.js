@@ -11,6 +11,23 @@
 #symbolMenu .symbol-item{display:flex!important;visibility:visible!important;pointer-events:auto!important;cursor:pointer!important}
 @media(max-width:899px){.wheel-area .analysis-wrap{left:-4px!important}.wheel-area .target-wrap{right:-4px!important}.wheel-area .analysis-btn,.wheel-area .target-btn{padding-right:12px!important}}
 @media(max-width:599px){.wheel-area .analysis-wrap{left:-2px!important}.wheel-area .target-wrap{right:-2px!important}}
+/* final desktop/mobile control correction */
+.wheel-area .analysis-wrap,.wheel-area .target-wrap{top:0!important;transform:none!important;margin:0!important;z-index:10000!important}
+.wheel-area .analysis-wrap{left:0!important;right:auto!important}
+.wheel-area .target-wrap{right:0!important;left:auto!important}
+.wheel-area .analysis-btn,.wheel-area .target-btn{width:148px!important;min-height:44px!important;height:44px!important;padding:12px 14px!important;margin:0!important;background:var(--field)!important;border:1px solid var(--border)!important;border-radius:12px!important;color:var(--text)!important;font-weight:700!important;font-size:14px!important;line-height:20px!important;display:flex!important;align-items:center!important;justify-content:space-between!important;gap:10px!important;cursor:pointer!important;box-shadow:none!important;white-space:nowrap!important}
+.wheel-area .analysis-btn .dropdown-chevron,.wheel-area .target-btn .dropdown-chevron{display:inline-flex!important;align-items:center!important;justify-content:center!important;flex:0 0 auto!important;margin-left:auto!important;font-size:15px!important;line-height:1!important;font-weight:900!important}
+.wheel-area .analysis-btn::after,.wheel-area .target-btn::after{content:none!important;display:none!important}
+@media(min-width:900px){.wheel-area .analysis-wrap{top:0!important;left:0!important}.wheel-area .target-wrap{top:0!important;right:0!important}}
+@media(max-width:899px){
+.wheel-area{width:100%!important;max-width:none!important;height:340px!important;min-height:340px!important;margin:0 auto!important}
+.wheel-area .analysis-wrap{top:0!important;left:0!important;right:auto!important}
+.wheel-area .target-wrap{top:0!important;right:0!important;left:auto!important}
+.wheel-area .analysis-btn,.wheel-area .target-btn{width:auto!important;min-width:84px!important;max-width:118px!important;height:34px!important;min-height:34px!important;padding:7px 9px!important;border-radius:10px!important;font-size:10px!important;line-height:14px!important;gap:5px!important}
+.wheel-area .analysis-btn .dropdown-chevron,.wheel-area .target-btn .dropdown-chevron{font-size:12px!important;margin-left:4px!important}
+.wheel-area #wheel{position:absolute!important;left:50%!important;top:40px!important;transform:translateX(-50%)!important;width:300px!important;height:300px!important;min-width:300px!important;min-height:300px!important;max-width:300px!important;max-height:300px!important;margin:0!important}
+}
+@media(max-width:399px){.wheel-area .analysis-btn,.wheel-area .target-btn{min-width:78px!important;padding-left:8px!important;padding-right:8px!important;font-size:9px!important}.wheel-area #wheel{width:286px!important;height:286px!important;min-width:286px!important;min-height:286px!important;max-width:286px!important;max-height:286px!important}}
 `;const s=document.getElementById('iziProfessionalUi')||document.createElement('style');s.id='iziProfessionalUi';s.textContent=css;if(!s.parentNode)document.head.appendChild(s);
 function loadLanguageModule(){if(document.querySelector('script[data-language-symbols-fix]'))return;const x=document.createElement('script');x.src='/language-symbols-fix.js';x.dataset.languageSymbolsFix='1';document.body.appendChild(x)}
 function alignWheel(){const w=document.getElementById('wheel');if(!w)return;const rect=w.getBoundingClientRect(),cx=rect.width/2,cy=rect.height/2,nodes=[...w.querySelectorAll('.digit-node')];if(nodes.length!==10)return;const maxNode=Math.max(...nodes.map(n=>{const r=n.getBoundingClientRect();return Math.max(r.width,r.height)}));const safety=Math.max(12,maxNode*.35);const radius=Math.max(0,Math.min(rect.width,rect.height)/2-maxNode/2-safety);nodes.forEach((n,i)=>{const angle=i*Math.PI*2/10-Math.PI/2;n.style.left=(cx+radius*Math.cos(angle))+'px';n.style.top=(cy+radius*Math.sin(angle))+'px';n.style.transform='translate(-50%,-50%)'});const c=w.querySelector('.center');if(c){c.style.left='50%';c.style.top='50%';c.style.transform='translate(-50%,-50%)'}}

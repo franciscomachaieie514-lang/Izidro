@@ -804,6 +804,109 @@ body.dark .icon-btn,body.dark .sair-btn{background:var(--field);color:var(--text
   }
 }
 
+
+/* ===== Fine tuning: ticks, bot width and vertical dated history ===== */
+@media (min-width:1200px){
+  .wheel-area .analysis-wrap{
+    left:-18px!important;
+  }
+
+  .dashboard-left .row3{
+    grid-template-columns:minmax(125px,.82fr) minmax(175px,1.05fr) minmax(85px,.65fr)!important;
+    max-width:100%!important;
+  }
+
+  .dashboard-left .row3 > div:nth-child(2){
+    min-width:0!important;
+    max-width:100%!important;
+  }
+
+  .dashboard-left .row3 .dropdown-btn{
+    min-width:0!important;
+    overflow:hidden;
+  }
+
+  .dashboard-left .row3 .dropdown-btn #selectedBotName{
+    overflow:hidden;
+    text-overflow:ellipsis;
+    white-space:nowrap;
+  }
+
+  .history-row{
+    flex-direction:column!important;
+    overflow-x:hidden!important;
+    overflow-y:auto!important;
+    max-height:300px!important;
+    gap:6px!important;
+  }
+
+  .history-row .chip{
+    flex:0 0 auto!important;
+    width:100%!important;
+    min-height:48px!important;
+    display:grid!important;
+    grid-template-columns:1fr auto!important;
+    grid-template-rows:auto auto!important;
+    align-items:center!important;
+    text-align:left!important;
+    padding:7px 12px!important;
+  }
+
+  .history-row .chip > span:first-child{
+    grid-column:1;
+    grid-row:1;
+  }
+
+  .history-row .chip .chip-tag{
+    grid-column:2;
+    grid-row:1;
+    text-align:right;
+  }
+
+  .history-row .chip::after{
+    content:attr(data-date);
+    grid-column:1 / -1;
+    grid-row:2;
+    font-size:9px;
+    color:var(--muted);
+    font-family:ui-monospace,SFMono-Regular,Menlo,monospace;
+  }
+}
+
+@media (min-width:1600px){
+  .wheel-area .analysis-wrap{
+    left:-24px!important;
+  }
+}
+
+@media (max-width:1199px){
+  .history-row{
+    flex-direction:column!important;
+    overflow-x:hidden!important;
+    overflow-y:auto!important;
+    gap:6px!important;
+  }
+
+  .history-row .chip{
+    flex:0 0 auto!important;
+    width:100%!important;
+    min-height:48px!important;
+    display:grid!important;
+    grid-template-columns:1fr auto!important;
+    grid-template-rows:auto auto!important;
+    align-items:center!important;
+    text-align:left!important;
+  }
+
+  .history-row .chip::after{
+    content:attr(data-date);
+    grid-column:1 / -1;
+    grid-row:2;
+    font-size:9px;
+    color:var(--muted);
+    font-family:ui-monospace,SFMono-Regular,Menlo,monospace;
+  }
+}
 </style>
 </head>
 <body>
@@ -1019,6 +1122,7 @@ window.addEventListener('izitrader:contract-closed',e=>{
     hist.appendChild(item);
   }
   item.dataset.closed='1';
+  item.dataset.date = new Date().toLocaleString('pt-PT', {day:'2-digit', month:'2-digit', year:'numeric', hour:'2-digit', minute:'2-digit'});
   renderChip(item,c,result);
   if(!wasClosed)operationCount++;
   updateOps();

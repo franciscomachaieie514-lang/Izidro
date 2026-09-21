@@ -174,24 +174,14 @@ body.dark .icon-btn,body.dark .sair-btn{background:var(--field);color:var(--text
 }
 
 
-/* Wheel card: keep controls attached to the digit wheel */
-.wheel-wrap{
-  max-width:360px;
-  margin:10px auto 18px;
-  background:var(--card);
-  border:1px solid var(--border);
-  border-radius:16px;
-  box-shadow:var(--shadow);
-  padding:48px 20px 24px;
-}
-.dashboard-right .wheel-wrap{margin:10px auto 18px}
 
-/* Keep the wheel inside its new card on desktop and smaller screens */
-.wheel-wrap .wheel{
-  width:min(100%,320px)!important;
-  height:min(100%,320px)!important;
-  min-width:0!important;
-  min-height:0!important;
+
+/* Align analysis/targets with the actual wheel edges */
+.analysis-wrap{left:calc(50% - 160px)}
+.target-wrap{right:calc(50% - 160px)}
+@media (max-width: 899px){
+  .analysis-wrap{left:calc(50% - 140px)}
+  .target-wrap{right:calc(50% - 140px)}
 }
 </style>
 </head>

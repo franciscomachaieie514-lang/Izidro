@@ -27,6 +27,14 @@ async function ensureSchema() {
       expires_at TIMESTAMPTZ NOT NULL
     );
     CREATE INDEX IF NOT EXISTS platform_sessions_user_id_idx ON platform_sessions(user_id);
+    CREATE TABLE IF NOT EXISTS platform_password_resets (
+      id BIGSERIAL PRIMARY KEY,
+      user_id BIGINT NOT NULL REFERENCES platform_users(id) ON DELETE CASCADE,
+      token_hash TEXT NOT NULL UNIQUE,
+      expires_at TIMESTAMPTZ NOT NULL,
+      used_at TIMESTAMPTZ
+    );
+    CREATE INDEX IF NOT EXISTS platform_password_resets_user_id_idx ON platform_password_resets(user_id);
     CREATE TABLE IF NOT EXISTS deriv_accounts (
       id BIGSERIAL PRIMARY KEY,
       user_id BIGINT NOT NULL UNIQUE REFERENCES platform_users(id) ON DELETE CASCADE,
@@ -70,6 +78,48 @@ export async function authenticateUser(email: string, password: string) {
   const user = result.rows[0];
   if (!user || !(await verifyPassword(password, user.password_hash))) return null;
   return { id: user.id, name: user.name, email: user.email };
+}
+
+export async function findUserByEmail(email: string) {
+  await ensureSchema();
+  const result = await pool.query(
+    'SELECT id,name,email FROM platform_users WHERE email=$1 LIMIT 1',
+    [normalizeEmail(email)]
+  );
+  return result.rows[0] || null;
+}
+
+export async function createPasswordResetToken(email: string) {
+  await ensureSchema();
+  const user = await findUserByEmail(email);
+  if (!user) return null;
+  const rawToken = randomBytes(32).toString('base64url');
+  const tokenHash = (await scrypt(rawToken, 'izidro-reset-token', 64) as Buffer).toString('hex');
+  await pool.query(
+    'DELETE FROM platform_password_resets WHERE user_id=$1 OR expires_at<=NOW()',
+    [user.id]
+  );
+  await pool.query(
+    'INSERT INTO platform_password_resets (user_id,token_hash,expires_at) VALUES ($1,$2,NOW()+INTERVAL \'30 minutes\')',
+    [user.id, tokenHash]
+  );
+  return { token: rawToken, user };
+}
+
+export async function resetPasswordWithToken(token: string, password: string) {
+  await ensureSchema();
+  const tokenHash = (await scrypt(token, 'izidro-reset-token', 64) as Buffer).toString('hex');
+  const result = await pool.query(
+    'SELECT id,user_id FROM platform_password_resets WHERE token_hash=$1 AND expires_at>NOW() AND used_at IS NULL LIMIT 1',
+    [tokenHash]
+  );
+  const reset = result.rows[0];
+  if (!reset) return false;
+  const passwordHash = await hashPassword(password);
+  await pool.query('UPDATE platform_users SET password_hash=$1 WHERE id=$2', [passwordHash, reset.user_id]);
+  await pool.query('UPDATE platform_password_resets SET used_at=NOW() WHERE id=$1', [reset.id]);
+  await pool.query('DELETE FROM platform_sessions WHERE user_id=$1', [reset.user_id]);
+  return true;
 }
 
 export async function createSession(userId: string | number) {

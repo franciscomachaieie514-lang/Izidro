@@ -1553,42 +1553,76 @@ body.dark .icon-btn,body.dark .sair-btn{background:var(--field);color:var(--text
   }
 }
 
-/* ===== FINAL: stage directly below Recent History + permanent 0-9 wheel ticks ===== */
-.history-card #stageTracker{
-  width:100%!important;
-  margin:10px 0 0!important;
-  padding:10px 12px!important;
-  border-top:1px solid var(--border)!important;
-  border-radius:10px!important;
-}
-.history-card #stageTracker .stage-steps{min-width:0!important}
-#wheel>.digit-node{
-  position:absolute!important;
-  width:44px!important;
-  height:44px!important;
-  display:flex!important;
-  visibility:visible!important;
-  opacity:1!important;
-  z-index:2!important;
-}
-#wheel>.digit-node .pct{font-size:9px!important;color:var(--muted)!important;font-weight:400!important}
-#wheel>.digit-node.active{background:#3b82f6!important;color:#fff!important}
-#wheel>.center{z-index:5!important}
-@media(max-width:899px){
-  .history-card #stageTracker{
-    display:flex!important;
-    position:static!important;
-    min-height:48px!important;
-  }
-}
-@media(min-width:900px){
-  .history-card #stageTracker{
-    display:flex!important;
-    position:static!important;
-    min-height:52px!important;
-  }
-}
 
+/* ===== FINAL MOBILE: stage integrated into Recent History ===== */
+@media(max-width:599px){
+  /* Smaller recent-history chips so more results fit in the card. */
+  .history-card .history-row{
+    gap:4px!important;
+    padding-bottom:5px!important;
+    margin-bottom:0!important;
+  }
+  .history-card .history-row .chip{
+    flex:0 0 64px!important;
+    width:64px!important;
+    min-width:64px!important;
+    min-height:56px!important;
+    height:56px!important;
+    padding:6px 1px!important;
+    border-radius:9px!important;
+    font-size:10px!important;
+  }
+  .history-card .history-row .chip-tag{
+    font-size:7px!important;
+  }
+
+  /* Stage is part of the Recent History card, not a separate card. */
+  .history-card #stageTracker{
+    display:flex!important;
+    position:static!important;
+    width:100%!important;
+    min-height:44px!important;
+    height:44px!important;
+    margin:8px 0 0!important;
+    padding:7px 2px 2px!important;
+    background:transparent!important;
+    border:0!important;
+    border-top:1px solid var(--border)!important;
+    border-radius:0!important;
+    gap:7px!important;
+  }
+  .history-card #stageTracker .stage-stop-btn{
+    width:28px!important;
+    height:28px!important;
+    min-width:28px!important;
+    border-radius:7px!important;
+  }
+  .history-card #stageTracker .stage-stop-btn span{
+    width:9px!important;
+    height:9px!important;
+  }
+  .history-card #stageTracker .stage-steps{
+    min-width:0!important;
+    flex:1!important;
+  }
+  .history-card #stageTracker .stage-dot{
+    width:7px!important;
+    height:7px!important;
+    flex:0 0 7px!important;
+  }
+  .history-card #stageTracker .stage-line{
+    height:2px!important;
+    margin:0 3px!important;
+  }
+  .history-card #stageTracker .stage-labels{
+    margin-top:3px!important;
+  }
+  .history-card #stageTracker .stage-labels span{
+    font-size:7px!important;
+    line-height:9px!important;
+    white-space:nowrap!important;
+  }
+}
 </style>
 </head>
 <body>
@@ -1862,26 +1896,21 @@ $('#iziAccountSelect').value=localStorage.getItem('izitrader_account_type')||'re
 <script>
 (function(){
   'use strict';
-
-  function placeStageBelowHistory(){
+  function placeStage(){
     const stage=document.getElementById('stageTracker');
     const history=document.getElementById('historyScroll');
     const card=history?.closest('.history-card');
-    if(stage && card && stage.parentElement!==card){
-      card.appendChild(stage);
-    }
-  }
-
-  function placeAula(){
-    const aula=document.querySelector('.aula-strip');
-    const row3=document.querySelector('.row3');
     const center=document.querySelector('.dashboard-center');
-    if(!aula)return;
-    const mobile=window.matchMedia('(max-width:899px)').matches;
-    if(mobile && row3 && aula.parentElement!==row3){
-      row3.appendChild(aula);
-    }else if(!mobile && center && aula.parentElement!==center){
-      center.insertBefore(aula,center.children[1]||null);
+    const aula=document.querySelector('.aula-strip');
+    const mobile=window.matchMedia('(max-width:599px)').matches;
+
+    if(stage && card && center){
+      if(mobile){
+        if(stage.parentElement!==card) card.appendChild(stage);
+      }else if(aula && aula.parentElement===center){
+        if(stage.parentElement!==center) center.appendChild(stage);
+        aula.after(stage);
+      }
     }
   }
 
@@ -1891,17 +1920,13 @@ $('#iziAccountSelect').value=localStorage.getItem('izitrader_account_type')||'re
     const nodes=[...wheel.querySelectorAll(':scope>.digit-node')];
     const center=wheel.querySelector(':scope>.center');
     const size=Math.min(wheel.clientWidth||300,wheel.clientHeight||300);
-    const cp=size/2, node=44;
-    const radius=Math.max(0,size/2-node/2-14);
-
+    const cp=size/2,node=44,radius=Math.max(0,size/2-node/2-14);
     nodes.forEach(n=>{
       const d=Number(n.dataset.digit);
       if(!Number.isFinite(d))return;
-      const angle=d*Math.PI*2/10-Math.PI/2;
-      n.style.left=(cp+radius*Math.cos(angle)-node/2)+'px';
-      n.style.top=(cp+radius*Math.sin(angle)-node/2)+'px';
-      n.style.width=node+'px';
-      n.style.height=node+'px';
+      const a=d*Math.PI*2/10-Math.PI/2;
+      n.style.left=(cp+radius*Math.cos(a)-node/2)+'px';
+      n.style.top=(cp+radius*Math.sin(a)-node/2)+'px';
       n.style.display='flex';
       n.style.visibility='visible';
       n.style.opacity='1';
@@ -1915,18 +1940,13 @@ $('#iziAccountSelect').value=localStorage.getItem('izitrader_account_type')||'re
   }
 
   function run(){
-    placeStageBelowHistory();
-    placeAula();
+    placeStage();
     positionWheel();
     requestAnimationFrame(positionWheel);
-    setTimeout(positionWheel,150);
   }
 
-  if(document.readyState==='loading'){
-    document.addEventListener('DOMContentLoaded',run,{once:true});
-  }else{
-    run();
-  }
+  if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',run,{once:true});
+  else run();
   window.addEventListener('resize',run);
   window.addEventListener('orientationchange',run);
 })();

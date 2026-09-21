@@ -770,6 +770,40 @@ body.dark .icon-btn,body.dark .sair-btn{background:var(--field);color:var(--text
     top:-170px!important;
   }
 }
+
+/* ===== Fine positioning: wheel up, 25 TICKS after P&L, METAS at bet start ===== */
+@media (min-width:1200px){
+  .dashboard-right .wheel{
+    transform:translateY(-22px)!important;
+  }
+
+  /* 25 TICKS: immediately after the end of the Balance / P&L block. */
+  .wheel-area .analysis-wrap{
+    left:0!important;
+    transform:none!important;
+    margin-left:0!important;
+  }
+
+  /* METAS: immediately at the beginning of the Bet block. */
+  .wheel-area .target-wrap{
+    right:-34px!important;
+    transform:none!important;
+    margin-right:0!important;
+  }
+}
+
+@media (min-width:1600px){
+  .wheel-area .target-wrap{
+    right:-42px!important;
+  }
+}
+
+@media (min-width:1200px) and (max-height:850px){
+  .wheel-area .target-wrap{
+    right:-34px!important;
+  }
+}
+
 </style>
 </head>
 <body>

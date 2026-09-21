@@ -1707,6 +1707,130 @@ body.dark .icon-btn,body.dark .sair-btn{background:var(--field);color:var(--text
   .wheel-area .analysis-wrap{left:-4px!important}
   .wheel-area .target-wrap{right:-4px!important}
 }
+
+/* ===== FINAL CONTROL DROPDOWNS: same visual language as BOT ===== */
+.wheel-area .analysis-wrap,
+.wheel-area .target-wrap{
+  position:absolute!important;
+  top:0!important;
+  z-index:10000!important;
+  transform:none!important;
+  margin:0!important;
+}
+.wheel-area .analysis-wrap{left:0!important;right:auto!important}
+.wheel-area .target-wrap{right:0!important;left:auto!important}
+
+.wheel-area .analysis-btn,
+.wheel-area .target-btn{
+  width:148px!important;
+  min-height:44px!important;
+  height:44px!important;
+  padding:12px 14px!important;
+  margin:0!important;
+  background:var(--field)!important;
+  border:1px solid var(--border)!important;
+  border-radius:12px!important;
+  color:var(--text)!important;
+  font-weight:700!important;
+  font-size:14px!important;
+  line-height:20px!important;
+  display:flex!important;
+  align-items:center!important;
+  justify-content:space-between!important;
+  gap:10px!important;
+  cursor:pointer!important;
+  box-shadow:none!important;
+  white-space:nowrap!important;
+}
+.wheel-area .analysis-btn .dropdown-chevron,
+.wheel-area .target-btn .dropdown-chevron{
+  display:inline-flex!important;
+  align-items:center!important;
+  justify-content:center!important;
+  flex:0 0 auto!important;
+  margin-left:auto!important;
+  font-size:15px!important;
+  line-height:1!important;
+  font-weight:900!important;
+}
+.wheel-area .analysis-btn::after,
+.wheel-area .target-btn::after{
+  content:none!important;
+  display:none!important;
+}
+
+/* PC: controls sit at the top of the wheel area, therefore below ANALISANDO/ABERTO/FECHADO. */
+@media(min-width:900px){
+  .wheel-area .analysis-wrap{top:0!important;left:0!important}
+  .wheel-area .target-wrap{top:0!important;right:0!important}
+}
+
+/* Mobile: controls stay in the far left/right corners, away from the circle. */
+@media(max-width:899px){
+  .dashboard-center{
+    position:relative!important;
+  }
+  .wheel-area{
+    width:100%!important;
+    max-width:none!important;
+    height:340px!important;
+    min-height:340px!important;
+    margin:0 auto!important;
+    position:relative!important;
+    overflow:visible!important;
+  }
+  .wheel-area .analysis-wrap{top:0!important;left:0!important;right:auto!important}
+  .wheel-area .target-wrap{top:0!important;right:0!important;left:auto!important}
+  .wheel-area .analysis-btn,
+  .wheel-area .target-btn{
+    width:auto!important;
+    min-width:84px!important;
+    max-width:118px!important;
+    height:34px!important;
+    min-height:34px!important;
+    padding:7px 9px!important;
+    border-radius:10px!important;
+    font-size:10px!important;
+    line-height:14px!important;
+    gap:5px!important;
+  }
+  .wheel-area .analysis-btn .dropdown-chevron,
+  .wheel-area .target-btn .dropdown-chevron{
+    font-size:12px!important;
+    margin-left:4px!important;
+  }
+  .wheel-area #wheel{
+    position:absolute!important;
+    left:50%!important;
+    top:40px!important;
+    transform:translateX(-50%)!important;
+    width:300px!important;
+    height:300px!important;
+    min-width:300px!important;
+    min-height:300px!important;
+    max-width:300px!important;
+    max-height:300px!important;
+    margin:0!important;
+  }
+}
+@media(max-width:399px){
+  .wheel-area .analysis-btn,
+  .wheel-area .target-btn{
+    min-width:78px!important;
+    padding-left:8px!important;
+    padding-right:8px!important;
+    font-size:9px!important;
+  }
+  .wheel-area #wheel{
+    width:286px!important;
+    height:286px!important;
+    min-width:286px!important;
+    min-height:286px!important;
+    max-width:286px!important;
+    max-height:286px!important;
+  }
+}
+
 </style>
 </head>
 <body>
@@ -1815,7 +1939,7 @@ body.dark .icon-btn,body.dark .sair-btn{background:var(--field);color:var(--text
       <div class="wheel-area">
 
         <div class="analysis-wrap">
-          <button class="analysis-btn" id="analysisBtn">25 TICKS</button>
+          <button class="dropdown-btn analysis-btn" id="analysisBtn"><span id="analysisLabel">25 TICKS</span><span class="dropdown-chevron" aria-hidden="true">⌄</span></button>
 
           <div class="analysis-menu" id="analysisMenu">
             <div class="analysis-item active" data-window="25">25 ticks</div>
@@ -1827,7 +1951,7 @@ body.dark .icon-btn,body.dark .sair-btn{background:var(--field);color:var(--text
         </div>
 
         <div class="target-wrap">
-          <button class="target-btn" id="targetBtn">METAS</button>
+          <button class="dropdown-btn target-btn" id="targetBtn"><span id="targetLabel">METAS</span><span class="dropdown-chevron" aria-hidden="true">⌄</span></button>
 
           <div class="target-menu" id="targetMenu">
             <div class="target-title">Setup de metas</div>
@@ -1942,7 +2066,7 @@ if(sb&&sm){
 }
 const tb=$('#themeBtn');(function(){const saved=localStorage.getItem('izitrader_theme');if(saved==='dark')document.body.classList.add('dark');function sync(){const dark=document.body.classList.contains('dark');tb.textContent=dark?'☀️':'🌙';tb.title=dark?'Modo claro':'Modo escuro'}sync();tb.onclick=()=>{document.body.classList.toggle('dark');localStorage.setItem('izitrader_theme',document.body.classList.contains('dark')?'dark':'light');sync()}})();
 const menu=$('#menu'),lo=$('#languageOptions');$('#menuBtn').onclick=e=>{e.stopPropagation();menu.classList.toggle('open')};$('#menuLang').onclick=e=>{e.stopPropagation();lo.classList.toggle('open')};$('#menuSettings').onclick=()=>alert('Definições');$('#menuHelp').onclick=()=>alert('Central de ajuda');
-const ab=$('#analysisBtn'),am=$('#analysisMenu');let analysisWindow=25;ab.onclick=e=>{e.stopPropagation();am.classList.toggle('open')};document.querySelectorAll('.analysis-item').forEach(x=>x.onclick=()=>{analysisWindow=Number(x.dataset.window);document.querySelectorAll('.analysis-item').forEach(y=>y.classList.remove('active'));x.classList.add('active');ab.textContent=analysisWindow+' TICKS';am.classList.remove('open');window.IziLiveAnalysis?.setWindow?.(analysisWindow)});
+const ab=$('#analysisBtn'),al=$('#analysisLabel'),am=$('#analysisMenu');let analysisWindow=25;ab.onclick=e=>{e.stopPropagation();am.classList.toggle('open')};document.querySelectorAll('.analysis-item').forEach(x=>x.onclick=()=>{analysisWindow=Number(x.dataset.window);document.querySelectorAll('.analysis-item').forEach(y=>y.classList.remove('active'));x.classList.add('active');if(al)al.textContent=analysisWindow+' TICKS';am.classList.remove('open');window.IziLiveAnalysis?.setWindow?.(analysisWindow)});
 const targetBtn=$('#targetBtn'),targetMenu=$('#targetMenu'),profitTarget=$('#profitTarget'),lossTarget=$('#lossTarget'),targetStatus=$('#targetStatus');let pg=Number(localStorage.getItem('izitrader_profit_goal')||0),lg=Number(localStorage.getItem('izitrader_loss_goal')||0);if(pg)profitTarget.value=pg;if(lg)lossTarget.value=lg;function targetText(){targetStatus.textContent=pg||lg?'Lucro: $'+pg.toFixed(2)+' • Perda: $'+lg.toFixed(2):'Nenhuma meta definida'}targetText();targetBtn.onclick=e=>{e.stopPropagation();targetMenu.classList.toggle('open')};$('#targetSave').onclick=()=>{pg=Math.max(0,Number(profitTarget.value)||0);lg=Math.max(0,Number(lossTarget.value)||0);localStorage.setItem('izitrader_profit_goal',pg);localStorage.setItem('izitrader_loss_goal',lg);targetText();targetMenu.classList.remove('open')};
 document.addEventListener('click',e=>{if(!e.target.closest('.dropdown'))dm.classList.remove('open');if(!e.target.closest('.symbol-dropdown'))sm.classList.remove('open');if(!e.target.closest('.header-actions')){menu.classList.remove('open');lo.classList.remove('open')};if(!e.target.closest('.analysis-wrap'))am.classList.remove('open');if(!e.target.closest('.target-wrap'))targetMenu.classList.remove('open')});
 const hist=$('#historyScroll'),opsCount=$('#opsCount');let operationCount=Number(localStorage.getItem('izitrader_operations')||0);opsCount.textContent=operationCount;

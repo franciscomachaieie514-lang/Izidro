@@ -97,6 +97,82 @@ body.dark .icon-btn,body.dark .sair-btn{background:var(--field);color:var(--text
   .history-card{padding:16px 14px 14px}
   .chip{flex-basis:82px}
 }
+
+/* ===== Final desktop dashboard: true full-width professional workspace ===== */
+@media (min-width:900px){
+  html,body{width:100%;min-width:0}
+  body{padding:18px 28px 56px;align-items:stretch}
+  .app{width:100%!important;max-width:none!important;margin:0}
+  .header{width:100%;max-width:none;margin-bottom:14px}
+  .dashboard-layout{
+    width:100%;
+    max-width:none;
+    display:grid;
+    grid-template-columns:minmax(260px,300px) minmax(420px,1fr) minmax(280px,320px);
+    grid-template-rows:auto auto 1fr auto;
+    gap:16px 20px;
+    align-items:start;
+  }
+  .dashboard-left{
+    grid-column:1;
+    grid-row:1 / 5;
+    min-width:0;
+  }
+  .dashboard-left .card,
+  .dashboard-left .row3,
+  .dashboard-left .history-card{width:100%}
+  .dashboard-right{display:contents}
+  .dashboard-right .status{
+    grid-column:2;
+    grid-row:1;
+    justify-self:center;
+    width:100%;
+    min-height:34px;
+    display:flex;
+    align-items:center;
+    justify-content:center;
+  }
+  .dashboard-right .wheel-wrap{
+    grid-column:2;
+    grid-row:2 / 5;
+    width:100%;
+    min-height:460px;
+    margin:0!important;
+    display:flex;
+    align-items:center;
+    justify-content:center;
+    position:relative;
+  }
+  .dashboard-right .wheel{
+    width:min(430px,34vw)!important;
+    height:min(430px,34vw)!important;
+    min-width:360px;
+    min-height:360px;
+    max-width:430px;
+    max-height:430px;
+  }
+  .dashboard-right .card:not(.symbol-card){
+    grid-column:3;
+    grid-row:2;
+    width:100%;
+    margin:0!important;
+  }
+  .dashboard-right .symbol-card{
+    grid-column:3;
+    grid-row:3;
+    width:100%;
+    margin:0!important;
+  }
+  .dashboard-right .note{font-size:11px;line-height:1.45}
+  .dashboard-right .operate-btn{width:100%;min-height:48px}
+}
+@media (min-width:1400px){
+  body{padding-left:42px;padding-right:42px}
+  .dashboard-layout{grid-template-columns:minmax(280px,340px) minmax(520px,1fr) minmax(300px,360px);gap:18px 28px}
+  .dashboard-right .wheel{width:min(470px,34vw)!important;height:min(470px,34vw)!important;max-width:470px;max-height:470px}
+  .dashboard-right .wheel-wrap{min-height:500px}
+}
+
 </style>
 </head>
 <body>

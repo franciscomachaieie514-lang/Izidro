@@ -41,10 +41,9 @@
   }
   .app { width: 100%; max-width: 420px; }
   .header { display: flex; align-items: center; gap: 10px; margin-bottom: 20px; }
-  .logo { width: 40px; height: 40px; border-radius: 10px; overflow: hidden; flex-shrink: 0; display: flex; align-items: center; justify-content: center; background: var(--field); border: 1px solid var(--border); }
-  .logo img { width: 100%; height: 100%; display: block; object-fit: cover; }
-  .brand { font-size: 20px; font-weight: 700; margin-right: auto; color: var(--text); }
-  .brand span { color: #f5c04a; }
+  .logo { width: 140px; height: 40px; flex: 0 0 140px; border-radius: 8px; overflow: hidden; display: flex; align-items: center; justify-content: center; background: transparent; border: none; }
+  .logo img { width: 100%; height: 100%; display: block; object-fit: contain; }
+  .brand { display: none; }
   .header-actions { display: flex; align-items: center; gap: 8px; position: relative; }
   .icon-btn { width: 38px; height: 38px; border-radius: 10px; background: var(--field); border: 1px solid var(--border); color: var(--text); display: flex; align-items: center; justify-content: center; font-size: 16px; cursor: pointer; }
   .icon-btn:hover { background: var(--hover); }

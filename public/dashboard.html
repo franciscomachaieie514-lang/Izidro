@@ -1007,6 +1007,43 @@ body.dark .icon-btn,body.dark .sair-btn{background:var(--field);color:var(--text
     width:calc(50% + 42px)!important;
   }
 }
+
+/* ===== AULA spans horizontally from 25 TICKS to METAS ===== */
+@media (min-width:1200px){
+  .dashboard-layout{
+    position:relative!important;
+  }
+
+  .dashboard-left .row3 > div:nth-child(3){
+    position:absolute!important;
+    z-index:5!important;
+    top:0!important;
+    left:calc(27% + 34px)!important;
+    right:calc(28% + 34px)!important;
+    width:auto!important;
+    max-width:none!important;
+    margin:0!important;
+    min-height:0!important;
+  }
+
+  .dashboard-left .row3 > div:nth-child(3) .field-label{
+    display:none!important;
+  }
+
+  .dashboard-left .row3 > div:nth-child(3) .pill-aula{
+    width:100%!important;
+    height:48px!important;
+    min-height:48px!important;
+    padding:12px!important;
+  }
+}
+
+@media (min-width:1600px){
+  .dashboard-left .row3 > div:nth-child(3){
+    left:calc(25% + 42px)!important;
+    right:calc(30% + 42px)!important;
+  }
+}
 </style>
 </head>
 <body>

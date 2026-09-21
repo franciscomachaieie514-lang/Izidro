@@ -1449,6 +1449,145 @@ body.dark .icon-btn,body.dark .sair-btn{background:var(--field);color:var(--text
   }
 }
 
+
+/* ===== FINAL FIXES: wheel, dropdowns, mobile history and AULA ===== */
+
+/* The wheel must always contain/display all ten digit nodes. */
+.wheel{
+  position:relative!important;
+  overflow:visible!important;
+}
+.wheel .digit-node{
+  position:absolute!important;
+  display:flex!important;
+  visibility:visible!important;
+  opacity:1!important;
+  z-index:2!important;
+  pointer-events:none!important;
+}
+.wheel .center{
+  z-index:5!important;
+}
+
+/* Dropdown layers must sit above the wheel/cards and remain clickable. */
+.analysis-wrap,
+.target-wrap,
+.symbol-dropdown,
+.dropdown{
+  position:relative!important;
+  z-index:100!important;
+}
+.analysis-menu,
+.target-menu,
+.dropdown-menu,
+.symbol-menu{
+  z-index:10000!important;
+  pointer-events:auto!important;
+}
+.analysis-menu.open,
+.target-menu.open,
+.dropdown-menu.open,
+.symbol-menu.open{
+  display:block!important;
+  visibility:visible!important;
+  opacity:1!important;
+}
+
+/* ---------- MOBILE ONLY ---------- */
+@media (max-width:899px){
+  /* AULA is visible on mobile and uses the mobile document flow. */
+  .dashboard-center .aula-strip{
+    display:block!important;
+    position:static!important;
+    width:100%!important;
+    height:48px!important;
+    min-height:48px!important;
+    margin:0 0 10px!important;
+    padding:0!important;
+    pointer-events:none!important;
+  }
+  .dashboard-center .aula-label{
+    position:static!important;
+    display:block!important;
+    height:14px!important;
+    margin:0 0 4px!important;
+    font-size:11px!important;
+    line-height:14px!important;
+  }
+  .dashboard-center .aula-strip .pill-aula{
+    width:100%!important;
+    height:48px!important;
+    min-height:48px!important;
+  }
+
+  /* Restore the original mobile horizontal recent-history behavior. */
+  #historyScroll,
+  #historyRow{
+    display:flex!important;
+    flex-direction:row!important;
+    flex-wrap:nowrap!important;
+    gap:5px!important;
+    width:100%!important;
+    height:auto!important;
+    max-height:none!important;
+    overflow-x:auto!important;
+    overflow-y:hidden!important;
+    scrollbar-width:none!important;
+    -webkit-overflow-scrolling:touch!important;
+  }
+  #historyScroll::-webkit-scrollbar,
+  #historyRow::-webkit-scrollbar{
+    display:none!important;
+  }
+  #historyScroll .chip,
+  #historyRow .chip{
+    flex:0 0 78px!important;
+    width:78px!important;
+    min-width:78px!important;
+    min-height:70px!important;
+    padding:9px 2px!important;
+    font-size:12px!important;
+  }
+  .history-hint{
+    display:block!important;
+  }
+
+  /* Mobile stage stays below the history row, as before. */
+  .dashboard-center #stageTracker{
+    position:static!important;
+  }
+}
+
+/* ---------- PC ONLY ---------- */
+@media (min-width:900px){
+  .dashboard-center{
+    position:relative!important;
+  }
+  .dashboard-center .aula-strip{
+    display:block!important;
+    position:absolute!important;
+    z-index:101!important;
+    top:58px!important;
+    left:0!important;
+    right:0!important;
+    width:auto!important;
+    height:48px!important;
+    min-height:48px!important;
+    margin:0!important;
+    padding:0!important;
+    pointer-events:none!important;
+  }
+  .dashboard-center #stageTracker{
+    position:absolute!important;
+    z-index:100!important;
+    top:112px!important;
+    left:0!important;
+    right:0!important;
+    width:auto!important;
+    margin:0!important;
+  }
+}
+
 </style>
 </head>
 <body>
@@ -1710,25 +1849,96 @@ $('#iziAccountSelect').value=localStorage.getItem('izitrader_account_type')||'re
   if(stopBtn)stopBtn.onclick=()=>{window.IziDerivWS?.stop?.();setStage(0)};
 })();
 <script>
-/* Keep the operation stage in the correct DOM section for each form factor. */
-(function syncResponsiveStagePlacement(){
-  const stage=document.getElementById('stageTracker');
-  const history=document.getElementById('historyScroll');
-  const aula=document.querySelector('.dashboard-center .aula-strip');
-  if(!stage||!history)return;
-  const mobile=window.matchMedia('(max-width: 899px)').matches;
-  if(mobile){
-    history.parentElement?.appendChild(stage);
-  }else if(aula){
-    aula.after(stage);
+(function(){
+  'use strict';
+
+  function positionAllWheelDigits(){
+    const wheel=document.getElementById('wheel');
+    if(!wheel)return;
+    const digits=[...wheel.querySelectorAll('.digit-node')];
+    if(digits.length!==10)return;
+    const rect=wheel.getBoundingClientRect();
+    const size=Math.min(rect.width,rect.height);
+    const center=size/2;
+    const node=44;
+    const radius=Math.max(0,size/2-node/2-Math.max(10,node*.35));
+    digits.forEach((el,i)=>{
+      const angle=i*Math.PI*2/10-Math.PI/2;
+      el.style.left=(center+radius*Math.cos(angle)-node/2)+'px';
+      el.style.top=(center+radius*Math.sin(angle)-node/2)+'px';
+      el.style.transform='none';
+      el.style.display='flex';
+      el.style.visibility='visible';
+      el.style.opacity='1';
+    });
   }
-  stage.dataset.layoutMode=mobile?'mobile':'pc';
-}
-window.addEventListener('resize',syncResponsiveStagePlacement);
-window.addEventListener('orientationchange',syncResponsiveStagePlacement);
-if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',syncResponsiveStagePlacement);
-else syncResponsiveStagePlacement();
-</script>
+
+  function bindFinalDropdowns(){
+    const ab=document.getElementById('analysisBtn');
+    const am=document.getElementById('analysisMenu');
+    const tb=document.getElementById('targetBtn');
+    const tm=document.getElementById('targetMenu');
+    const sb=document.getElementById('symbolBtn');
+    const sm=document.getElementById('symbolMenu');
+
+    if(ab&&am&&!ab.dataset.finalBound){
+      ab.dataset.finalBound='1';
+      ab.addEventListener('click',e=>{
+        e.preventDefault();e.stopPropagation();
+        am.classList.toggle('open');
+        am.style.display=am.classList.contains('open')?'block':'none';
+      });
+    }
+    if(tb&&tm&&!tb.dataset.finalBound){
+      tb.dataset.finalBound='1';
+      tb.addEventListener('click',e=>{
+        e.preventDefault();e.stopPropagation();
+        tm.classList.toggle('open');
+        tm.style.display=tm.classList.contains('open')?'block':'none';
+      });
+    }
+    if(sb&&sm&&!sb.dataset.finalBound){
+      sb.dataset.finalBound='1';
+      sb.addEventListener('click',e=>{
+        e.preventDefault();e.stopPropagation();
+        sm.classList.toggle('open');
+        sm.style.display=sm.classList.contains('open')?'block':'none';
+      });
+    }
+  }
+
+  function placeStage(){
+    const stage=document.getElementById('stageTracker');
+    const history=document.getElementById('historyScroll');
+    const aula=document.querySelector('.dashboard-center .aula-strip');
+    if(!stage)return;
+    const mobile=window.matchMedia('(max-width:899px)').matches;
+    if(mobile){
+      if(history && stage.parentElement!==history.parentElement){
+        history.parentElement.appendChild(stage);
+      }
+    }else if(aula && stage.parentElement!==aula.parentElement){
+      aula.after(stage);
+    }
+  }
+
+  function run(){
+    bindFinalDropdowns();
+    positionAllWheelDigits();
+    placeStage();
+    requestAnimationFrame(positionAllWheelDigits);
+    setTimeout(positionAllWheelDigits,100);
+    setTimeout(bindFinalDropdowns,200);
+  }
+
+  if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',run,{once:true});
+  else run();
+
+  window.addEventListener('resize',()=>requestAnimationFrame(()=>{
+    positionAllWheelDigits();placeStage();
+  }));
+  window.addEventListener('orientationchange',run);
+})();
 </script>
 <script src="/auth.js"></script>
 <script src="/language-symbols-fix.js"></script>

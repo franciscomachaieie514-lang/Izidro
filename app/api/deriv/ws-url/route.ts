@@ -1,18 +1,17 @@
 import { NextRequest, NextResponse } from 'next/server';
-import { getSession, getDerivAccount, PLATFORM_SESSION_COOKIE } from '../../../../lib/platform-auth';
+import { resolveDerivToken } from '../../../../lib/platform-auth';
 
 export const dynamic = 'force-dynamic';
 const API_BASE = 'https://api.derivws.com';
 
 export async function GET(request: NextRequest) {
   try {
-    const user = await getSession(request.cookies.get(PLATFORM_SESSION_COOKIE)?.value);
-    if (!user) return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
     const accountId = request.nextUrl.searchParams.get('account_id');
+    const resolved = await resolveDerivToken(request);
+    if (!resolved) return NextResponse.json({ error: 'Deriv account not connected' }, { status: 401 });
     if (!accountId) return NextResponse.json({ error: 'account_id is required' }, { status: 400 });
 
-    const account = await getDerivAccount(user.id);
-    if (!account?.access_token) return NextResponse.json({ error: 'Deriv account not connected' }, { status: 404 });
+    const account = { access_token: resolved.accessToken };
 
     const headers: Record<string,string> = {
       Authorization: `Bearer ${account.access_token}`,

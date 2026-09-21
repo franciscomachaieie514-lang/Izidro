@@ -10,10 +10,6 @@ export const revalidate = 0;
 
 export async function GET(request: NextRequest) {
   const platformSession = await getSession(request.cookies.get(PLATFORM_SESSION_COOKIE)?.value);
-  if (!platformSession) {
-    return NextResponse.redirect(`${PRODUCTION_APP_URL}/?auth_error=platform_account_required`);
-  }
-
   const clientId = (process.env.DERIV_APP_ID || process.env.DERIV_CLIENT_ID || '').trim();
   if (!clientId) {
     return NextResponse.json({ error: 'OAuth server configuration is incomplete: DERIV_APP_ID is missing' }, { status: 500 });

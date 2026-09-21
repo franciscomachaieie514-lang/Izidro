@@ -18,7 +18,6 @@ export async function GET(request: NextRequest) {
   const errorRedirect = (reason: string) =>
     NextResponse.redirect(`${PRODUCTION_APP_URL}/?auth_error=${encodeURIComponent(reason)}`, { status: 302 });
 
-  if (!platformSession) return errorRedirect('platform_account_required');
   if (oauthError) return errorRedirect(oauthErrorDescription || oauthError);
   if (!code || !state) return errorRedirect('missing_oauth_parameters');
 
@@ -41,9 +40,15 @@ export async function GET(request: NextRequest) {
       verifier,
     );
 
-    await saveDerivAccount(platformSession.id, access_token, refresh_token, expires_in);
+    if (platformSession) {
+      await saveDerivAccount(platformSession.id, access_token, refresh_token, expires_in);
+    }
 
     const response = NextResponse.redirect(`${PRODUCTION_APP_URL}/?deriv_connected=1`, { status: 302 });
+    if (!platformSession) {
+      response.cookies.set('deriv_access_token', access_token, { httpOnly: true, secure: true, sameSite: 'lax', path: '/', maxAge: expires_in || 3600 });
+      if (refresh_token) response.cookies.set('deriv_refresh_token', refresh_token, { httpOnly: true, secure: true, sameSite: 'lax', path: '/', maxAge: 60 * 60 * 24 * 30 });
+    }
     response.cookies.delete('oauth_verifier');
     response.cookies.delete('oauth_state');
     response.cookies.delete('oauth_redirect_uri');

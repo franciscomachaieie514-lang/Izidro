@@ -122,3 +122,18 @@ export async function hasDerivAccount(userId: string | number) {
 }
 
 export function safeErrorMessage(error: unknown) { return error instanceof Error ? error.message : 'Unknown authentication error'; }
+
+
+export const GUEST_ACCESS_COOKIE = 'deriv_access_token';
+export const GUEST_REFRESH_COOKIE = 'deriv_refresh_token';
+
+export async function resolveDerivToken(request: import('next/server').NextRequest) {
+  const user = await getSession(request.cookies.get(PLATFORM_SESSION_COOKIE)?.value);
+  if (user) {
+    const account = await getDerivAccount(user.id);
+    if (account?.access_token) return { accessToken: account.access_token, userId: user.id, guest: false };
+  }
+  const guestToken = request.cookies.get(GUEST_ACCESS_COOKIE)?.value;
+  if (guestToken) return { accessToken: guestToken, userId: null, guest: true };
+  return null;
+}

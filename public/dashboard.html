@@ -1623,6 +1623,41 @@ body.dark .icon-btn,body.dark .sair-btn{background:var(--field);color:var(--text
     white-space:nowrap!important;
   }
 }
+
+/* ===== FINAL AULA RESTORE ===== */
+@media(max-width:899px){
+  .row3 .aula-strip{
+    display:block!important;
+    visibility:visible!important;
+    position:static!important;
+    width:100%!important;
+    height:70px!important;
+    min-height:70px!important;
+    margin:0!important;
+    padding:0!important;
+  }
+  .row3 .aula-label{
+    display:block!important;
+    visibility:visible!important;
+    position:static!important;
+    width:100%!important;
+    height:18px!important;
+    margin:0 0 5px!important;
+    font-size:11px!important;
+    line-height:18px!important;
+  }
+  .row3 .aula-strip .pill-aula{
+    display:flex!important;
+    visibility:visible!important;
+    width:100%!important;
+    height:44px!important;
+    min-height:44px!important;
+    margin:0!important;
+    padding:0!important;
+    align-items:center!important;
+    justify-content:center!important;
+  }
+}
 </style>
 </head>
 <body>
@@ -1912,6 +1947,30 @@ $('#iziAccountSelect').value=localStorage.getItem('izitrader_account_type')||'re
 (function(){
   'use strict';
 
+  function placeAula(){
+    const aula=document.querySelector('.aula-strip');
+    const row3=document.querySelector('.row3');
+    const center=document.querySelector('.dashboard-center');
+    if(!aula)return;
+
+    const mobile=window.matchMedia('(max-width:899px)').matches;
+
+    if(mobile){
+      /* Mobile reference: AULA is the third block beside Account Type and BOT. */
+      if(row3 && aula.parentElement!==row3) row3.appendChild(aula);
+      aula.hidden=false;
+      aula.style.removeProperty('display');
+      aula.style.removeProperty('position');
+      aula.style.removeProperty('left');
+      aula.style.removeProperty('right');
+      aula.style.removeProperty('top');
+    }else if(center){
+      /* PC keeps AULA in the center area above the stage/wheel. */
+      if(aula.parentElement!==center) center.insertBefore(aula,center.children[1]||null);
+      aula.hidden=false;
+    }
+  }
+
   function placeStage(){
     const stage=document.getElementById('stageTracker');
     const history=document.getElementById('historyScroll');
@@ -1923,6 +1982,7 @@ $('#iziAccountSelect').value=localStorage.getItem('izitrader_account_type')||'re
     if(!stage)return;
 
     if(mobile){
+      /* Mobile: stage belongs inside Recent History. */
       if(card && stage.parentElement!==card) card.appendChild(stage);
       return;
     }
@@ -1963,14 +2023,17 @@ $('#iziAccountSelect').value=localStorage.getItem('izitrader_account_type')||'re
   }
 
   function run(){
+    placeAula();
     placeStage();
     positionWheel();
     requestAnimationFrame(positionWheel);
+    setTimeout(placeAula,100);
     setTimeout(placeStage,100);
   }
 
   if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',run,{once:true});
   else run();
+
   window.addEventListener('resize',run);
   window.addEventListener('orientationchange',run);
 })();

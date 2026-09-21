@@ -963,6 +963,69 @@ body.dark .icon-btn,body.dark .sair-btn{background:var(--field);color:var(--text
     min-height:148px!important;
   }
 }
+
+/* ===== Correct AULA and BOT sizing from desktop reference ===== */
+@media (min-width:1200px){
+  .dashboard-layout{
+    position:relative!important;
+  }
+
+  /* AULA is a horizontal block spanning from the 25 TICKS side to METAS. */
+  .dashboard-left .row3 > div:nth-child(3){
+    position:absolute!important;
+    z-index:6!important;
+    top:38px!important;
+    left:calc(27% + 34px)!important;
+    right:calc(28% + 34px)!important;
+    width:auto!important;
+    max-width:none!important;
+    margin:0!important;
+    min-height:0!important;
+  }
+
+  .dashboard-left .row3 > div:nth-child(3) .field-label{
+    margin:0 0 6px 0!important;
+    height:14px!important;
+  }
+
+  .dashboard-left .row3 > div:nth-child(3) .pill-aula{
+    width:100%!important;
+    height:48px!important;
+    min-height:48px!important;
+    padding:12px!important;
+    border-radius:12px!important;
+  }
+
+  /* BOT stays compact and never grows beyond the History card width. */
+  .dashboard-left .row3{
+    grid-template-columns:minmax(105px,.68fr) minmax(135px,.82fr) minmax(72px,.48fr)!important;
+    gap:8px!important;
+  }
+
+  .dashboard-left .row3 > div:nth-child(2){
+    width:135px!important;
+    max-width:135px!important;
+    min-width:0!important;
+  }
+
+  .dashboard-left .row3 > div:nth-child(2) .dropdown-btn{
+    width:135px!important;
+    max-width:135px!important;
+  }
+}
+
+@media (min-width:1600px){
+  .dashboard-left .row3 > div:nth-child(3){
+    left:calc(25% + 42px)!important;
+    right:calc(30% + 42px)!important;
+  }
+
+  .dashboard-left .row3 > div:nth-child(2),
+  .dashboard-left .row3 > div:nth-child(2) .dropdown-btn{
+    width:140px!important;
+    max-width:140px!important;
+  }
+}
 </style>
 </head>
 <body>

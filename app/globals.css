@@ -37,3 +37,43 @@ html,body{background:var(--page-bg);color:var(--text)}
   .tab{height:40px;padding:8px 5px;font-size:13px}
   .title{font-size:24px}
 }
+
+/* Full-screen responsive landing page: PC Windows / macOS / laptop / mobile */
+html,body{width:100%;min-height:100%;overflow-x:hidden}
+.page{min-height:100dvh;width:100%;display:flex;justify-content:center;align-items:stretch;padding:clamp(22px,4vw,56px) clamp(18px,5vw,84px) clamp(28px,5vw,72px);background:linear-gradient(180deg,#f7f9fb 0%,#eef2f6 100%)}
+.shell{width:100%;max-width:1440px;margin:0 auto;display:flex;flex-direction:column}
+.page-head{width:100%;max-width:none!important;margin:0 auto 24px;flex-shrink:0}
+.card{width:100%;max-width:none;min-height:calc(100dvh - 170px);margin:0;background:#fff;border:1px solid #dfe4ea;border-radius:22px;padding:clamp(24px,3vw,48px);box-shadow:0 18px 55px rgba(24,32,45,.08)}
+.tabs{width:100%;height:58px;display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:5px;padding:5px;margin-bottom:clamp(22px,3vw,34px);background:#eef2f5;border:1px solid #e0e5ea;border-radius:14px}
+.tab{width:100%;height:48px;padding:10px 12px;font-size:clamp(13px,1.1vw,15px);border-radius:9px}
+.title{font-size:clamp(26px,2.4vw,38px);line-height:1.12;margin-bottom:10px}
+.muted{font-size:clamp(13px,1.05vw,15px);line-height:1.6}
+.auth-form{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:0 clamp(18px,2.5vw,36px);width:100%;max-width:1180px;margin-top:12px}
+.form-field{min-width:0}
+.form-submit{grid-column:1/-1;width:100%;max-width:560px;justify-self:start;min-height:50px;margin-top:22px}
+.input{height:50px;padding:12px 15px;font-size:15px}
+.btn{min-height:50px}
+.deriv-btn{max-width:560px}
+.risk-warning{max-width:1180px}
+@media (min-width:1400px){
+  .page{padding-left:6vw;padding-right:6vw}
+}
+@media (max-width:899px){
+  .page{padding:24px 16px 48px}
+  .card{min-height:calc(100dvh - 140px)}
+  .auth-form{grid-template-columns:1fr}
+  .form-submit{grid-column:auto;max-width:none}
+  .deriv-btn{max-width:none}
+}
+@media (max-width:599px){
+  .page{padding:14px 10px 36px}
+  .page-head{margin-bottom:16px}
+  .card{min-height:0;padding:18px 15px;border-radius:16px}
+  .tabs{height:50px;margin-bottom:20px}
+  .tab{height:40px;padding:8px 4px;font-size:12px}
+  .title{font-size:23px}
+  .input{height:48px}
+}
+@media (min-width:900px){
+  .card > .risk-warning{margin-top:34px!important}
+}

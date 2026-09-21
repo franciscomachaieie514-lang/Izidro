@@ -2,13 +2,17 @@ import { NextRequest, NextResponse } from 'next/server';
 import { exchangeCode } from '../../../../lib/oauth';
 import { getSession, PLATFORM_SESSION_COOKIE, saveDerivAccount } from '../../../../lib/platform-auth';
 
-const PRODUCTION_APP_URL = 'https://izidro.onrender.com';
-const PRODUCTION_CALLBACK_URL = `${PRODUCTION_APP_URL}/api/auth/callback`;
+function getPublicAppUrl(request: NextRequest) {
+  const configured = (process.env.NEXT_PUBLIC_APP_URL || process.env.APP_URL || '').trim();
+  return (configured || request.nextUrl.origin).replace(/\/$/, '');
+}
 
 export const dynamic = 'force-dynamic';
 export const revalidate = 0;
 
 export async function GET(request: NextRequest) {
+  const publicAppUrl = getPublicAppUrl(request);
+  const callbackUrl = publicAppUrl + '/api/auth/callback';
   const platformSession = await getSession(request.cookies.get(PLATFORM_SESSION_COOKIE)?.value);
   const searchParams = request.nextUrl.searchParams;
   const code = searchParams.get('code');
@@ -16,7 +20,7 @@ export async function GET(request: NextRequest) {
   const oauthError = searchParams.get('error');
   const oauthErrorDescription = searchParams.get('error_description');
   const errorRedirect = (reason: string) =>
-    NextResponse.redirect(`${PRODUCTION_APP_URL}/?auth_error=${encodeURIComponent(reason)}`, { status: 302 });
+    NextResponse.redirect(publicAppUrl + '/?auth_error=' + encodeURIComponent(reason), { status: 302 });
 
   if (oauthError) return errorRedirect(oauthErrorDescription || oauthError);
   if (!code || !state) return errorRedirect('missing_oauth_parameters');
@@ -35,7 +39,7 @@ export async function GET(request: NextRequest) {
   try {
     const { access_token, refresh_token, expires_in } = await exchangeCode(
       clientId,
-      PRODUCTION_CALLBACK_URL,
+      callbackUrl,
       code,
       verifier,
     );
@@ -44,7 +48,7 @@ export async function GET(request: NextRequest) {
       await saveDerivAccount(platformSession.id, access_token, refresh_token, expires_in);
     }
 
-    const response = NextResponse.redirect(`${PRODUCTION_APP_URL}/?deriv_connected=1`, { status: 302 });
+    const response = NextResponse.redirect(publicAppUrl + '/?deriv_connected=1', { status: 302 });
     if (!platformSession) {
       response.cookies.set('deriv_access_token', access_token, { httpOnly: true, secure: true, sameSite: 'lax', path: '/', maxAge: expires_in || 3600 });
       if (refresh_token) response.cookies.set('deriv_refresh_token', refresh_token, { httpOnly: true, secure: true, sameSite: 'lax', path: '/', maxAge: 60 * 60 * 24 * 30 });
@@ -57,6 +61,6 @@ export async function GET(request: NextRequest) {
     console.error('[OAuth] Callback/token exchange failed:', error);
     const message = error instanceof Error ? error.message : String(error);
     const safeReason = message.replace(/https?:\/\/[^\s]+/gi, '[url]').slice(0, 220);
-    return errorRedirect(`oauth_exchange_failed:${safeReason}`);
+    return errorRedirect('oauth_exchange_failed:' + safeReason);
   }
 }

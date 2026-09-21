@@ -696,6 +696,80 @@ body.dark .icon-btn,body.dark .sair-btn{background:var(--field);color:var(--text
     padding-top:170px!important;
   }
 }
+
+/* ===== Final alignment: top controls + wheel aligned with history/symbol ===== */
+@media (min-width:1200px){
+  .dashboard-layout{
+    position:relative!important;
+  }
+
+  /* Account status stays on the top KPI line, above the wheel. */
+  .dashboard-center{
+    position:relative!important;
+  }
+
+  .dashboard-center .status{
+    position:absolute!important;
+    top:0!important;
+    left:0!important;
+    width:100%!important;
+    min-height:32px!important;
+    margin:0!important;
+    z-index:20!important;
+  }
+
+  /* The wheel starts exactly where History/Symbol cards start. */
+  .dashboard-center{
+    padding-top:205px!important;
+  }
+
+  /* 25 TICKS sits beside Profit/Loss; METAS sits beside the Bet card. */
+  .wheel-area .analysis-wrap{
+    top:-205px!important;
+    left:50%!important;
+    transform:translateX(-100%)!important;
+    margin-left:-8px!important;
+  }
+
+  .wheel-area .target-wrap{
+    top:-205px!important;
+    right:50%!important;
+    transform:translateX(100%)!important;
+    margin-right:-8px!important;
+  }
+
+  .wheel-area{
+    margin-top:0!important;
+  }
+}
+
+@media (min-width:1600px){
+  .dashboard-center{
+    padding-top:214px!important;
+  }
+
+  .wheel-area .analysis-wrap{
+    top:-214px!important;
+  }
+
+  .wheel-area .target-wrap{
+    top:-214px!important;
+  }
+}
+
+@media (min-width:1200px) and (max-height:850px){
+  .dashboard-center{
+    padding-top:170px!important;
+  }
+
+  .wheel-area .analysis-wrap{
+    top:-170px!important;
+  }
+
+  .wheel-area .target-wrap{
+    top:-170px!important;
+  }
+}
 </style>
 </head>
 <body>

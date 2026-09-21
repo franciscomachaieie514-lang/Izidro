@@ -638,7 +638,7 @@ window.addEventListener('izitrader:contract-closed',e=>{
   while(hist.children.length>20)hist.firstElementChild.remove();
   hist.scrollLeft=hist.scrollWidth;
 });
-$('#iziAccountSelect').value=localStorage.getItem('izitrader_account_type')||'real';$('#iziAccountSelect').addEventListener('change',e=>{window.IziDerivWS?.setAccountType?.(e.target.value);ob.textContent='▶ Start Robot'});ob.textContent='▶ Start Robot';$('#sairBtn').addEventListener('click',async()=>{try{await fetch('/api/auth/logout',{method:'POST',credentials:'same-origin'})}catch{}location.reload()});
+$('#iziAccountSelect').value=localStorage.getItem('izitrader_account_type')||'real';$('#iziAccountSelect').addEventListener('change',e=>{window.IziDerivWS?.setAccountType?.(e.target.value);ob.textContent='▶ Start Robot'});ob.textContent='▶ Start Robot';$('#sairBtn').addEventListener('click',async()=>{try{await fetch('/api/auth/logout',{method:'POST',credentials:'same-origin'})}catch{}window.location.replace('/')});
 
 (function(){
   const dots=[$('#stageDot0'),$('#stageDot1'),$('#stageDot2')];

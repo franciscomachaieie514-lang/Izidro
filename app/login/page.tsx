@@ -1,7 +1,7 @@
-import AuthForm from '../auth-form';
+import { redirect } from 'next/navigation';
 
 export const metadata = { title: 'Entrar — Izitrader' };
 
 export default function LoginPage() {
-  return <AuthForm mode="login" />;
+  redirect('/');
 }

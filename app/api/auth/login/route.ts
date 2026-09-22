@@ -2,8 +2,10 @@ import { NextRequest, NextResponse } from 'next/server';
 import { generateCodeVerifier, generateCodeChallenge, generateState, getAuthorizeUrl } from '../../../../lib/oauth';
 import { getSession, PLATFORM_SESSION_COOKIE } from '../../../../lib/platform-auth';
 
-const PRODUCTION_APP_URL = 'https://izidro.onrender.com';
-const PRODUCTION_CALLBACK_URL = `${PRODUCTION_APP_URL}/api/auth/callback`;
+function getPublicAppUrl(request: NextRequest) {
+  const configured = (process.env.NEXT_PUBLIC_APP_URL || process.env.APP_URL || '').trim();
+  return (configured || request.nextUrl.origin).replace(/\/$/, '');
+}
 
 export const dynamic = 'force-dynamic';
 export const revalidate = 0;
@@ -18,7 +20,7 @@ export async function GET(request: NextRequest) {
   const verifier = generateCodeVerifier();
   const challenge = generateCodeChallenge(verifier);
   const state = generateState();
-  const redirectUri = PRODUCTION_CALLBACK_URL;
+  const redirectUri = `${getPublicAppUrl(request)}/api/auth/callback`;
 
   const response = NextResponse.redirect(getAuthorizeUrl(clientId, redirectUri, challenge, state), { status: 302 });
   response.cookies.set('oauth_verifier', verifier, { httpOnly: true, secure: true, sameSite: 'lax', path: '/', maxAge: 600 });

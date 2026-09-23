@@ -3304,6 +3304,55 @@ body.dark .history-card .chip.loss .chip-tag{color:#ff5b5b!important;}
     line-height:13px!important;
   }
 }
+
+/* ===== AULA LANGUAGE OPTIONS ===== */
+.aula-language-options{
+  display:flex;
+  align-items:center;
+  justify-content:center;
+  gap:6px;
+  width:100%;
+}
+.aula-language-btn{
+  flex:1;
+  min-width:0;
+  height:40px;
+  padding:7px 10px;
+  border:1px solid var(--border);
+  border-radius:9px;
+  background:var(--field);
+  color:var(--text);
+  font:inherit;
+  font-size:12px;
+  font-weight:800;
+  cursor:pointer;
+}
+.aula-language-btn.active{
+  background:var(--accent);
+  border-color:var(--accent);
+  color:#fff;
+}
+@media(max-width:899px){
+  .dashboard-left .row3 .aula-strip .aula-language-options{
+    height:42px!important;
+    min-height:42px!important;
+    max-height:42px!important;
+    gap:4px!important;
+  }
+  .dashboard-left .row3 .aula-strip .aula-language-btn{
+    height:42px!important;
+    min-height:42px!important;
+    padding:6px 4px!important;
+    border-radius:10px!important;
+    font-size:9px!important;
+  }
+}
+@media(min-width:900px){
+  .dashboard-center .aula-strip .aula-language-options{
+    width:100%!important;
+    height:40px!important;
+  }
+}
 </style>
 </head>
 <body>
@@ -3412,7 +3461,10 @@ body.dark .history-card .chip.loss .chip-tag{color:#ff5b5b!important;}
 
     <div class="aula-strip" aria-label="Aula">
       <div class="aula-label">AULA</div>
-      <div class="pill pill-aula">▶</div>
+      <div class="aula-language-options" role="group" aria-label="Idioma da aula">
+        <button type="button" class="aula-language-btn active" data-aula-lang="pt">Português</button>
+        <button type="button" class="aula-language-btn" data-aula-lang="en">English</button>
+      </div>
     </div>
 
       <div class="history-stage stage-tracker" id="stageTracker">
@@ -3730,5 +3782,32 @@ $('#iziAccountSelect').value=localStorage.getItem('izitrader_account_type')||'re
 
 <script src="/live-analysis.js"></script>
 <script src="/deriv-realtime.js"></script>
+
+<script>
+(function(){
+  'use strict';
+  function mountAulaLanguage(){
+    const buttons=[...document.querySelectorAll('.aula-language-btn')];
+    if(!buttons.length)return;
+    let saved='pt';
+    try{saved=localStorage.getItem('izitrader_aula_language')||'pt'}catch{}
+    function select(lang,emit){
+      const value=lang==='en'?'en':'pt';
+      buttons.forEach(btn=>btn.classList.toggle('active',btn.dataset.aulaLang===value));
+      try{localStorage.setItem('izitrader_aula_language',value)}catch{}
+      if(emit)window.dispatchEvent(new CustomEvent('izitrader:aula-language-change',{detail:{language:value}}));
+    }
+    buttons.forEach(btn=>{
+      if(btn.dataset.aulaMounted==='1')return;
+      btn.dataset.aulaMounted='1';
+      btn.addEventListener('click',()=>select(btn.dataset.aulaLang,true));
+    });
+    select(saved,false);
+  }
+  if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',mountAulaLanguage,{once:true});
+  else mountAulaLanguage();
+  window.addEventListener('resize',()=>setTimeout(mountAulaLanguage,0));
+})();
+</script>
 </body>
 </html>

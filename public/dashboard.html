@@ -2828,6 +2828,82 @@ body.dark .history-card .chip::after{
     overflow-x:hidden!important;
   }
 }
+
+/* ===== FINAL RESPONSIVE HISTORY: mobile horizontal / desktop vertical ===== */
+/* Mobile follows the supplied reference: horizontal recent trades with swipe. */
+@media (max-width:899px){
+  .history-card .history-row{
+    display:flex!important;
+    flex-direction:row!important;
+    flex-wrap:nowrap!important;
+    align-items:stretch!important;
+    justify-content:flex-start!important;
+    gap:8px!important;
+    width:100%!important;
+    height:auto!important;
+    max-height:none!important;
+    overflow-x:auto!important;
+    overflow-y:hidden!important;
+    padding:4px 0 10px!important;
+    margin:0 0 8px!important;
+    scrollbar-width:none!important;
+    -webkit-overflow-scrolling:touch!important;
+  }
+  .history-card .history-row::-webkit-scrollbar{display:none!important}
+  .history-card .history-row .chip{
+    flex:0 0 116px!important;
+    width:116px!important;
+    min-width:116px!important;
+    max-width:116px!important;
+    height:104px!important;
+    min-height:104px!important;
+    margin:0!important;
+    display:flex!important;
+    flex-direction:column!important;
+    align-items:center!important;
+    justify-content:center!important;
+    text-align:center!important;
+    padding:8px 4px!important;
+    border-radius:12px!important;
+  }
+}
+
+/* PC keeps the recent trades vertical and shows six at once; older trades scroll. */
+@media (min-width:900px){
+  .history-card .history-row{
+    display:flex!important;
+    flex-direction:column!important;
+    flex-wrap:nowrap!important;
+    align-items:stretch!important;
+    justify-content:flex-start!important;
+    gap:8px!important;
+    width:100%!important;
+    height:auto!important;
+    max-height:390px!important;
+    overflow-x:hidden!important;
+    overflow-y:auto!important;
+    padding:4px 4px 10px 2px!important;
+    margin:0 0 8px!important;
+    scrollbar-width:thin!important;
+  }
+  .history-card .history-row .chip{
+    flex:0 0 58px!important;
+    width:100%!important;
+    min-width:0!important;
+    max-width:none!important;
+    height:58px!important;
+    min-height:58px!important;
+    margin:0!important;
+    display:flex!important;
+    flex-direction:row!important;
+    align-items:center!important;
+    justify-content:space-between!important;
+    text-align:left!important;
+    padding:7px 12px!important;
+  }
+  .history-card .history-row .chip>span:first-child{text-align:left!important}
+  .history-card .history-row .chip .chip-tag{text-align:right!important}
+}
 </style>
 </head>
 <body>

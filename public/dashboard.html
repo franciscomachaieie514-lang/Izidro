@@ -3305,26 +3305,47 @@ body.dark .history-card .chip.loss .chip-tag{color:#ff5b5b!important;}
   }
 }
 
-/* ===== AULA — aligned, clean trigger, language links ===== */
+/* ===== AULA — label aligned with Account Type/Bot ===== */
 .aula-strip{
   position:relative!important;
   width:100%!important;
   margin:0!important;
+  padding:0!important;
+  display:flex!important;
+  flex-direction:column!important;
+  align-items:stretch!important;
+  min-width:0!important;
+}
+.aula-strip .aula-label{
+  display:block!important;
+  width:100%!important;
+  height:15px!important;
+  min-height:15px!important;
+  margin:0 0 3px!important;
+  padding:0!important;
+  line-height:15px!important;
+  font-size:10px!important;
+  letter-spacing:.06em!important;
+  color:var(--muted)!important;
+  text-align:left!important;
 }
 .aula-trigger{
   width:100%!important;
-  height:40px!important;
-  min-height:40px!important;
+  height:42px!important;
+  min-height:42px!important;
+  max-height:42px!important;
   margin:0!important;
-  padding:6px 10px!important;
+  padding:0!important;
   display:flex!important;
   align-items:center!important;
   justify-content:center!important;
   border:1px solid var(--border)!important;
   outline:none!important;
   box-shadow:none!important;
-  border-radius:10px!important;
+  border-radius:11px!important;
   cursor:pointer!important;
+  font-size:15px!important;
+  line-height:1!important;
 }
 .aula-trigger:focus,
 .aula-trigger:focus-visible,
@@ -3368,19 +3389,26 @@ body.dark .history-card .chip.loss .chip-tag{color:#ff5b5b!important;}
   .dashboard-left .row3 .aula-strip{
     width:100%!important;
     height:auto!important;
-    min-height:42px!important;
+    min-height:60px!important;
     max-height:none!important;
     margin:0!important;
     padding:0!important;
+  }
+  .dashboard-left .row3 .aula-strip .aula-label{
+    height:15px!important;
+    min-height:15px!important;
+    line-height:15px!important;
+    margin:0 0 3px!important;
+    font-size:10px!important;
   }
   .dashboard-left .row3 .aula-trigger{
     width:100%!important;
     height:42px!important;
     min-height:42px!important;
     max-height:42px!important;
-    padding:6px 4px!important;
-    border-radius:10px!important;
-    font-size:10px!important;
+    padding:0!important;
+    border-radius:11px!important;
+    font-size:15px!important;
   }
   .dashboard-left .row3 .aula-language-options{
     height:36px!important;
@@ -3394,6 +3422,13 @@ body.dark .history-card .chip.loss .chip-tag{color:#ff5b5b!important;}
     padding:5px 3px!important;
     border-radius:8px!important;
     font-size:8px!important;
+  }
+}
+@media(min-width:900px){
+  .dashboard-center .aula-strip .aula-label{
+    height:16px!important;
+    min-height:16px!important;
+    line-height:16px!important;
   }
 }</style>
 </head>
@@ -3502,8 +3537,9 @@ body.dark .history-card .chip.loss .chip-tag{color:#ff5b5b!important;}
       </div>
 
     <div class="aula-strip" aria-label="Aula">
-      <button type="button" class="pill pill-aula aula-trigger" id="aulaTrigger" aria-expanded="false" aria-haspopup="true">
-        <span class="aula-trigger-label">AULA</span>
+      <div class="aula-label">AULA</div>
+      <button type="button" class="pill pill-aula aula-trigger" id="aulaTrigger" aria-expanded="false" aria-haspopup="true" aria-label="Abrir aula">
+        <span aria-hidden="true">▶</span>
       </button>
       <div class="aula-language-options" id="aulaLanguageOptions" role="group" aria-label="Idioma da aula" hidden>
         <button type="button" class="aula-language-btn" data-aula-lang="pt">Português</button>

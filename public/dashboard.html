@@ -1893,6 +1893,53 @@ body.dark .icon-btn,body.dark .sair-btn{background:var(--field);color:var(--text
   .dashboard-right>.target-wrap .target-menu{left:auto;right:0}
   .wheel-area{margin-top:32px!important;width:min(100%,580px)!important}
 }
+/* ===== 25 TICKS — status — METAS as one row; 25 TICKS/METAS no longer float loose ===== */
+.dashboard-control-row{
+  position:relative;
+  display:flex!important;
+  align-items:center;
+  justify-content:space-between;
+  gap:12px;
+  width:100%;
+}
+
+.dashboard-control-row>.analysis-wrap,
+.dashboard-control-row>.target-wrap{
+  position:relative!important;
+  top:auto!important;
+  left:auto!important;
+  right:auto!important;
+  flex:0 0 auto;
+  z-index:5;
+}
+
+.dashboard-control-row>.status{
+  flex:1;
+  min-width:0;
+  margin:0!important;
+}
+
+.dashboard-control-row>.analysis-wrap .analysis-btn,
+.dashboard-control-row>.target-wrap .target-btn{
+  padding:7px 12px;
+  background:var(--field);
+  border:1px solid var(--border);
+  border-radius:9px;
+  white-space:nowrap;
+}
+
+.dashboard-control-row>.target-wrap .target-menu{left:auto;right:0}
+
+.wheel-area{
+  margin-top:56px!important;
+}
+
+@media (min-width:900px){
+  .wheel-area{
+    width:min(100%,580px)!important;
+    margin-top:64px!important;
+  }
+}
 </style>
 </head>
 <body>
@@ -2197,22 +2244,23 @@ $('#iziAccountSelect').value=localStorage.getItem('izitrader_account_type')||'re
   'use strict';
 
   function placeControls(){
+    /* 25 TICKS, Account connected and METAS always live together in the control row,
+       as three items in one line: 25 TICKS (left) — status (middle) — METAS (right). */
     const analysisWrap=document.querySelector('.analysis-wrap');
     const targetWrap=document.querySelector('.target-wrap');
     const controlRow=document.querySelector('.dashboard-control-row');
-    const left=document.querySelector('.dashboard-left');
-    const right=document.querySelector('.dashboard-right');
-    if(!analysisWrap||!targetWrap||!controlRow||!left||!right)return;
-    const mobile=window.matchMedia('(max-width:899px)').matches;
-    if(mobile){
-      if(analysisWrap.parentElement!==controlRow)controlRow.insertBefore(analysisWrap,controlRow.firstChild);
-      if(targetWrap.parentElement!==controlRow)controlRow.appendChild(targetWrap);
-    }else{
-      if(analysisWrap.parentElement!==left)left.insertBefore(analysisWrap,left.firstElementChild);
-      if(targetWrap.parentElement!==right)right.insertBefore(targetWrap,right.firstElementChild);
+    const status=document.querySelector('.dashboard-control-row .status, .dashboard-center>.status');
+    if(!analysisWrap||!targetWrap||!controlRow)return;
+    if(analysisWrap.parentElement!==controlRow||controlRow.firstElementChild!==analysisWrap){
+      controlRow.insertBefore(analysisWrap,controlRow.firstChild);
+    }
+    if(targetWrap.parentElement!==controlRow||controlRow.lastElementChild!==targetWrap){
+      controlRow.appendChild(targetWrap);
+    }
+    if(status&&status.parentElement===controlRow){
+      controlRow.insertBefore(status,targetWrap);
     }
   }
-
   function placeAula(){
     const aula=document.querySelector('.aula-strip');
     const row3=document.querySelector('.row3');

@@ -3074,6 +3074,26 @@ body.dark .history-card .chip::after{
     margin-top:10px!important;
   }
 }
+
+/* ===== MOBILE START ROBOT: move control near dashboard top ===== */
+@media (max-width:899px){
+  .dashboard-left .mobile-start-card{
+    width:100%!important;
+    margin:0 0 10px!important;
+    padding:10px 12px!important;
+    border-radius:10px!important;
+  }
+  .dashboard-left .mobile-start-card .field-label{margin-bottom:4px!important;font-size:9px!important;}
+  .dashboard-left .mobile-start-card .stake-row{min-height:28px!important;}
+  .dashboard-left .mobile-start-card .stake-value{font-size:18px!important;}
+  .dashboard-left .mobile-start-card .operate-btn{
+    margin-top:7px!important;
+    min-height:42px!important;
+    padding:9px!important;
+    font-size:13px!important;
+  }
+  .dashboard-left .mobile-start-card .note{display:none!important;}
+}
 </style>
 </head>
 <body>
@@ -3528,5 +3548,37 @@ $('#iziAccountSelect').value=localStorage.getItem('izitrader_account_type')||'re
   window.addEventListener('orientationchange',run);
 })();
 </script>
-\n</body>
+\n
+<script>
+(function(){
+  'use strict';
+  function placeStartRobot(){
+    const card=document.querySelector('.dashboard-right .card:not(.symbol-card), .mobile-start-card');
+    const left=document.querySelector('.dashboard-left');
+    const right=document.querySelector('.dashboard-right');
+    const row3=document.querySelector('.dashboard-left .row3');
+    const symbol=right?.querySelector('.symbol-card');
+    if(!card||!left||!right||!row3)return;
+    const mobile=window.matchMedia('(max-width:899px)').matches;
+    if(mobile){
+      card.classList.add('mobile-start-card');
+      if(card.parentElement!==left || card.previousElementSibling!==row3){
+        row3.after(card);
+      }
+    }else{
+      card.classList.remove('mobile-start-card');
+      if(card.parentElement!==right){
+        right.insertBefore(card,symbol||null);
+      }else if(symbol && card.nextElementSibling!==symbol){
+        right.insertBefore(card,symbol);
+      }
+    }
+  }
+  if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',placeStartRobot,{once:true});
+  else placeStartRobot();
+  window.addEventListener('resize',placeStartRobot);
+  window.addEventListener('orientationchange',placeStartRobot);
+})();
+</script>
+</body>
 </html>

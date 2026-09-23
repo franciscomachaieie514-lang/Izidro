@@ -3141,6 +3141,27 @@ body.dark .history-card .chip::after{
   .dashboard-right .card:not(.symbol-card) .operate-btn{min-height:48px!important;height:auto!important;margin-top:14px!important;padding:14px!important;font-size:15px!important;}
   .dashboard-right .card:not(.symbol-card) .note{display:block!important;font-size:11px!important;margin-top:10px!important;}
 }
+
+/* ===== FINAL MOBILE ORDER: wheel before APOSTA ===== */
+@media (max-width:899px){
+  .dashboard-layout{
+    display:flex!important;
+    flex-direction:column!important;
+    gap:0!important;
+  }
+  .dashboard-left{order:1!important;width:100%!important;}
+  .dashboard-center{order:2!important;width:100%!important;}
+  .dashboard-right{
+    order:3!important;
+    display:flex!important;
+    flex-direction:column!important;
+    width:100%!important;
+    margin-top:0!important;
+  }
+  .dashboard-right .card:not(.symbol-card){order:1!important;}
+  .dashboard-right .symbol-card{order:2!important;}
+  .dashboard-center .wheel-area{margin-bottom:8px!important;}
+}
 </style>
 </head>
 <body>
@@ -3596,36 +3617,6 @@ $('#iziAccountSelect').value=localStorage.getItem('izitrader_account_type')||'re
 })();
 </script>
 \n
-<script>
-(function(){
-  'use strict';
-  function placeStartRobot(){
-    const card=document.querySelector('.dashboard-right .card:not(.symbol-card), .mobile-start-card');
-    const right=document.querySelector('.dashboard-right');
-    const symbol=right?.querySelector('.symbol-card');
-    if(!card||!right)return;
-    const mobile=window.matchMedia('(max-width:899px)').matches;
-    if(mobile){
-      /* Mobile: Start Robot stays in the right-side APOSTA block, below the wheel. */
-      card.classList.remove('mobile-start-card');
-      if(card.parentElement!==right){
-        right.insertBefore(card,symbol||null);
-      }else if(symbol && card.nextElementSibling!==symbol){
-        right.insertBefore(card,symbol);
-      }
-    }else{
-      card.classList.remove('mobile-start-card');
-      if(card.parentElement!==right){
-        right.insertBefore(card,symbol||null);
-      }else if(symbol && card.nextElementSibling!==symbol){
-        right.insertBefore(card,symbol);
-      }
-    }
-  }  if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',placeStartRobot,{once:true});
-  else placeStartRobot();
-  window.addEventListener('resize',placeStartRobot);
-  window.addEventListener('orientationchange',placeStartRobot);
-})();
-</script>
+
 </body>
 </html>

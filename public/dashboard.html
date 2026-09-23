@@ -2415,6 +2415,130 @@ body.dark .icon-btn,body.dark .sair-btn{background:var(--field);color:var(--text
     flex-basis:540px!important;
   }
 }
+
+/* =========================================================
+   FINAL IZIDRO DESKTOP GEOMETRY — full center + complete wheel
+   The center column must use all remaining horizontal space.
+   The wheel must fit vertically so all digits 0–9 remain visible.
+   ========================================================= */
+@media (min-width:900px){
+  .dashboard-layout{
+    width:100%!important;
+    max-width:none!important;
+    display:grid!important;
+    grid-template-columns:minmax(280px,24%) minmax(0,1fr) minmax(280px,24%)!important;
+    gap:18px!important;
+    align-items:start!important;
+  }
+
+  .dashboard-left,
+  .dashboard-center,
+  .dashboard-right{
+    width:100%!important;
+    min-width:0!important;
+    transform:none!important;
+  }
+
+  .dashboard-center{
+    display:flex!important;
+    flex-direction:column!important;
+    align-items:stretch!important;
+    width:100%!important;
+    max-width:none!important;
+    padding:0!important;
+    margin:0!important;
+    overflow:visible!important;
+  }
+
+  /* Every central horizontal block uses the complete center column. */
+  .dashboard-center .dashboard-control-row,
+  .dashboard-center .aula-strip,
+  .dashboard-center #stageTracker{
+    width:100%!important;
+    max-width:none!important;
+    align-self:stretch!important;
+    box-sizing:border-box!important;
+  }
+
+  .dashboard-center .dashboard-control-row{
+    display:grid!important;
+    grid-template-columns:minmax(120px,1fr) auto minmax(120px,1fr)!important;
+    height:42px!important;
+    min-height:42px!important;
+    margin:0 0 8px!important;
+  }
+
+  .dashboard-center .aula-strip{
+    height:60px!important;
+    min-height:60px!important;
+    margin:0 0 10px!important;
+  }
+
+  .dashboard-center #stageTracker{
+    height:46px!important;
+    min-height:46px!important;
+    margin:0!important;
+  }
+
+  /* Circle is sized from BOTH available width and viewport height.
+     This prevents the lower digits from being cut off. */
+  .dashboard-center .wheel-area{
+    position:relative!important;
+    width:min(100%,520px)!important;
+    max-width:520px!important;
+    height:min(520px,calc(100vh - 350px))!important;
+    min-height:0!important;
+    max-height:520px!important;
+    aspect-ratio:1 / 1!important;
+    flex:0 0 auto!important;
+    margin:14px auto 0!important;
+    padding:0!important;
+    transform:none!important;
+    display:flex!important;
+    align-items:center!important;
+    justify-content:center!important;
+    overflow:visible!important;
+    box-sizing:border-box!important;
+  }
+
+  .dashboard-center .wheel-area > #wheel,
+  .dashboard-center .wheel-area > .wheel{
+    position:relative!important;
+    width:100%!important;
+    height:100%!important;
+    min-width:0!important;
+    min-height:0!important;
+    max-width:none!important;
+    max-height:none!important;
+    margin:0!important;
+    flex:0 0 auto!important;
+    transform:none!important;
+    box-sizing:border-box!important;
+  }
+}
+
+@media (min-width:1500px){
+  .dashboard-layout{
+    grid-template-columns:minmax(300px,24%) minmax(0,1fr) minmax(300px,24%)!important;
+    gap:20px!important;
+  }
+
+  .dashboard-center .wheel-area{
+    width:min(100%,540px)!important;
+    max-width:540px!important;
+    height:min(540px,calc(100vh - 340px))!important;
+    max-height:540px!important;
+  }
+}
+
+@media (min-width:1800px){
+  .dashboard-center .wheel-area{
+    width:min(100%,580px)!important;
+    max-width:580px!important;
+    height:min(580px,calc(100vh - 330px))!important;
+    max-height:580px!important;
+  }
+}
 </style>
 </head>
 <body>

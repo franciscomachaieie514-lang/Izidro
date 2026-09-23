@@ -1997,6 +1997,147 @@ body.dark .icon-btn,body.dark .sair-btn{background:var(--field);color:var(--text
   }
 }
 
+
+/* =========================================================
+   FINAL REFERENCE LAYOUT — desktop
+   Matches the approved reference image:
+   controls full width, lesson/stage full width,
+   large wheel lower in the center column.
+   ========================================================= */
+@media (min-width:900px){
+  .dashboard-center{
+    position:relative!important;
+    display:flex!important;
+    flex-direction:column!important;
+    align-items:center!important;
+    padding-top:0!important;
+    box-sizing:border-box!important;
+  }
+
+  /* 25 TICKS — Account connected — TARGETS */
+  .dashboard-center .dashboard-control-row{
+    position:relative!important;
+    display:grid!important;
+    grid-template-columns:minmax(120px,1fr) auto minmax(120px,1fr)!important;
+    align-items:center!important;
+    width:100%!important;
+    max-width:none!important;
+    min-height:48px!important;
+    margin:0 0 6px!important;
+    padding:0!important;
+    gap:16px!important;
+  }
+
+  .dashboard-center .dashboard-control-row>.analysis-wrap{
+    position:relative!important;
+    inset:auto!important;
+    justify-self:start!important;
+    margin:0!important;
+  }
+
+  .dashboard-center .dashboard-control-row>.status{
+    position:relative!important;
+    inset:auto!important;
+    width:auto!important;
+    min-width:0!important;
+    min-height:34px!important;
+    margin:0!important;
+    padding:0 6px!important;
+    justify-self:center!important;
+    display:flex!important;
+    align-items:center!important;
+    justify-content:center!important;
+    white-space:nowrap!important;
+  }
+
+  .dashboard-center .dashboard-control-row>.target-wrap{
+    position:relative!important;
+    inset:auto!important;
+    justify-self:end!important;
+    margin:0!important;
+  }
+
+  .dashboard-center .dashboard-control-row .analysis-btn,
+  .dashboard-center .dashboard-control-row .target-btn{
+    min-height:38px!important;
+    padding:8px 14px!important;
+    white-space:nowrap!important;
+  }
+
+  /* LESSON — full width */
+  .dashboard-center .aula-strip{
+    position:relative!important;
+    inset:auto!important;
+    left:auto!important;
+    right:auto!important;
+    top:auto!important;
+    transform:none!important;
+    width:100%!important;
+    max-width:none!important;
+    margin:0 0 8px!important;
+    height:auto!important;
+    min-height:64px!important;
+    flex:0 0 auto!important;
+  }
+
+  /* ANALYZING — OPEN — CLOSED — full width */
+  .dashboard-center #stageTracker{
+    position:relative!important;
+    inset:auto!important;
+    left:auto!important;
+    right:auto!important;
+    top:auto!important;
+    transform:none!important;
+    width:100%!important;
+    max-width:none!important;
+    min-height:48px!important;
+    margin:0!important;
+    flex:0 0 auto!important;
+  }
+
+  /* Large wheel: use the available central space */
+  .dashboard-center .wheel-area{
+    position:relative!important;
+    width:min(100%,620px)!important;
+    max-width:620px!important;
+    height:auto!important;
+    min-height:0!important;
+    aspect-ratio:1 / 1!important;
+    flex:0 0 auto!important;
+    margin:22px auto 0!important;
+    padding:0!important;
+    display:flex!important;
+    align-items:center!important;
+    justify-content:center!important;
+  }
+
+  .dashboard-center .wheel-area>#wheel{
+    width:100%!important;
+    height:100%!important;
+    max-width:none!important;
+    max-height:none!important;
+    min-width:0!important;
+    min-height:0!important;
+    margin:0!important;
+  }
+}
+
+@media (min-width:1400px){
+  .dashboard-center .wheel-area{
+    width:min(100%,660px)!important;
+    max-width:660px!important;
+    margin-top:24px!important;
+  }
+}
+
+@media (min-width:1600px){
+  .dashboard-center .wheel-area{
+    width:min(100%,700px)!important;
+    max-width:700px!important;
+    margin-top:24px!important;
+  }
+}
+
 </style>
 </head>
 <body>

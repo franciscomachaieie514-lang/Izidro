@@ -3063,6 +3063,150 @@ body.dark .history-card .chip.loss .chip-tag{color:#ff5b5b!important;}
     flex-direction:column!important;
   }
 }
+
+/* ===== MOBILE FINAL GEOMETRY FIX: lesson, controls, wheel ===== */
+@media (max-width:899px){
+  /* Account / Bot / Lesson: one shared baseline and identical control height. */
+  .dashboard-left .row3{
+    grid-template-columns:minmax(0,1fr) minmax(0,1.2fr) minmax(0,.8fr)!important;
+    gap:7px!important;
+    align-items:start!important;
+  }
+  .dashboard-left .row3 > div{
+    display:flex!important;
+    flex-direction:column!important;
+    align-items:stretch!important;
+    min-width:0!important;
+  }
+  .dashboard-left .row3 .field-label,
+  .dashboard-left .row3 .aula-label{
+    height:15px!important;
+    min-height:15px!important;
+    line-height:15px!important;
+    margin:0 0 3px!important;
+    padding:0!important;
+    font-size:10px!important;
+  }
+  .dashboard-left .row3 .account-select,
+  .dashboard-left .row3 .dropdown-btn,
+  .dashboard-left .row3 .aula-strip .pill-aula{
+    height:42px!important;
+    min-height:42px!important;
+    max-height:42px!important;
+    margin:0!important;
+    padding:8px 9px!important;
+    border-radius:11px!important;
+  }
+  .dashboard-left .row3 .aula-strip{
+    position:static!important;
+    display:flex!important;
+    flex-direction:column!important;
+    width:100%!important;
+    height:60px!important;
+    min-height:60px!important;
+    max-height:60px!important;
+    margin:0!important;
+    padding:0!important;
+    transform:none!important;
+  }
+  .dashboard-left .row3 .aula-strip .pill-aula{
+    display:flex!important;
+    width:100%!important;
+    align-items:center!important;
+    justify-content:center!important;
+    border-radius:11px!important;
+  }
+
+  /* Controls: three separate areas; long robot status can never cover the buttons. */
+  .dashboard-center .dashboard-control-row{
+    grid-template-columns:110px minmax(0,1fr) 110px!important;
+    gap:5px!important;
+    width:100%!important;
+    height:42px!important;
+    min-height:42px!important;
+    margin:0!important;
+    padding:0!important;
+  }
+  .dashboard-center .dashboard-control-row>.analysis-wrap,
+  .dashboard-center .dashboard-control-row>.target-wrap{
+    width:110px!important;
+    min-width:110px!important;
+    max-width:110px!important;
+  }
+  .dashboard-center .dashboard-control-row .analysis-btn,
+  .dashboard-center .dashboard-control-row .target-btn{
+    width:110px!important;
+    min-width:110px!important;
+    max-width:110px!important;
+    height:38px!important;
+    min-height:38px!important;
+    padding:7px 9px!important;
+    font-size:10px!important;
+    border-radius:9px!important;
+    overflow:hidden!important;
+  }
+  .dashboard-center .dashboard-control-row>.status{
+    width:100%!important;
+    min-width:0!important;
+    max-width:100%!important;
+    height:32px!important;
+    min-height:32px!important;
+    margin:0!important;
+    padding:0 2px!important;
+    overflow:hidden!important;
+    text-align:center!important;
+    white-space:nowrap!important;
+    font-size:10px!important;
+  }
+  .dashboard-center .dashboard-control-row>.status #statusText{
+    display:block!important;
+    min-width:0!important;
+    max-width:calc(100% - 12px)!important;
+    overflow:hidden!important;
+    text-overflow:ellipsis!important;
+    white-space:nowrap!important;
+  }
+
+  /* Smaller circle: directly below the three controls. */
+  .dashboard-center .wheel-area{
+    width:300px!important;
+    height:300px!important;
+    min-width:300px!important;
+    min-height:300px!important;
+    max-width:300px!important;
+    max-height:300px!important;
+    flex:0 0 300px!important;
+    margin:2px auto 4px!important;
+    padding:0!important;
+    transform:none!important;
+    aspect-ratio:1 / 1!important;
+  }
+  .dashboard-center .wheel-area>#wheel,
+  .dashboard-center .wheel-area>.wheel{
+    width:300px!important;
+    height:300px!important;
+    min-width:300px!important;
+    min-height:300px!important;
+    max-width:300px!important;
+    max-height:300px!important;
+    flex:0 0 300px!important;
+    margin:0!important;
+    transform:none!important;
+  }
+}
+@media (max-width:380px){
+  .dashboard-center .wheel-area,
+  .dashboard-center .wheel-area>#wheel,
+  .dashboard-center .wheel-area>.wheel{
+    width:280px!important;
+    height:280px!important;
+    min-width:280px!important;
+    min-height:280px!important;
+    max-width:280px!important;
+    max-height:280px!important;
+    flex-basis:280px!important;
+  }
+}
 </style>
 </head>
 <body>

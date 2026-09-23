@@ -3457,6 +3457,49 @@ body.dark .history-card .chip.loss .chip-tag{color:#ff5b5b!important;}
   }
   .dashboard-center .aula-language-btn{position:relative!important;z-index:10000!important;}
 }
+
+/* ===== FINAL MOBILE WHATSAPP + AULA CONTROLLER ===== */
+@media(max-width:899px){
+  .dashboard-center .wheel-area{
+    overflow:visible!important;
+  }
+  .dashboard-center .wheel-area .whatsapp-btn{
+    position:absolute!important;
+    left:4px!important;
+    right:auto!important;
+    bottom:8px!important;
+    width:56px!important;
+    height:56px!important;
+    margin:0!important;
+    z-index:60!important;
+  }
+}
+@media(min-width:900px){
+  .dashboard-center .aula-strip{
+    position:relative!important;
+    z-index:1000!important;
+    overflow:visible!important;
+  }
+  .dashboard-center .aula-language-options{
+    position:absolute!important;
+    top:100%!important;
+    left:0!important;
+    right:0!important;
+    z-index:10001!important;
+    box-sizing:border-box!important;
+    background:var(--card)!important;
+    border:1px solid var(--border)!important;
+    border-radius:10px!important;
+    padding:6px!important;
+    margin:4px 0 0!important;
+    box-shadow:var(--shadow)!important;
+  }
+  .dashboard-center .aula-language-options[hidden]{display:none!important;}
+  .dashboard-center .aula-language-btn{
+    position:relative!important;
+    z-index:10002!important;
+  }
+}
 </style>
 </head>
 <body>
@@ -3622,6 +3665,7 @@ body.dark .history-card .chip.loss .chip-tag{color:#ff5b5b!important;}
           </div>
         </div>
 
+        <a class="whatsapp-btn" href="https://wa.me/258842522538?text=Ol%C3%A1%2C%20preciso%20de%20suporte%20no%20Izitrader" target="_blank" rel="noopener" aria-label="Suporte">☎</a>
       </div>
     </section>
 
@@ -3661,7 +3705,6 @@ body.dark .history-card .chip.loss .chip-tag{color:#ff5b5b!important;}
     </aside>
 
   </main>
-<a class="whatsapp-btn" href="https://wa.me/258842522538?text=Ol%C3%A1%2C%20preciso%20de%20suporte%20no%20Izitrader" target="_blank" rel="noopener" aria-label="Suporte">☎</a>
 <script>
 const BOTS=[{id:'proparity',name:'ProParity',desc:'Ganha em dígito par',contractType:'DIGITEVEN'},{id:'octawin',name:'Octawin',desc:'Ganha se o dígito for menor que 8',contractType:'DIGITUNDER',barrier:'8'},{id:'oddez',name:'OddEz',desc:'Ganha em dígito ímpar',contractType:'DIGITODD'},{id:'tradesix',name:'TradeSix',desc:'Ganha se o dígito for maior que 6',contractType:'DIGITOVER',barrier:'6'}];
 let selectedBot=BOTS[0],selectedSymbol='V100';
@@ -3892,97 +3935,51 @@ $('#iziAccountSelect').value=localStorage.getItem('izitrader_account_type')||'re
 
 <script>
 (function(){
-  'use strict';
-  function mountAulaLanguage(){
-    const buttons=[...document.querySelectorAll('.aula-language-btn')];
-    if(!buttons.length)return;
-    let saved='pt';
-    try{saved=localStorage.getItem('izitrader_aula_language')||'pt'}catch{}
-    function select(lang,emit){
-      const value=lang==='en'?'en':'pt';
-      buttons.forEach(btn=>btn.classList.toggle('active',btn.dataset.aulaLang===value));
-      try{localStorage.setItem('izitrader_aula_language',value)}catch{}
-      if(emit)window.dispatchEvent(new CustomEvent('izitrader:aula-language-change',{detail:{language:value}}));
-    }
-    buttons.forEach(btn=>{
-      if(btn.dataset.aulaMounted==='1')return;
-      btn.dataset.aulaMounted='1';
-      btn.addEventListener('click',()=>select(btn.dataset.aulaLang,true));
-    });
-    select(saved,false);
-  }
-  if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',mountAulaLanguage,{once:true});
-  else mountAulaLanguage();
-  window.addEventListener('resize',()=>setTimeout(mountAulaLanguage,0));
-})();
-</script>
-<script>
-(function(){
 'use strict';
-function initAula(){
- const trigger=document.getElementById('aulaTrigger');
- const options=document.getElementById('aulaLanguageOptions');
- const buttons=[...document.querySelectorAll('.aula-language-btn')];
- if(!trigger||!options||!buttons.length)return;
+function initAulaController(){
+  const trigger=document.getElementById('aulaTrigger');
+  const options=document.getElementById('aulaLanguageOptions');
+  const buttons=[...document.querySelectorAll('.aula-language-btn')];
+  if(!trigger||!options||!buttons.length)return;
+  if(trigger.dataset.aulaController==='1')return;
+  trigger.dataset.aulaController='1';
 
- /* YouTube links will be supplied later. Do not invent or replace them. */
- const AULA_VIDEO_URLS={
-   pt:'',
-   en:''
- };
+  const AULA_VIDEO_URLS={pt:'',en:''};
 
- let saved='pt';
- try{saved=localStorage.getItem('izitrader_aula_language')||'pt'}catch{}
- buttons.forEach(b=>b.classList.toggle('active',b.dataset.aulaLang===saved));
+  let saved='pt';
+  try{saved=localStorage.getItem('izitrader_aula_language')||'pt'}catch{}
+  buttons.forEach(btn=>btn.classList.toggle('active',btn.dataset.aulaLang===saved));
 
- if(trigger.dataset.mounted==='1')return;
- trigger.dataset.mounted='1';
+  trigger.addEventListener('click',function(ev){
+    ev.preventDefault();
+    ev.stopPropagation();
+    const open=options.hidden;
+    options.hidden=!open;
+    trigger.setAttribute('aria-expanded',String(open));
+  });
 
- trigger.addEventListener('click',()=>{
-   options.hidden=!options.hidden;
-   trigger.setAttribute('aria-expanded',String(!options.hidden));
- });
-
- buttons.forEach(b=>b.addEventListener('click',()=>{
-   const lang=b.dataset.aulaLang==='en'?'en':'pt';
-   buttons.forEach(x=>x.classList.toggle('active',x===b));
-   try{localStorage.setItem('izitrader_aula_language',lang)}catch{}
-
-   options.hidden=true;
-   trigger.setAttribute('aria-expanded','false');
-
-   window.dispatchEvent(new CustomEvent('izitrader:aula-language-change',{
-     detail:{language:lang,url:AULA_VIDEO_URLS[lang]||''}
-   }));
-
-   const url=AULA_VIDEO_URLS[lang];
-   if(url) window.location.href=url;
- }));
+  buttons.forEach(btn=>{
+    btn.addEventListener('click',function(ev){
+      ev.preventDefault();
+      ev.stopPropagation();
+      const lang=btn.dataset.aulaLang==='en'?'en':'pt';
+      buttons.forEach(x=>x.classList.toggle('active',x===btn));
+      try{localStorage.setItem('izitrader_aula_language',lang)}catch{}
+      options.hidden=true;
+      trigger.setAttribute('aria-expanded','false');
+      const url=AULA_VIDEO_URLS[lang];
+      window.dispatchEvent(new CustomEvent('izitrader:aula-language-change',{
+        detail:{language:lang,url:url||''}
+      }));
+      if(url) window.location.href=url;
+    });
+  });
 }
 if(document.readyState==='loading'){
- document.addEventListener('DOMContentLoaded',initAula,{once:true});
+  document.addEventListener('DOMContentLoaded',initAulaController,{once:true});
 }else{
- initAula();
+  initAulaController();
 }
-})();
-</script>
-<script>
-(function(){
-'use strict';
-function bindAulaClick(){
- const trigger=document.getElementById('aulaTrigger');
- const options=document.getElementById('aulaLanguageOptions');
- if(!trigger||!options||trigger.dataset.pcFix==='1')return;
- trigger.dataset.pcFix='1';
- trigger.addEventListener('click',function(ev){
-   ev.preventDefault();
-   ev.stopPropagation();
-   options.hidden=!options.hidden;
-   trigger.setAttribute('aria-expanded',String(!options.hidden));
- },true);
-}
-if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',bindAulaClick,{once:true});
-else bindAulaClick();
 })();
 </script>
 </body>

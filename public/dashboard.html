@@ -3125,6 +3125,22 @@ body.dark .history-card .chip::after{
     font-size:13px!important;
   }
 }
+
+/* ===== MOBILE START ROBOT: revert to below wheel ===== */
+@media (max-width:899px){
+  .dashboard-left .mobile-start-card{all:unset;}
+  .dashboard-right .card:not(.symbol-card){
+    width:100%!important;
+    margin:0 0 10px!important;
+    padding:16px!important;
+    border-radius:16px!important;
+  }
+  .dashboard-right .card:not(.symbol-card) .field-label{display:block!important;font-size:11px!important;margin-bottom:6px!important;}
+  .dashboard-right .card:not(.symbol-card) .stake-row{display:flex!important;min-height:28px!important;}
+  .dashboard-right .card:not(.symbol-card) .stake-value{font-size:26px!important;}
+  .dashboard-right .card:not(.symbol-card) .operate-btn{min-height:48px!important;height:auto!important;margin-top:14px!important;padding:14px!important;font-size:15px!important;}
+  .dashboard-right .card:not(.symbol-card) .note{display:block!important;font-size:11px!important;margin-top:10px!important;}
+}
 </style>
 </head>
 <body>
@@ -3585,22 +3601,17 @@ $('#iziAccountSelect').value=localStorage.getItem('izitrader_account_type')||'re
   'use strict';
   function placeStartRobot(){
     const card=document.querySelector('.dashboard-right .card:not(.symbol-card), .mobile-start-card');
-    const left=document.querySelector('.dashboard-left');
     const right=document.querySelector('.dashboard-right');
-    const row3=document.querySelector('.dashboard-left .row3');
-    const history=document.querySelector('.dashboard-left .history-card');
     const symbol=right?.querySelector('.symbol-card');
-    if(!card||!left||!right||!row3)return;
+    if(!card||!right)return;
     const mobile=window.matchMedia('(max-width:899px)').matches;
     if(mobile){
-      /* Mobile keeps the dashboard order intact, but brings the Start Robot card
-         into the first viewport: Account/Bot/Aula -> Start Robot -> History. */
-      card.classList.add('mobile-start-card');
-      if(card.parentElement!==left || card.previousElementSibling!==row3){
-        row3.after(card);
-      }
-      if(history && card.nextElementSibling!==history){
-        left.insertBefore(history,card.nextElementSibling);
+      /* Mobile: Start Robot stays in the right-side APOSTA block, below the wheel. */
+      card.classList.remove('mobile-start-card');
+      if(card.parentElement!==right){
+        right.insertBefore(card,symbol||null);
+      }else if(symbol && card.nextElementSibling!==symbol){
+        right.insertBefore(card,symbol);
       }
     }else{
       card.classList.remove('mobile-start-card');
@@ -3610,8 +3621,7 @@ $('#iziAccountSelect').value=localStorage.getItem('izitrader_account_type')||'re
         right.insertBefore(card,symbol);
       }
     }
-  }
-  if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',placeStartRobot,{once:true});
+  }  if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',placeStartRobot,{once:true});
   else placeStartRobot();
   window.addEventListener('resize',placeStartRobot);
   window.addEventListener('orientationchange',placeStartRobot);

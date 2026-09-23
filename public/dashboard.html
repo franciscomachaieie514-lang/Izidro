@@ -2417,9 +2417,10 @@ body.dark .icon-btn,body.dark .sair-btn{background:var(--field);color:var(--text
 }
 
 /* =========================================================
-   FINAL IZIDRO DESKTOP GEOMETRY — full center + viewport-fit wheel
-   Center controls use all available width.
-   Wheel uses viewport height so all digits 0–9 remain visible.
+   FINAL IZIDRO DESKTOP GEOMETRY — professional square wheel
+   The wheel gets ONE computed size and uses it for both width
+   and height. This prevents the oval/collapsed wheel seen on
+   short desktop viewports.
    ========================================================= */
 @media (min-width:900px){
   .dashboard-layout{
@@ -2451,7 +2452,7 @@ body.dark .icon-btn,body.dark .sair-btn{background:var(--field);color:var(--text
     overflow:visible!important;
   }
 
-  /* 25 TICKS — Account connected — TARGETS */
+  /* 25 TICKS — Account connected — TARGETS: complete center width */
   .dashboard-center .dashboard-control-row,
   .dashboard-center .aula-strip,
   .dashboard-center #stageTracker{
@@ -2508,7 +2509,7 @@ body.dark .icon-btn,body.dark .sair-btn{background:var(--field);color:var(--text
     white-space:nowrap!important;
   }
 
-  /* LESSON — full center width */
+  /* LESSON — complete center width */
   .dashboard-center .aula-strip{
     position:relative!important;
     inset:auto!important;
@@ -2546,7 +2547,7 @@ body.dark .icon-btn,body.dark .sair-btn{background:var(--field);color:var(--text
     border-radius:10px!important;
   }
 
-  /* ANALYZING — OPEN — CLOSED — full center width */
+  /* ANALYZING — OPEN — CLOSED — complete center width */
   .dashboard-center>#stageTracker,
   .dashboard-center .stage-tracker{
     position:relative!important;
@@ -2563,18 +2564,24 @@ body.dark .icon-btn,body.dark .sair-btn{background:var(--field);color:var(--text
     box-sizing:border-box!important;
   }
 
-  /* Wheel: as large as possible, but always fit the actual viewport height.
-     The 280px floor prevents pathological tiny wheels on short desktop windows. */
+  /* =======================================================
+     WHEEL — ONE SIZE FOR BOTH AXES
+     100vh is used only to determine the available square size.
+     There is deliberately NO separate min-height/max-width
+     combination that could turn the circle into an oval.
+     ======================================================= */
   .dashboard-center .wheel-area{
+    --wheel-size:min(100%,520px,calc(100vh - 330px));
     position:relative!important;
-    width:min(100%,max(280px,min(520px,calc(100vh - 480px))))!important;
-    max-width:min(520px,calc(100vh - 480px))!important;
-    height:max(280px,min(520px,calc(100vh - 480px)))!important;
-    min-height:280px!important;
-    max-height:520px!important;
+    width:var(--wheel-size)!important;
+    height:var(--wheel-size)!important;
+    min-width:0!important;
+    min-height:0!important;
+    max-width:none!important;
+    max-height:none!important;
     aspect-ratio:1 / 1!important;
-    flex:0 0 auto!important;
-    margin:24px auto 24px!important;
+    flex:0 0 var(--wheel-size)!important;
+    margin:18px auto 18px!important;
     padding:0!important;
     transform:none!important;
     overflow:visible!important;
@@ -2598,10 +2605,11 @@ body.dark .icon-btn,body.dark .sair-btn{background:var(--field);color:var(--text
     margin:0!important;
     transform:none!important;
     flex:0 0 auto!important;
+    aspect-ratio:1 / 1!important;
     box-sizing:border-box!important;
   }
 
-  /* Never let old wheel controls float over LESSON/STAGE. */
+  /* Old wheel controls must never cover LESSON/STAGE. */
   .dashboard-center .wheel-area>.analysis-wrap,
   .dashboard-center .wheel-area>.target-wrap{
     display:none!important;
@@ -2610,11 +2618,10 @@ body.dark .icon-btn,body.dark .sair-btn{background:var(--field);color:var(--text
 
 @media (min-width:1500px){
   .dashboard-center .wheel-area{
-    width:min(100%,max(280px,min(540px,calc(100vh - 480px))))!important;
-    max-width:min(540px,calc(100vh - 480px))!important;
-    height:max(280px,min(540px,calc(100vh - 480px)))!important;
-    max-height:540px!important;
-    flex-basis:auto!important;
+    --wheel-size:min(100%,560px,calc(100vh - 330px));
+    width:var(--wheel-size)!important;
+    height:var(--wheel-size)!important;
+    flex-basis:var(--wheel-size)!important;
   }
 
   .dashboard-center .wheel-area>#wheel,
@@ -2625,7 +2632,12 @@ body.dark .icon-btn,body.dark .sair-btn{background:var(--field);color:var(--text
     min-height:0!important;
     max-width:none!important;
     max-height:none!important;
-    flex-basis:auto!important;
+  }
+}
+
+@media (min-width:1800px){
+  .dashboard-center .wheel-area{
+    --wheel-size:min(100%,600px,calc(100vh - 330px));
   }
 }
 </style>

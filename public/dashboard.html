@@ -2944,6 +2944,24 @@ body.dark .history-card .chip::after{
     font-size:7px!important;
   }
 }
+
+/* ===== FINAL MOBILE HISTORY: minimum-width five-up chips ===== */
+@media (max-width:899px){
+  .history-card .history-row{gap:4px!important;}
+  .history-card .history-row .chip{
+    flex:0 0 calc((100% - 16px) / 5)!important;
+    width:calc((100% - 16px) / 5)!important;
+    min-width:calc((100% - 16px) / 5)!important;
+    max-width:calc((100% - 16px) / 5)!important;
+    height:68px!important;
+    min-height:68px!important;
+    max-height:68px!important;
+    padding:4px 1px!important;
+    border-radius:8px!important;
+    font-size:10px!important;
+  }
+  .history-card .history-row .chip .chip-tag{font-size:7px!important;}
+}
 </style>
 </head>
 <body>

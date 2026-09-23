@@ -3305,18 +3305,96 @@ body.dark .history-card .chip.loss .chip-tag{color:#ff5b5b!important;}
   }
 }
 
-/* ===== AULA CLICK LANGUAGE OPTIONS ===== */
-.aula-strip{position:relative!important;}
-.aula-trigger{width:100%;height:40px;min-height:40px;display:flex!important;align-items:center;justify-content:center;gap:8px;cursor:pointer;}
-.aula-language-options{display:flex;align-items:center;justify-content:center;gap:6px;width:100%;margin-top:5px;}
+/* ===== AULA — aligned, clean trigger, language links ===== */
+.aula-strip{
+  position:relative!important;
+  width:100%!important;
+  margin:0!important;
+}
+.aula-trigger{
+  width:100%!important;
+  height:40px!important;
+  min-height:40px!important;
+  margin:0!important;
+  padding:6px 10px!important;
+  display:flex!important;
+  align-items:center!important;
+  justify-content:center!important;
+  border:1px solid var(--border)!important;
+  outline:none!important;
+  box-shadow:none!important;
+  border-radius:10px!important;
+  cursor:pointer!important;
+}
+.aula-trigger:focus,
+.aula-trigger:focus-visible,
+.aula-trigger:active{
+  outline:none!important;
+  box-shadow:none!important;
+  border-color:var(--border)!important;
+}
+.aula-language-options{
+  display:flex!important;
+  align-items:center!important;
+  justify-content:center!important;
+  gap:6px!important;
+  width:100%!important;
+  margin-top:5px!important;
+}
 .aula-language-options[hidden]{display:none!important;}
-.aula-language-btn{flex:1;min-width:0;height:36px;padding:6px 8px;border:1px solid var(--border);border-radius:8px;background:var(--field);color:var(--text);font:inherit;font-size:11px;font-weight:800;cursor:pointer;}
-.aula-language-btn.active{background:var(--accent);border-color:var(--accent);color:#fff;}
+.aula-language-btn{
+  flex:1!important;
+  min-width:0!important;
+  height:36px!important;
+  padding:6px 8px!important;
+  border:1px solid var(--border)!important;
+  border-radius:8px!important;
+  background:var(--field)!important;
+  color:var(--text)!important;
+  font:inherit!important;
+  font-size:11px!important;
+  font-weight:800!important;
+  cursor:pointer!important;
+}
+.aula-language-btn.active{
+  background:var(--accent)!important;
+  border-color:var(--accent)!important;
+  color:#fff!important;
+}
 @media(max-width:899px){
- .dashboard-left .row3 .aula-strip{height:auto!important;min-height:42px!important;max-height:none!important;}
- .dashboard-left .row3 .aula-trigger{height:42px!important;min-height:42px!important;padding:6px 4px!important;border-radius:10px!important;font-size:10px!important;}
- .dashboard-left .row3 .aula-language-options{height:36px!important;min-height:36px!important;gap:4px!important;margin-top:4px!important;}
- .dashboard-left .row3 .aula-language-btn{height:36px!important;min-height:36px!important;padding:5px 3px!important;border-radius:8px!important;font-size:8px!important;}
+  .dashboard-left .row3{
+    align-items:start!important;
+  }
+  .dashboard-left .row3 .aula-strip{
+    width:100%!important;
+    height:auto!important;
+    min-height:42px!important;
+    max-height:none!important;
+    margin:0!important;
+    padding:0!important;
+  }
+  .dashboard-left .row3 .aula-trigger{
+    width:100%!important;
+    height:42px!important;
+    min-height:42px!important;
+    max-height:42px!important;
+    padding:6px 4px!important;
+    border-radius:10px!important;
+    font-size:10px!important;
+  }
+  .dashboard-left .row3 .aula-language-options{
+    height:36px!important;
+    min-height:36px!important;
+    gap:4px!important;
+    margin-top:4px!important;
+  }
+  .dashboard-left .row3 .aula-language-btn{
+    height:36px!important;
+    min-height:36px!important;
+    padding:5px 3px!important;
+    border-radius:8px!important;
+    font-size:8px!important;
+  }
 }</style>
 </head>
 <body>
@@ -3425,7 +3503,7 @@ body.dark .history-card .chip.loss .chip-tag{color:#ff5b5b!important;}
 
     <div class="aula-strip" aria-label="Aula">
       <button type="button" class="pill pill-aula aula-trigger" id="aulaTrigger" aria-expanded="false" aria-haspopup="true">
-        <span class="aula-trigger-label">AULA</span><span aria-hidden="true">▶</span>
+        <span class="aula-trigger-label">AULA</span>
       </button>
       <div class="aula-language-options" id="aulaLanguageOptions" role="group" aria-label="Idioma da aula" hidden>
         <button type="button" class="aula-language-btn" data-aula-lang="pt">Português</button>
@@ -3779,27 +3857,50 @@ $('#iziAccountSelect').value=localStorage.getItem('izitrader_account_type')||'re
 (function(){
 'use strict';
 function initAula(){
- const trigger=document.getElementById('aulaTrigger'), options=document.getElementById('aulaLanguageOptions');
+ const trigger=document.getElementById('aulaTrigger');
+ const options=document.getElementById('aulaLanguageOptions');
  const buttons=[...document.querySelectorAll('.aula-language-btn')];
  if(!trigger||!options||!buttons.length)return;
- let saved='pt'; try{saved=localStorage.getItem('izitrader_aula_language')||'pt'}catch{}
+
+ /* YouTube links will be supplied later. Do not invent or replace them. */
+ const AULA_VIDEO_URLS={
+   pt:'',
+   en:''
+ };
+
+ let saved='pt';
+ try{saved=localStorage.getItem('izitrader_aula_language')||'pt'}catch{}
  buttons.forEach(b=>b.classList.toggle('active',b.dataset.aulaLang===saved));
+
  if(trigger.dataset.mounted==='1')return;
  trigger.dataset.mounted='1';
+
  trigger.addEventListener('click',()=>{
    options.hidden=!options.hidden;
    trigger.setAttribute('aria-expanded',String(!options.hidden));
  });
+
  buttons.forEach(b=>b.addEventListener('click',()=>{
    const lang=b.dataset.aulaLang==='en'?'en':'pt';
    buttons.forEach(x=>x.classList.toggle('active',x===b));
    try{localStorage.setItem('izitrader_aula_language',lang)}catch{}
+
    options.hidden=true;
    trigger.setAttribute('aria-expanded','false');
-   window.dispatchEvent(new CustomEvent('izitrader:aula-language-change',{detail:{language:lang}}));
+
+   window.dispatchEvent(new CustomEvent('izitrader:aula-language-change',{
+     detail:{language:lang,url:AULA_VIDEO_URLS[lang]||''}
+   }));
+
+   const url=AULA_VIDEO_URLS[lang];
+   if(url) window.location.href=url;
  }));
 }
-if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',initAula,{once:true});else initAula();
+if(document.readyState==='loading'){
+ document.addEventListener('DOMContentLoaded',initAula,{once:true});
+}else{
+ initAula();
+}
 })();
 </script>
 </body>

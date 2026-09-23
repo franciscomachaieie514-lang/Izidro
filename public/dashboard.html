@@ -3305,55 +3305,19 @@ body.dark .history-card .chip.loss .chip-tag{color:#ff5b5b!important;}
   }
 }
 
-/* ===== AULA LANGUAGE OPTIONS ===== */
-.aula-language-options{
-  display:flex;
-  align-items:center;
-  justify-content:center;
-  gap:6px;
-  width:100%;
-}
-.aula-language-btn{
-  flex:1;
-  min-width:0;
-  height:40px;
-  padding:7px 10px;
-  border:1px solid var(--border);
-  border-radius:9px;
-  background:var(--field);
-  color:var(--text);
-  font:inherit;
-  font-size:12px;
-  font-weight:800;
-  cursor:pointer;
-}
-.aula-language-btn.active{
-  background:var(--accent);
-  border-color:var(--accent);
-  color:#fff;
-}
+/* ===== AULA CLICK LANGUAGE OPTIONS ===== */
+.aula-strip{position:relative!important;}
+.aula-trigger{width:100%;height:40px;min-height:40px;display:flex!important;align-items:center;justify-content:center;gap:8px;cursor:pointer;}
+.aula-language-options{display:flex;align-items:center;justify-content:center;gap:6px;width:100%;margin-top:5px;}
+.aula-language-options[hidden]{display:none!important;}
+.aula-language-btn{flex:1;min-width:0;height:36px;padding:6px 8px;border:1px solid var(--border);border-radius:8px;background:var(--field);color:var(--text);font:inherit;font-size:11px;font-weight:800;cursor:pointer;}
+.aula-language-btn.active{background:var(--accent);border-color:var(--accent);color:#fff;}
 @media(max-width:899px){
-  .dashboard-left .row3 .aula-strip .aula-language-options{
-    height:42px!important;
-    min-height:42px!important;
-    max-height:42px!important;
-    gap:4px!important;
-  }
-  .dashboard-left .row3 .aula-strip .aula-language-btn{
-    height:42px!important;
-    min-height:42px!important;
-    padding:6px 4px!important;
-    border-radius:10px!important;
-    font-size:9px!important;
-  }
-}
-@media(min-width:900px){
-  .dashboard-center .aula-strip .aula-language-options{
-    width:100%!important;
-    height:40px!important;
-  }
-}
-</style>
+ .dashboard-left .row3 .aula-strip{height:auto!important;min-height:42px!important;max-height:none!important;}
+ .dashboard-left .row3 .aula-trigger{height:42px!important;min-height:42px!important;padding:6px 4px!important;border-radius:10px!important;font-size:10px!important;}
+ .dashboard-left .row3 .aula-language-options{height:36px!important;min-height:36px!important;gap:4px!important;margin-top:4px!important;}
+ .dashboard-left .row3 .aula-language-btn{height:36px!important;min-height:36px!important;padding:5px 3px!important;border-radius:8px!important;font-size:8px!important;}
+}</style>
 </head>
 <body>
 <div class="auth-page hidden" id="authPage"><div class="auth-card"><img class="auth-logo" src="/favicon.svg" alt="Izitrader"><div class="auth-brand">Izi<span>trader</span></div><div class="auth-title">Bem-vindo ao Izitrader</div><p class="auth-subtitle">Entre ou crie a sua conta Deriv para continuar.</p><a class="auth-btn auth-primary" href="https://track.deriv.com/_PZZnG4RWbBdZl7VyVw174GNd7ZgqdRLk/1/" target="_blank" rel="noopener">Criar conta na Deriv</a><a class="auth-btn auth-secondary" href="/api/auth/login" id="loginLink">Entrar com a Deriv</a></div></div>
@@ -3460,9 +3424,11 @@ body.dark .history-card .chip.loss .chip-tag{color:#ff5b5b!important;}
       </div>
 
     <div class="aula-strip" aria-label="Aula">
-      <div class="aula-label">AULA</div>
-      <div class="aula-language-options" role="group" aria-label="Idioma da aula">
-        <button type="button" class="aula-language-btn active" data-aula-lang="pt">Português</button>
+      <button type="button" class="pill pill-aula aula-trigger" id="aulaTrigger" aria-expanded="false" aria-haspopup="true">
+        <span class="aula-trigger-label">AULA</span><span aria-hidden="true">▶</span>
+      </button>
+      <div class="aula-language-options" id="aulaLanguageOptions" role="group" aria-label="Idioma da aula" hidden>
+        <button type="button" class="aula-language-btn" data-aula-lang="pt">Português</button>
         <button type="button" class="aula-language-btn" data-aula-lang="en">English</button>
       </div>
     </div>
@@ -3807,6 +3773,33 @@ $('#iziAccountSelect').value=localStorage.getItem('izitrader_account_type')||'re
   if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',mountAulaLanguage,{once:true});
   else mountAulaLanguage();
   window.addEventListener('resize',()=>setTimeout(mountAulaLanguage,0));
+})();
+</script>
+<script>
+(function(){
+'use strict';
+function initAula(){
+ const trigger=document.getElementById('aulaTrigger'), options=document.getElementById('aulaLanguageOptions');
+ const buttons=[...document.querySelectorAll('.aula-language-btn')];
+ if(!trigger||!options||!buttons.length)return;
+ let saved='pt'; try{saved=localStorage.getItem('izitrader_aula_language')||'pt'}catch{}
+ buttons.forEach(b=>b.classList.toggle('active',b.dataset.aulaLang===saved));
+ if(trigger.dataset.mounted==='1')return;
+ trigger.dataset.mounted='1';
+ trigger.addEventListener('click',()=>{
+   options.hidden=!options.hidden;
+   trigger.setAttribute('aria-expanded',String(!options.hidden));
+ });
+ buttons.forEach(b=>b.addEventListener('click',()=>{
+   const lang=b.dataset.aulaLang==='en'?'en':'pt';
+   buttons.forEach(x=>x.classList.toggle('active',x===b));
+   try{localStorage.setItem('izitrader_aula_language',lang)}catch{}
+   options.hidden=true;
+   trigger.setAttribute('aria-expanded','false');
+   window.dispatchEvent(new CustomEvent('izitrader:aula-language-change',{detail:{language:lang}}));
+ }));
+}
+if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',initAula,{once:true});else initAula();
 })();
 </script>
 </body>

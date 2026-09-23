@@ -3210,6 +3210,94 @@ body.dark .history-card .chip::after{
     transform:translateY(-55px)!important;
   }
 }
+
+/* ===== FINAL MOBILE LAYOUT: match compact reference ===== */
+@media(max-width:899px){
+  /* Keep the existing order: history -> controls -> wheel -> APOSTA. */
+  .dashboard-layout{
+    display:grid!important;
+    grid-template-columns:1fr!important;
+    gap:4px!important;
+  }
+  .dashboard-left,
+  .dashboard-center,
+  .dashboard-right{
+    width:100%!important;
+    min-width:0!important;
+  }
+  .dashboard-left{margin:0!important;}
+  .dashboard-left .balance-row{margin-bottom:5px!important;}
+  .dashboard-left .row3{margin-bottom:4px!important;}
+  .dashboard-left .history-card{margin-bottom:0!important;}
+
+  /* Controls immediately under Recent History. */
+  .dashboard-center{
+    margin:0!important;
+    padding:0!important;
+    gap:0!important;
+    transform:none!important;
+  }
+  .dashboard-center .dashboard-control-row{
+    width:100%!important;
+    min-height:42px!important;
+    margin:0 0 2px!important;
+  }
+  .dashboard-center .status{
+    min-height:30px!important;
+    height:30px!important;
+    margin:0!important;
+    display:flex!important;
+    align-items:center!important;
+    justify-content:center!important;
+  }
+
+  /* Wheel is larger and sits directly below the controls. */
+  .dashboard-center .wheel-area{
+    transform:none!important;
+    width:min(100%,350px)!important;
+    height:350px!important;
+    min-height:350px!important;
+    max-width:350px!important;
+    margin:0 auto!important;
+    overflow:visible!important;
+  }
+  .dashboard-center #wheel{
+    width:350px!important;
+    height:350px!important;
+    min-width:350px!important;
+    min-height:350px!important;
+    max-width:350px!important;
+    max-height:350px!important;
+  }
+  .dashboard-center .wheel-area .analysis-wrap,
+  .dashboard-center .wheel-area .target-wrap{
+    top:-38px!important;
+  }
+
+  /* APOSTA stays below the wheel, with only a small gap. */
+  .dashboard-right{
+    transform:none!important;
+    margin:2px 0 0!important;
+    gap:6px!important;
+  }
+  .dashboard-right .card:not(.symbol-card){
+    margin:0!important;
+    width:100%!important;
+  }
+}
+@media(max-width:599px){
+  .dashboard-center .wheel-area,
+  .dashboard-center #wheel{
+    width:340px!important;
+    height:340px!important;
+    min-width:340px!important;
+    min-height:340px!important;
+    max-width:340px!important;
+    max-height:340px!important;
+  }
+  .dashboard-center .wheel-area .analysis-wrap,
+  .dashboard-center .wheel-area .target-wrap{top:-36px!important;}
+}
 </style>
 </head>
 <body>

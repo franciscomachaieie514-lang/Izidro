@@ -2757,6 +2757,77 @@ body.dark .history-card .chip::after{
 .history-card .history-row .chip > span:first-child{display:block!important;white-space:nowrap!important;grid-column:auto!important;grid-row:auto!important}
 .history-card .history-row .chip .chip-tag{display:block!important;text-align:center!important;font-size:9px!important;grid-column:auto!important;grid-row:auto!important}
 .history-card .history-row .chip::after{display:none!important;content:none!important}
+
+/* ===== FINAL RECENT HISTORY — vertical recent trades ===== */
+.history-card .history-row{
+  display:flex!important;
+  flex-direction:column!important;
+  flex-wrap:nowrap!important;
+  align-items:stretch!important;
+  justify-content:flex-start!important;
+  gap:8px!important;
+  width:100%!important;
+  max-height:390px!important;
+  height:auto!important;
+  overflow-x:hidden!important;
+  overflow-y:auto!important;
+  padding:4px 4px 10px 2px!important;
+  margin:0 0 8px!important;
+  scrollbar-width:thin!important;
+  -webkit-overflow-scrolling:touch!important;
+}
+.history-card .history-row .chip{
+  flex:0 0 58px!important;
+  width:100%!important;
+  min-width:0!important;
+  max-width:none!important;
+  height:58px!important;
+  min-height:58px!important;
+  margin:0!important;
+  display:flex!important;
+  flex-direction:row!important;
+  align-items:center!important;
+  justify-content:space-between!important;
+  text-align:left!important;
+  padding:7px 12px!important;
+  border-radius:10px!important;
+  grid-template-columns:none!important;
+  grid-template-rows:none!important;
+}
+.history-card .history-row .chip > span:first-child{
+  display:block!important;
+  grid-column:auto!important;
+  grid-row:auto!important;
+  white-space:nowrap!important;
+  text-align:left!important;
+}
+.history-card .history-row .chip .chip-tag{
+  display:block!important;
+  grid-column:auto!important;
+  grid-row:auto!important;
+  text-align:right!important;
+  font-size:9px!important;
+}
+.history-card .history-row .chip::after{
+  display:none!important;
+  content:none!important;
+}
+
+/* Desktop: six recent trades visible without hiding the rest. */
+@media (min-width:900px){
+  .history-card .history-row{
+    max-height:390px!important;
+  }
+}
+
+/* Mobile/tablet: keep the same vertical history, with older trades scrollable. */
+@media (max-width:899px){
+  .history-card .history-row{
+    max-height:390px!important;
+    overflow-y:auto!important;
+    overflow-x:hidden!important;
+  }
+}
 </style>
 </head>
 <body>

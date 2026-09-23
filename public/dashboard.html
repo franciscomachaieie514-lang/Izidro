@@ -3207,6 +3207,59 @@ body.dark .history-card .chip.loss .chip-tag{color:#ff5b5b!important;}
     flex-basis:280px!important;
   }
 }
+
+/* ===== MOBILE REFERENCE: compact controls + START ROBOT first ===== */
+@media (max-width:899px){
+  /* 25 TICKS and TARGETS are compact side controls, leaving the center for status. */
+  .dashboard-center .dashboard-control-row{
+    grid-template-columns:92px minmax(0,1fr) 92px!important;
+    gap:4px!important;
+  }
+  .dashboard-center .dashboard-control-row>.analysis-wrap,
+  .dashboard-center .dashboard-control-row>.target-wrap{
+    width:92px!important;
+    min-width:92px!important;
+    max-width:92px!important;
+  }
+  .dashboard-center .dashboard-control-row .analysis-btn,
+  .dashboard-center .dashboard-control-row .target-btn{
+    width:92px!important;
+    min-width:92px!important;
+    max-width:92px!important;
+    padding:7px 6px!important;
+    font-size:9px!important;
+  }
+
+  /* APOSTA card: keep the card below the wheel, but put START ROBOT
+     above the stake details on mobile, as in the reference. */
+  .dashboard-right .card:not(.symbol-card){
+    display:flex!important;
+    flex-direction:column!important;
+    align-items:stretch!important;
+    padding:12px 12px 11px!important;
+  }
+  .dashboard-right .card:not(.symbol-card) .field-label{
+    order:1!important;
+  }
+  .dashboard-right .card:not(.symbol-card) .operate-btn{
+    order:2!important;
+    margin:0 0 9px!important;
+    min-height:46px!important;
+    height:46px!important;
+    padding:10px!important;
+    border-radius:11px!important;
+    font-size:14px!important;
+  }
+  .dashboard-right .card:not(.symbol-card) .stake-row{
+    order:3!important;
+    min-height:38px!important;
+    margin:0!important;
+  }
+  .dashboard-right .card:not(.symbol-card) .note{
+    order:4!important;
+    margin:7px 0 0!important;
+  }
+}
 </style>
 </head>
 <body>

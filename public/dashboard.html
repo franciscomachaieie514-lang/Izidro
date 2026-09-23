@@ -3590,6 +3590,29 @@ body.dark .history-card .chip.loss .chip-tag{color:#ff5b5b!important;}
     left:-10px!important;
   }
 }
+
+/* ===== ABSOLUTE FINAL MOBILE WHATSAPP POSITION =====
+   Reference: blue marker shown beside the lower-left edge of the wheel.
+   This block intentionally comes LAST so no previous mobile rule can override it.
+*/
+@media (max-width:899px){
+  .dashboard-center .wheel-area .whatsapp-btn{
+    left:-6px!important;
+    right:auto!important;
+    bottom:14px!important;
+    width:56px!important;
+    height:56px!important;
+    z-index:100!important;
+  }
+}
+@media (max-width:380px){
+  .dashboard-center .wheel-area .whatsapp-btn{
+    left:-8px!important;
+    bottom:12px!important;
+    width:40px!important;
+    height:40px!important;
+  }
+}
 </style>
 </head>
 <body>

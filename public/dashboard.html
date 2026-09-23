@@ -3162,6 +3162,39 @@ body.dark .history-card .chip::after{
   .dashboard-right .symbol-card{order:2!important;}
   .dashboard-center .wheel-area{margin-bottom:8px!important;}
 }
+
+/* ===== MOBILE SPACE COMPRESSION: move all marked blocks upward ===== */
+@media(max-width:899px){
+  /* Close the empty gaps without changing the order of the dashboard. */
+  .dashboard-layout{gap:4px!important;}
+  .dashboard-left .balance-row{margin-bottom:6px!important;}
+  .dashboard-left .row3{margin-bottom:4px!important;}
+  .dashboard-left .history-card{
+    margin-top:-2px!important;
+    margin-bottom:2px!important;
+  }
+
+  /* 25 TICKS + Account connected + TARGETS + wheel move upward together. */
+  .dashboard-center{
+    margin-top:-18px!important;
+  }
+  .dashboard-center .status{
+    margin-bottom:2px!important;
+  }
+  .wheel-area{
+    margin-top:-4px!important;
+  }
+
+  /* The APOSTA/START ROBOT block stays below the wheel, but uses the
+     empty space immediately below it instead of leaving a large gap. */
+  .dashboard-right{
+    margin-top:-18px!important;
+    gap:6px!important;
+  }
+  .dashboard-right .card:not(.symbol-card){
+    margin-top:0!important;
+  }
+}
 </style>
 </head>
 <body>

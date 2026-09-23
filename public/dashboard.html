@@ -2138,6 +2138,63 @@ body.dark .icon-btn,body.dark .sair-btn{background:var(--field);color:var(--text
   }
 }
 
+
+/* =========================================================
+   FINAL DESKTOP WHEEL OVERRIDE — approved reference
+   Force a larger wheel and move it slightly downward into
+   the available central whitespace. Mobile is untouched.
+   ========================================================= */
+@media (min-width:1200px){
+  .dashboard-center{
+    overflow:visible!important;
+  }
+
+  .dashboard-center .wheel-area{
+    position:relative!important;
+    width:620px!important;
+    max-width:none!important;
+    height:620px!important;
+    min-height:620px!important;
+    max-height:none!important;
+    aspect-ratio:1 / 1!important;
+    margin:28px auto 0!important;
+    flex:0 0 620px!important;
+    overflow:visible!important;
+    transform:translateY(18px)!important;
+  }
+
+  .dashboard-center .wheel-area > #wheel,
+  .dashboard-center .wheel-area > .wheel{
+    width:620px!important;
+    height:620px!important;
+    min-width:620px!important;
+    min-height:620px!important;
+    max-width:620px!important;
+    max-height:620px!important;
+    flex:0 0 620px!important;
+    margin:0!important;
+  }
+}
+
+@media (min-width:1600px){
+  .dashboard-center .wheel-area{
+    width:660px!important;
+    height:660px!important;
+    min-height:660px!important;
+    flex-basis:660px!important;
+  }
+
+  .dashboard-center .wheel-area > #wheel,
+  .dashboard-center .wheel-area > .wheel{
+    width:660px!important;
+    height:660px!important;
+    min-width:660px!important;
+    min-height:660px!important;
+    max-width:660px!important;
+    max-height:660px!important;
+    flex-basis:660px!important;
+  }
+}
 </style>
 </head>
 <body>

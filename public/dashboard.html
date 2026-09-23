@@ -1880,6 +1880,19 @@ body.dark .icon-btn,body.dark .sair-btn{background:var(--field);color:var(--text
     max-width:520px!important;
   }
 }
+
+@media (min-width:900px){
+  .dashboard-left,.dashboard-right{position:relative}
+  .dashboard-control-row{position:relative;display:flex;justify-content:center}
+  .dashboard-left>.analysis-wrap,
+  .dashboard-right>.target-wrap{position:absolute!important;top:-14px!important;z-index:15}
+  .dashboard-left>.analysis-wrap{left:16px!important;right:auto!important}
+  .dashboard-right>.target-wrap{right:16px!important;left:auto!important}
+  .dashboard-left>.analysis-wrap .analysis-btn,
+  .dashboard-right>.target-wrap .target-btn{padding:7px 12px;background:var(--field);border:1px solid var(--border);border-radius:9px;box-shadow:0 4px 10px rgba(0,0,0,.25)}
+  .dashboard-right>.target-wrap .target-menu{left:auto;right:0}
+  .wheel-area{margin-top:32px!important;width:min(100%,580px)!important}
+}
 </style>
 </head>
 <body>
@@ -2183,6 +2196,23 @@ $('#iziAccountSelect').value=localStorage.getItem('izitrader_account_type')||'re
 (function(){
   'use strict';
 
+  function placeControls(){
+    const analysisWrap=document.querySelector('.analysis-wrap');
+    const targetWrap=document.querySelector('.target-wrap');
+    const controlRow=document.querySelector('.dashboard-control-row');
+    const left=document.querySelector('.dashboard-left');
+    const right=document.querySelector('.dashboard-right');
+    if(!analysisWrap||!targetWrap||!controlRow||!left||!right)return;
+    const mobile=window.matchMedia('(max-width:899px)').matches;
+    if(mobile){
+      if(analysisWrap.parentElement!==controlRow)controlRow.insertBefore(analysisWrap,controlRow.firstChild);
+      if(targetWrap.parentElement!==controlRow)controlRow.appendChild(targetWrap);
+    }else{
+      if(analysisWrap.parentElement!==left)left.insertBefore(analysisWrap,left.firstElementChild);
+      if(targetWrap.parentElement!==right)right.insertBefore(targetWrap,right.firstElementChild);
+    }
+  }
+
   function placeAula(){
     const aula=document.querySelector('.aula-strip');
     const row3=document.querySelector('.row3');
@@ -2259,10 +2289,12 @@ $('#iziAccountSelect').value=localStorage.getItem('izitrader_account_type')||'re
   }
 
   function run(){
+    placeControls();
     placeAula();
     placeStage();
     positionWheel();
     requestAnimationFrame(positionWheel);
+    setTimeout(placeControls,100);
     setTimeout(placeAula,100);
     setTimeout(placeStage,100);
   }

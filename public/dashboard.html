@@ -3500,6 +3500,46 @@ body.dark .history-card .chip.loss .chip-tag{color:#ff5b5b!important;}
     z-index:10002!important;
   }
 }
+
+/* ===== FINAL MOBILE WHATSAPP + DESKTOP AULA POINTER FIX ===== */
+@media(max-width:899px){
+  /* WhatsApp sits outside the lower-left edge of the wheel, never on top of it. */
+  .dashboard-center .wheel-area .whatsapp-btn{
+    position:absolute!important;
+    left:-56px!important;
+    right:auto!important;
+    bottom:18px!important;
+    width:56px!important;
+    height:56px!important;
+    margin:0!important;
+    z-index:60!important;
+  }
+  .dashboard-center .wheel-area{
+    margin-bottom:4px!important;
+  }
+}
+@media(max-width:380px){
+  .dashboard-center .wheel-area .whatsapp-btn{
+    left:-40px!important;
+    bottom:14px!important;
+    width:40px!important;
+    height:40px!important;
+  }
+}
+@media(min-width:900px){
+  /* Earlier desktop geometry intentionally disabled pointer input on Aula. */
+  .dashboard-center .aula-strip{
+    pointer-events:auto!important;
+    cursor:default!important;
+  }
+  .dashboard-center .aula-trigger{
+    pointer-events:auto!important;
+    cursor:pointer!important;
+  }
+  .dashboard-center .aula-language-options{
+    pointer-events:auto!important;
+  }
+}
 </style>
 </head>
 <body>

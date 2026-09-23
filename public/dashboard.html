@@ -2904,6 +2904,46 @@ body.dark .history-card .chip::after{
   .history-card .history-row .chip>span:first-child{text-align:left!important}
   .history-card .history-row .chip .chip-tag{text-align:right!important}
 }
+
+/* ===== FINAL MOBILE HISTORY: five trades visible ===== */
+@media (max-width:899px){
+  .history-card .history-row{
+    display:flex!important;
+    flex-direction:row!important;
+    flex-wrap:nowrap!important;
+    gap:6px!important;
+    width:100%!important;
+    max-width:100%!important;
+    overflow-x:auto!important;
+    overflow-y:hidden!important;
+    padding:4px 0 8px!important;
+  }
+  .history-card .history-row .chip{
+    flex:0 0 calc((100% - 24px) / 5)!important;
+    width:calc((100% - 24px) / 5)!important;
+    min-width:calc((100% - 24px) / 5)!important;
+    max-width:calc((100% - 24px) / 5)!important;
+    height:82px!important;
+    min-height:82px!important;
+    max-height:82px!important;
+    padding:6px 2px!important;
+    border-radius:10px!important;
+    font-size:11px!important;
+    gap:2px!important;
+  }
+  .history-card .history-row .chip .chip-tag{
+    font-size:8px!important;
+  }
+}
+
+@media (max-width:380px){
+  .history-card .history-row .chip{
+    font-size:10px!important;
+  }
+  .history-card .history-row .chip .chip-tag{
+    font-size:7px!important;
+  }
+}
 </style>
 </head>
 <body>

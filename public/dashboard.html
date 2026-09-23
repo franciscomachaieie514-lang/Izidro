@@ -3094,6 +3094,37 @@ body.dark .history-card .chip::after{
   }
   .dashboard-left .mobile-start-card .note{display:none!important;}
 }
+
+/* ===== MOBILE COMPACT TOP SPACING: recover viewport space ===== */
+@media (max-width:899px){
+  body{padding-top:6px!important;padding-bottom:46px!important;}
+  .header{margin-bottom:8px!important;}
+  .balance-row{min-height:72px!important;}
+  .dashboard-left>.card{margin-bottom:8px!important;}
+  .dashboard-left .row3{margin-bottom:8px!important;gap:6px!important;}
+  .dashboard-left .field-label{margin-bottom:3px!important;font-size:10px!important;}
+  .dashboard-left .account-select,.dashboard-left .dropdown-btn,.dashboard-left .pill{min-height:40px!important;padding:9px 10px!important;}
+  .dashboard-left .history-card{margin-bottom:8px!important;}
+  .dashboard-center{gap:0!important;}
+  .dashboard-control-row{margin-top:0!important;margin-bottom:4px!important;}
+  .aula-strip{margin:0!important;}
+  .history-stage{margin-top:4px!important;padding-top:5px!important;}
+  .wheel-area{margin-top:4px!important;margin-bottom:8px!important;}
+  .dashboard-left .mobile-start-card{
+    padding:7px 10px!important;
+    margin:0 0 8px!important;
+    min-height:0!important;
+  }
+  .dashboard-left .mobile-start-card .stake-row{display:none!important;}
+  .dashboard-left .mobile-start-card .field-label{display:none!important;}
+  .dashboard-left .mobile-start-card .operate-btn{
+    margin:0!important;
+    min-height:40px!important;
+    height:40px!important;
+    padding:7px 10px!important;
+    font-size:13px!important;
+  }
+}
 </style>
 </head>
 <body>
@@ -3557,13 +3588,19 @@ $('#iziAccountSelect').value=localStorage.getItem('izitrader_account_type')||'re
     const left=document.querySelector('.dashboard-left');
     const right=document.querySelector('.dashboard-right');
     const row3=document.querySelector('.dashboard-left .row3');
+    const history=document.querySelector('.dashboard-left .history-card');
     const symbol=right?.querySelector('.symbol-card');
     if(!card||!left||!right||!row3)return;
     const mobile=window.matchMedia('(max-width:899px)').matches;
     if(mobile){
+      /* Mobile keeps the dashboard order intact, but brings the Start Robot card
+         into the first viewport: Account/Bot/Aula -> Start Robot -> History. */
       card.classList.add('mobile-start-card');
       if(card.parentElement!==left || card.previousElementSibling!==row3){
         row3.after(card);
+      }
+      if(history && card.nextElementSibling!==history){
+        left.insertBefore(history,card.nextElementSibling);
       }
     }else{
       card.classList.remove('mobile-start-card');

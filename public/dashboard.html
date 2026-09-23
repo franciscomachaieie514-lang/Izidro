@@ -1940,6 +1940,63 @@ body.dark .icon-btn,body.dark .sair-btn{background:var(--field);color:var(--text
     margin-top:64px!important;
   }
 }
+
+/* ===== Final fix: status centered, controls separated, wheel lower ===== */
+.dashboard-control-row{
+  position:relative!important;
+  display:grid!important;
+  grid-template-columns:minmax(90px,1fr) auto minmax(90px,1fr)!important;
+  align-items:center!important;
+  justify-content:initial!important;
+  gap:12px!important;
+  width:100%!important;
+}
+
+.dashboard-control-row>.analysis-wrap{
+  position:relative!important;
+  top:auto!important;
+  left:auto!important;
+  right:auto!important;
+  margin:0!important;
+  justify-self:start!important;
+  z-index:5!important;
+}
+
+.dashboard-control-row>.status{
+  position:relative!important;
+  top:auto!important;
+  left:auto!important;
+  right:auto!important;
+  width:auto!important;
+  min-width:0!important;
+  min-height:34px!important;
+  margin:0!important;
+  padding:0 4px!important;
+  justify-self:center!important;
+  display:flex!important;
+  align-items:center!important;
+  justify-content:center!important;
+  text-align:center!important;
+  z-index:6!important;
+}
+
+.dashboard-control-row>.target-wrap{
+  position:relative!important;
+  top:auto!important;
+  left:auto!important;
+  right:auto!important;
+  margin:0!important;
+  justify-self:end!important;
+  z-index:5!important;
+}
+
+@media (min-width:900px){
+  .dashboard-center .wheel-area{
+    margin-top:96px!important;
+    width:min(100%,580px)!important;
+  }
+}
+
 </style>
 </head>
 <body>

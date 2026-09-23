@@ -2962,6 +2962,33 @@ body.dark .history-card .chip::after{
   }
   .history-card .history-row .chip .chip-tag{font-size:7px!important;}
 }
+
+/* ===== FINAL MOBILE HISTORY: ultra-compact chips near text ===== */
+@media (max-width:899px){
+  .history-card .history-row{gap:4px!important;}
+  .history-card .history-row .chip{
+    flex:0 0 62px!important;
+    width:62px!important;
+    min-width:62px!important;
+    max-width:62px!important;
+    height:62px!important;
+    min-height:62px!important;
+    max-height:62px!important;
+    padding:3px 1px!important;
+    border-radius:8px!important;
+    font-size:9px!important;
+    gap:1px!important;
+  }
+  .history-card .history-row .chip .chip-tag{font-size:7px!important;}
+}
+@media (max-width:340px){
+  .history-card .history-row .chip{
+    flex-basis:60px!important;
+    width:60px!important;
+    min-width:60px!important;
+    max-width:60px!important;
+  }
+}
 </style>
 </head>
 <body>

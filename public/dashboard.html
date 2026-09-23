@@ -3260,6 +3260,50 @@ body.dark .history-card .chip.loss .chip-tag{color:#ff5b5b!important;}
     margin:7px 0 0!important;
   }
 }
+
+/* ===== MOBILE APOSTA: remove martingale text + compact block ===== */
+#martingaleInfo{display:none!important;}
+@media(max-width:899px){
+  .dashboard-right .card:not(.symbol-card){
+    padding:10px 10px 9px!important;
+    border-radius:12px!important;
+    margin:0!important;
+  }
+  .dashboard-right .card:not(.symbol-card) .field-label{
+    font-size:9px!important;
+    margin-bottom:4px!important;
+    line-height:14px!important;
+  }
+  .dashboard-right .card:not(.symbol-card) .operate-btn{
+    height:40px!important;
+    min-height:40px!important;
+    margin:0 0 7px!important;
+    padding:8px 10px!important;
+    border-radius:10px!important;
+    font-size:13px!important;
+  }
+  .dashboard-right .card:not(.symbol-card) .stake-row{
+    min-height:34px!important;
+    height:34px!important;
+    gap:7px!important;
+  }
+  .dashboard-right .card:not(.symbol-card) .stake-value,
+  .dashboard-right .card:not(.symbol-card) .stake-input{
+    font-size:18px!important;
+  }
+  .dashboard-right .card:not(.symbol-card) .stake-control{
+    width:34px!important;
+    height:34px!important;
+    min-width:34px!important;
+    border-radius:8px!important;
+    font-size:20px!important;
+  }
+  .dashboard-right .card:not(.symbol-card) .note{
+    font-size:9px!important;
+    margin-top:5px!important;
+    line-height:13px!important;
+  }
+}
 </style>
 </head>
 <body>

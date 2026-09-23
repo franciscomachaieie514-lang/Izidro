@@ -2682,6 +2682,61 @@ body.dark .history-card .chip.loss .chip-tag{
 body.dark .history-card .chip::after{
   color:#9aa8bd!important;
 }
+
+/* ===== Final Recent History: newest first, horizontal, older trades remain accessible ===== */
+.history-card .history-row{
+  display:flex!important;
+  flex-direction:row!important;
+  flex-wrap:nowrap!important;
+  align-items:stretch!important;
+  justify-content:flex-start!important;
+  gap:8px!important;
+  width:100%!important;
+  max-height:none!important;
+  height:auto!important;
+  overflow-x:auto!important;
+  overflow-y:hidden!important;
+  padding:4px 2px 10px!important;
+  margin:0 0 8px!important;
+  scrollbar-width:none!important;
+  -webkit-overflow-scrolling:touch!important;
+}
+.history-card .history-row::-webkit-scrollbar{display:none!important}
+.history-card .history-row .chip{
+  flex:0 0 78px!important;
+  width:78px!important;
+  min-width:78px!important;
+  max-width:78px!important;
+  height:58px!important;
+  min-height:58px!important;
+  margin:0!important;
+  display:flex!important;
+  flex-direction:column!important;
+  align-items:center!important;
+  justify-content:center!important;
+  text-align:center!important;
+  grid-template-columns:none!important;
+  grid-template-rows:none!important;
+  padding:7px 3px!important;
+  border-radius:10px!important;
+}
+.history-card .history-row .chip > span:first-child{
+  display:block!important;
+  grid-column:auto!important;
+  grid-row:auto!important;
+  white-space:nowrap!important;
+}
+.history-card .history-row .chip .chip-tag{
+  display:block!important;
+  grid-column:auto!important;
+  grid-row:auto!important;
+  text-align:center!important;
+  font-size:9px!important;
+}
+.history-card .history-row .chip::after{
+  display:none!important;
+  content:none!important;
+}
 </style>
 </head>
 <body>
@@ -2936,14 +2991,20 @@ window.addEventListener('izitrader:contract-closed',e=>{
   if(!item){
     item=document.createElement('div');
     item.dataset.contractId=id;
-    hist.appendChild(item);
   }
   item.dataset.closed='1';
   renderChip(item,c,result);
+
+  /* Newest trade is always first; older trades remain available by swipe. */
+  hist.prepend(item);
+
   if(!wasClosed)operationCount++;
   updateOps();
-  while(hist.children.length>20)hist.firstElementChild.remove();
-  hist.scrollLeft=hist.scrollWidth;
+
+  /* Keep up to 20 closed trades; only the oldest are removed if necessary. */
+  while(hist.children.length>20)hist.lastElementChild.remove();
+
+  hist.scrollLeft=0;
 });
 $('#iziAccountSelect').value=localStorage.getItem('izitrader_account_type')||'real';$('#iziAccountSelect').addEventListener('change',e=>{window.IziDerivWS?.setAccountType?.(e.target.value);ob.textContent='▶ Start Robot'});ob.textContent='▶ Start Robot';$('#sairBtn').addEventListener('click',async()=>{try{await fetch('/api/auth/logout',{method:'POST',credentials:'same-origin'})}catch{}window.location.replace('/')});
 

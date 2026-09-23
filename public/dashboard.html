@@ -2640,6 +2640,48 @@ body.dark .icon-btn,body.dark .sair-btn{background:var(--field);color:var(--text
     --wheel-size:min(100%,580px,calc(100vh - 250px));
   }
 }
+
+/* ===== Final dark-mode Recent History readability ===== */
+body.dark .history-card{
+  background:#111a2e!important;
+  border-color:#2a3854!important;
+  color:#fff!important;
+}
+body.dark .history-card .history-title,
+body.dark .history-card .history-hint{
+  color:#aeb9cc!important;
+}
+body.dark .history-card .history-row{
+  background:transparent!important;
+}
+body.dark .history-card .chip{
+  background:#18243a!important;
+  border-color:#34445f!important;
+  color:#fff!important;
+  box-shadow:0 2px 8px rgba(0,0,0,.18)!important;
+}
+body.dark .history-card .chip > span:first-child{
+  color:#fff!important;
+  font-weight:800!important;
+  opacity:1!important;
+}
+body.dark .history-card .chip.win > span:first-child{
+  color:#f5c04a!important;
+}
+body.dark .history-card .chip.loss > span:first-child{
+  color:#ff5b5b!important;
+}
+body.dark .history-card .chip.win .chip-tag{
+  color:#f5c04a!important;
+  opacity:1!important;
+}
+body.dark .history-card .chip.loss .chip-tag{
+  color:#ff5b5b!important;
+  opacity:1!important;
+}
+body.dark .history-card .chip::after{
+  color:#9aa8bd!important;
+}
 </style>
 </head>
 <body>

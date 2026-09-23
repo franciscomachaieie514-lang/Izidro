@@ -3063,6 +3063,17 @@ body.dark .history-card .chip::after{
   .history-card .history-row .chip .chip-tag{font-size:5.5px!important;}
   .history-card .history-foot{padding-top:5px!important;font-size:10px!important;}
 }
+
+/* ===== MOBILE START ROBOT: move start card near top ===== */
+@media (max-width:899px){
+  .dashboard-left>.card.start-card-mobile{
+    margin-bottom:10px!important;
+  }
+  .dashboard-left>.card.start-card-mobile .operate-btn{
+    min-height:46px!important;
+    margin-top:10px!important;
+  }
+}
 </style>
 </head>
 <body>
@@ -3489,5 +3500,33 @@ $('#iziAccountSelect').value=localStorage.getItem('izitrader_account_type')||'re
 
 <script src="/live-analysis.js"></script>
 <script src="/deriv-realtime.js"></script>
-</body>
+
+<script>
+(function(){
+  'use strict';
+  function placeStartCard(){
+    const left=document.querySelector('.dashboard-left');
+    const row3=document.querySelector('.row3');
+    const right=document.querySelector('.dashboard-right');
+    if(!left||!row3||!right)return;
+    const start=right.querySelector('.card:not(.symbol-card)');
+    const symbol=right.querySelector('.symbol-card');
+    if(!start)return;
+    const mobile=window.matchMedia('(max-width:899px)').matches;
+    if(mobile){
+      start.classList.add('start-card-mobile');
+      if(start.parentElement!==left) left.insertBefore(start,left.querySelector('.history-card')||null);
+      else if(start.nextElementSibling!==left.querySelector('.history-card')) left.insertBefore(start,left.querySelector('.history-card')||null);
+    }else{
+      start.classList.remove('start-card-mobile');
+      if(start.parentElement!==right) right.insertBefore(start,symbol||null);
+    }
+  }
+  function run(){placeStartCard();}
+  if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',run,{once:true});else run();
+  window.addEventListener('resize',run);
+  window.addEventListener('orientationchange',run);
+})();
+</script>
+\n</body>
 </html>

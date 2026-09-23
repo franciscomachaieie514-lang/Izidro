@@ -3541,6 +3541,43 @@ body.dark .history-card .chip.loss .chip-tag{color:#ff5b5b!important;}
   }
 }
 
+/* ===== FINAL MOBILE WHATSAPP ANCHOR — BLUE MARKER / OUTSIDE WHEEL =====
+   Keep the WhatsApp button outside the circle.
+   The button's right edge is kept just left of the wheel edge,
+   matching the blue reference point on the mobile layout.
+*/
+@media(max-width:899px){
+  .dashboard-center .wheel-area{
+    --izi-mobile-wheel-size:340px;
+    overflow:visible!important;
+  }
+  .dashboard-center .wheel-area .whatsapp-btn{
+    position:absolute!important;
+    left:calc(50% - (var(--izi-mobile-wheel-size) / 2) - 34px)!important;
+    right:auto!important;
+    bottom:0!important;
+    width:56px!important;
+    height:56px!important;
+    margin:0!important;
+    z-index:60!important;
+  }
+}
+@media(max-width:599px){
+  .dashboard-center .wheel-area{
+    --izi-mobile-wheel-size:300px;
+  }
+}
+@media(max-width:380px){
+  .dashboard-center .wheel-area{
+    --izi-mobile-wheel-size:280px;
+  }
+  .dashboard-center .wheel-area .whatsapp-btn{
+    width:40px!important;
+    height:40px!important;
+    left:calc(50% - (var(--izi-mobile-wheel-size) / 2) - 24px)!important;
+    bottom:0!important;
+  }
+}
 /* ===== FINAL MOBILE WHATSAPP POSITION ===== */
 @media(max-width:899px){
   .dashboard-center .wheel-area .whatsapp-btn{

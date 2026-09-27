@@ -18,9 +18,9 @@ const BOT_TEXT={
 };
 
 const T={
- en:{balance:'BALANCE',pnl:'PROFIT/LOSS',account:'ACCOUNT TYPE',bot:'BOT',classroom:'LESSON',history:'RECENT HISTORY',slide:'swipe to see more →',stake:'STAKE',minimum:'minimum: $0.35 USD',symbol:'SYMBOL',start:'▶ START ROBOT',goals:'TARGETS',save:'Save targets',profitTarget:'Profit target (USD)',lossTarget:'Loss target (USD)',accountReal:'Real',accountDemo:'Demo',analyzing:'ANALYZING',open:'OPEN',closed:'CLOSED',gain:'WIN',loss:'LOSS',operations:'OPERATIONS',settings:'Settings',language:'Language',help:'Help',logout:'Logout'},
- pt:{balance:'SALDO',pnl:'LUCRO/PERDA',account:'TIPO DE CONTA',bot:'BOT',classroom:'AULA',history:'HISTÓRICO RECENTE',slide:'deslize para ver mais →',stake:'APOSTA',minimum:'mínimo: $0.35 USD',symbol:'SÍMBOLO',start:'▶ INICIAR ROBÔ',goals:'METAS',save:'Guardar metas',profitTarget:'Meta de lucros (USD)',lossTarget:'Meta de perdas (USD)',accountReal:'Real',accountDemo:'Demo',analyzing:'ANALISANDO',open:'ABERTO',closed:'FECHADO',gain:'GANHO',loss:'PERDA',operations:'OPERAÇÕES',settings:'Definições',language:'Idioma',help:'Ajuda',logout:'Sair'},
- es:{balance:'SALDO',pnl:'GANANCIA/PÉRDIDA',account:'TIPO DE CUENTA',bot:'BOT',classroom:'LECCIÓN',history:'HISTORIAL RECIENTE',slide:'desliza para ver más →',stake:'APUESTA',minimum:'mínimo: $0.35 USD',symbol:'SÍMBOLO',start:'▶ INICIAR ROBOT',goals:'OBJETIVOS',save:'Guardar objetivos',profitTarget:'Meta de ganancias (USD)',lossTarget:'Meta de pérdidas (USD)',accountReal:'Real',accountDemo:'Demo',analyzing:'ANALIZANDO',open:'ABIERTO',closed:'CERRADO',gain:'GANANCIA',loss:'PÉRDIDA',operations:'OPERACIONES',settings:'Ajustes',language:'Idioma',help:'Ayuda',logout:'Cerrar sesión'}
+ en:{balance:'BALANCE',pnl:'PROFIT/LOSS',account:'ACCOUNT TYPE',bot:'BOT',classroom:'LESSON',history:'RECENT HISTORY',slide:'swipe to see more →',stake:'STAKE',minimum:'minimum: $0.35 USD',symbol:'SYMBOL',start:'▶ START ROBOT',goals:'TARGETS',save:'Save targets',profitTarget:'Profit target (USD)',lossTarget:'Loss target (USD)',accountReal:'Real',accountDemo:'Demo',analyzing:'ANALYZING',open:'OPEN',closed:'CLOSED',gain:'WIN',loss:'LOSS',operations:'OPERATIONS',settings:'Settings',language:'Language',help:'Help',logout:'Logout',online:'ONLINE',managementSheet:'MANAGEMENT SHEET',telegramSupport:'TELEGRAM SUPPORT',telegramGroupPt:'TELEGRAM GROUP PORTUGUÊS',telegramGroupEn:'TELEGRAM GROUP ENGLISH',terms:'TERMS AND CONDITIONS'},
+ pt:{balance:'SALDO',pnl:'LUCRO/PERDA',account:'TIPO DE CONTA',bot:'BOT',classroom:'AULA',history:'HISTÓRICO RECENTE',slide:'deslize para ver mais →',stake:'APOSTA',minimum:'mínimo: $0.35 USD',symbol:'SÍMBOLO',start:'▶ INICIAR ROBÔ',goals:'METAS',save:'Guardar metas',profitTarget:'Meta de lucros (USD)',lossTarget:'Meta de perdas (USD)',accountReal:'Real',accountDemo:'Demo',analyzing:'ANALISANDO',open:'ABERTO',closed:'FECHADO',gain:'GANHO',loss:'PERDA',operations:'OPERAÇÕES',settings:'Definições',language:'Idioma',help:'Ajuda',logout:'Sair',online:'ONLINE',managementSheet:'PLANILHA DE GERENCIAMENTO',telegramSupport:'SUPORTE TELEGRAM',telegramGroupPt:'GRUPO TELEGRAM PORTUGUÊS',telegramGroupEn:'GRUPO TELEGRAM ENGLISH',terms:'TERMOS E CONDIÇÕES'},
+ es:{balance:'SALDO',pnl:'GANANCIA/PÉRDIDA',account:'TIPO DE CUENTA',bot:'BOT',classroom:'LECCIÓN',history:'HISTORIAL RECIENTE',slide:'desliza para ver más →',stake:'APUESTA',minimum:'mínimo: $0.35 USD',symbol:'SÍMBOLO',start:'▶ INICIAR ROBOT',goals:'OBJETIVOS',save:'Guardar objetivos',profitTarget:'Meta de ganancias (USD)',lossTarget:'Meta de pérdidas (USD)',accountReal:'Real',accountDemo:'Demo',analyzing:'ANALIZANDO',open:'ABIERTO',closed:'CERRADO',gain:'GANANCIA',loss:'PÉRDIDA',operations:'OPERACIONES',settings:'Ajustes',language:'Idioma',help:'Ayuda',logout:'Cerrar sesión',online:'EN LÍNEA',managementSheet:'PLANILLA DE GESTIÓN',telegramSupport:'SOPORTE TELEGRAM',telegramGroupPt:'GRUPO TELEGRAM PORTUGUÉS',telegramGroupEn:'GRUPO TELEGRAM INGLÉS',terms:'TÉRMINOS Y CONDICIONES'}
 };
 
 function getLang(){try{const lang=localStorage.getItem('izitrader_language')||localStorage.getItem('izitrader_lang')||'pt';return T[lang]?lang:'pt'}catch{return'pt'}}
@@ -83,6 +83,18 @@ function applyLanguage(lang){
 
  setText('stageLabel0',t.analyzing);setText('stageLabel1',t.open);setText('stageLabel2',t.closed);
 
+ const menuOnline=document.getElementById('onlineLabel');
+ const menuSheet=document.getElementById('menuSheet');
+ const menuTelegramSupport=document.getElementById('menuTelegramSupport');
+ const menuTelegramPt=document.getElementById('menuTelegramPt');
+ const menuTelegramEn=document.getElementById('menuTelegramEn');
+ const menuTerms=document.getElementById('menuTerms');
+ if(menuOnline)menuOnline.textContent=t.online;
+ if(menuSheet)menuSheet.querySelector('span').textContent=t.managementSheet;
+ if(menuTelegramSupport)menuTelegramSupport.querySelector('span').textContent=t.telegramSupport;
+ if(menuTelegramPt)menuTelegramPt.querySelector('span').textContent=t.telegramGroupPt;
+ if(menuTelegramEn)menuTelegramEn.querySelector('span').textContent=t.telegramGroupEn;
+ if(menuTerms)menuTerms.querySelector('span').textContent=t.terms;
  const menuSettings=document.getElementById('menuSettings');
  const menuLang=document.getElementById('menuLang');
  const menuHelp=document.getElementById('menuHelp');

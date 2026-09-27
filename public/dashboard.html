@@ -3611,6 +3611,37 @@ body.dark .history-card .chip.loss .chip-tag{color:#ff5b5b!important;}
   }
 }
 </style>
+<style id="iziHistoryStageFinal">
+/* One authoritative size for the recent-history results and operation stages. */
+.history-card .history-row .chip,
+.history-card .history-row .chip > span:first-child,
+.history-card .history-row .chip .chip-tag,
+.dashboard-left .history-card .history-row .chip,
+.dashboard-left .history-card .history-row .chip > span:first-child,
+.dashboard-left .history-card .history-row .chip .chip-tag{
+  font-size:12px!important;
+}
+.history-card #stageTracker .stage-labels span,
+.dashboard-left .history-card #stageTracker .stage-labels span{
+  font-size:12px!important;
+  line-height:14px!important;
+}
+@media(max-width:599px){
+  .history-card .history-row .chip,
+  .history-card .history-row .chip > span:first-child,
+  .history-card .history-row .chip .chip-tag,
+  .dashboard-left .history-card .history-row .chip,
+  .dashboard-left .history-card .history-row .chip > span:first-child,
+  .dashboard-left .history-card .history-row .chip .chip-tag{
+    font-size:12px!important;
+  }
+  .history-card #stageTracker .stage-labels span,
+  .dashboard-left .history-card #stageTracker .stage-labels span{
+    font-size:12px!important;
+    line-height:14px!important;
+  }
+}
+</style>
 </head>
 <body>
 <div class="auth-page hidden" id="authPage"><div class="auth-card"><img class="auth-logo" src="/favicon.svg" alt="Izitrader"><div class="auth-brand">Izi<span>trader</span></div><div class="auth-title">Bem-vindo ao Izitrader</div><p class="auth-subtitle">Entre ou crie a sua conta Deriv para continuar.</p><a class="auth-btn auth-primary" href="https://track.deriv.com/_PZZnG4RWbBdZl7VyVw174GNd7ZgqdRLk/1/" target="_blank" rel="noopener">Criar conta na Deriv</a><a class="auth-btn auth-secondary" href="/api/auth/login" id="loginLink">Entrar com a Deriv</a></div></div>
@@ -4094,29 +4125,3 @@ if(document.readyState==='loading'){
 </script>
 </body>
 </html>
-
-/* ===== FINAL HISTORY/STAGE TEXT SIZE — single source of truth ===== */
-@media (max-width:899px){
-  .dashboard-left .history-card .history-row .chip{
-    font-size:12px!important;
-  }
-  .dashboard-left .history-card .history-row .chip .chip-tag{
-    font-size:12px!important;
-  }
-  .dashboard-left .history-card #stageTracker .stage-labels span{
-    font-size:12px!important;
-    line-height:14px!important;
-  }
-}
-@media (min-width:900px){
-  .dashboard-left .history-card .history-row .chip{
-    font-size:12px!important;
-  }
-  .dashboard-left .history-card .history-row .chip .chip-tag{
-    font-size:12px!important;
-  }
-  .dashboard-left .history-card #stageTracker .stage-labels span{
-    font-size:12px!important;
-    line-height:14px!important;
-  }
-}

@@ -3644,7 +3644,7 @@ body.dark .history-card .chip.loss .chip-tag{color:#ff5b5b!important;}
   }
 }
 </style>
-</head>
+<style id="iziHistoryBotName">.history-row .chip .chip-bot{font-size:6px!important;line-height:7px!important;font-weight:700!important;opacity:.9!important;display:block!important;max-width:100%!important;overflow:hidden!important;text-overflow:ellipsis!important;white-space:nowrap!important;letter-spacing:0!important}</style></head>
 <body>
 <div class="auth-page hidden" id="authPage"><div class="auth-card"><img class="auth-logo" src="/favicon.svg" alt="Izitrader"><div class="auth-brand">Izi<span>trader</span></div><div class="auth-title">Bem-vindo ao Izitrader</div><p class="auth-subtitle">Entre ou crie a sua conta Deriv para continuar.</p><a class="auth-btn auth-primary" href="https://track.deriv.com/_PZZnG4RWbBdZl7VyVw174GNd7ZgqdRLk/1/" target="_blank" rel="noopener">Criar conta na Deriv</a><a class="auth-btn auth-secondary" href="/api/auth/login" id="loginLink">Entrar com a Deriv</a></div></div>
 <div class="auth-page" id="sessionLoading"><div class="auth-card"><img class="auth-logo" src="/favicon.svg" alt="Izitrader"><div class="auth-brand">Izi<span>trader</span></div><div class="auth-title">A verificar a sessão...</div><p class="auth-subtitle">Aguarde enquanto ligamos à sua conta.</p></div></div>
@@ -3906,23 +3906,690 @@ const menu=$('#menu'),lo=$('#languageOptions');$('#menuBtn').onclick=e=>{e.stopP
 const ab=$('#analysisBtn'),al=$('#analysisLabel'),am=$('#analysisMenu');let analysisWindow=25;ab.onclick=e=>{e.stopPropagation();am.classList.toggle('open')};document.querySelectorAll('.analysis-item').forEach(x=>x.onclick=()=>{analysisWindow=Number(x.dataset.window);document.querySelectorAll('.analysis-item').forEach(y=>y.classList.remove('active'));x.classList.add('active');if(al)al.textContent=analysisWindow+' TICKS';am.classList.remove('open');window.IziLiveAnalysis?.setWindow?.(analysisWindow)});
 const targetBtn=$('#targetBtn'),targetMenu=$('#targetMenu'),profitTarget=$('#profitTarget'),lossTarget=$('#lossTarget'),targetStatus=$('#targetStatus');let pg=Number(localStorage.getItem('izitrader_profit_goal')||0),lg=Number(localStorage.getItem('izitrader_loss_goal')||0);if(pg)profitTarget.value=pg;if(lg)lossTarget.value=lg;function targetText(){targetStatus.textContent=pg||lg?'Lucro: $'+pg.toFixed(2)+' • Perda: $'+lg.toFixed(2):'Nenhuma meta definida'}targetText();targetBtn.onclick=e=>{e.stopPropagation();targetMenu.classList.toggle('open')};$('#targetSave').onclick=()=>{pg=Math.max(0,Number(profitTarget.value)||0);lg=Math.max(0,Number(lossTarget.value)||0);localStorage.setItem('izitrader_profit_goal',pg);localStorage.setItem('izitrader_loss_goal',lg);targetText();targetMenu.classList.remove('open')};
 document.addEventListener('click',e=>{if(!e.target.closest('.dropdown'))dm.classList.remove('open');if(!e.target.closest('.symbol-dropdown'))sm.classList.remove('open');if(!e.target.closest('.header-actions')){menu.classList.remove('open');lo.classList.remove('open')};if(!e.target.closest('.analysis-wrap'))am.classList.remove('open');if(!e.target.closest('.target-wrap'))targetMenu.classList.remove('open')});
-const hist=$('#historyScroll'),opsCount=$('#opsCount');let operationCount=Number(localStorage.getItem('izitrader_operations')||0);opsCount.textContent=operationCount;
+const hist=$('#historyScroll'),opsCount=$('#opsCount');let operationCount=Number(localStorage.getItem('izitrader_operations')||0);
+const contractBots=Object.create(null);
+opsCount.textContent=operationCount;
 function moneyValue(c){const n=Number(c?.profit??c?.pnl??c?.amount??c?.payout??0);return Number.isFinite(n)?Math.abs(n).toFixed(2):'0.00'}
-function renderChip(item,c,result){const won=result==='WON',lost=result==='LOST';const value=moneyValue(c);item.className='chip '+(won?'win':lost?'loss':'');item.innerHTML='<span>'+(won?'+$':lost?'-$':'$')+value+'</span><span class="chip-tag">'+(won?'GANHO':lost?'PERDA':'ABERTO')+'</span>'}
+function renderChip(item,c,result,botName){
+  const won=result==='WON',lost=result==='LOST';
+  const value=moneyValue(c);
+  const bot=String(botName||c?.bot_name||c?.bot||'').trim();
+  item.className='chip '+(won?'win':lost?'loss':'');
+  item.innerHTML='<span>'+(won?'+
+
+  if(!wasClosed)operationCount++;
+  updateOps();
+
+  /* Keep up to 20 closed trades; only the oldest are removed if necessary. */
+  while(hist.children.length>20)hist.lastElementChild.remove();
+
+  hist.scrollLeft=0;
+});
+$('#iziAccountSelect').value=localStorage.getItem('izitrader_account_type')||'real';$('#iziAccountSelect').addEventListener('change',e=>{window.IziDerivWS?.setAccountType?.(e.target.value);ob.textContent='▶ Start Robot'});ob.textContent='▶ Start Robot';$('#sairBtn').addEventListener('click',async()=>{try{await fetch('/api/auth/logout',{method:'POST',credentials:'same-origin'})}catch{}window.location.replace('/')});
+
+(function(){
+  const dots=[$('#stageDot0'),$('#stageDot1'),$('#stageDot2')];
+  const lines=[$('#stageLine0'),$('#stageLine1')];
+  const labels=[$('#stageLabel0'),$('#stageLabel1'),$('#stageLabel2')];
+  let resetTimer=null;
+  function setStage(stage){
+    dots.forEach((d,i)=>d&&d.classList.toggle('active',i<=stage));
+    lines.forEach((l,i)=>l&&l.classList.toggle('active',i<stage));
+    labels.forEach((l,i)=>l&&l.classList.toggle('active',i<=stage));
+  }
+  setStage(0);
+  window.addEventListener('izitrader:buy',()=>{
+    if(resetTimer){clearTimeout(resetTimer);resetTimer=null}
+    setStage(1);
+  });
+  window.addEventListener('izitrader:contract-state',e=>{
+    if(e.detail?.closed){
+      setStage(2);
+      resetTimer=setTimeout(()=>setStage(0),3000);
+    }
+  });
+  const stageText={en:{labels:['ANALYZING','OPEN','CLOSED'],stop:'Stop Robot'},pt:{labels:['ANALISANDO','ABERTO','FECHADO'],stop:'Parar Robô'},es:{labels:['ANALIZANDO','ABIERTO','CERRADO'],stop:'Detener Robot'}};
+  function applyStageLanguage(){
+    const lang=localStorage.getItem('izitrader_language')||localStorage.getItem('izitrader_lang')||'pt';
+    const t=stageText[lang]||stageText.pt;
+    labels.forEach((l,i)=>{if(l)l.textContent=t.labels[i]});
+    const stopBtn=$('#stageStopBtn');if(stopBtn){stopBtn.title=t.stop;stopBtn.setAttribute('aria-label',t.stop)}
+  }
+  applyStageLanguage();
+  window.addEventListener('izitrader:language-change',applyStageLanguage);
+  const stopBtn=$('#stageStopBtn');
+  if(stopBtn)stopBtn.onclick=()=>{window.IziDerivWS?.stop?.();setStage(0)};
+})();
+</script>
+<script>
+(function(){
+  'use strict';
+
+  function placeControls(){
+    /* 25 TICKS, Account connected and METAS always live together in the control row,
+       as three items in one line: 25 TICKS (left) — status (middle) — METAS (right). */
+    const analysisWrap=document.querySelector('.analysis-wrap');
+    const targetWrap=document.querySelector('.target-wrap');
+    const controlRow=document.querySelector('.dashboard-control-row');
+    const status=document.querySelector('.dashboard-control-row .status, .dashboard-center>.status');
+    if(!analysisWrap||!targetWrap||!controlRow)return;
+    if(analysisWrap.parentElement!==controlRow||controlRow.firstElementChild!==analysisWrap){
+      controlRow.insertBefore(analysisWrap,controlRow.firstChild);
+    }
+    if(targetWrap.parentElement!==controlRow||controlRow.lastElementChild!==targetWrap){
+      controlRow.appendChild(targetWrap);
+    }
+    if(status&&status.parentElement===controlRow){
+      controlRow.insertBefore(status,targetWrap);
+    }
+  }
+  function placeAula(){
+    const aula=document.querySelector('.aula-strip');
+    const row3=document.querySelector('.row3');
+    const center=document.querySelector('.dashboard-center');
+    if(!aula)return;
+
+    const mobile=window.matchMedia('(max-width:899px)').matches;
+
+    if(mobile){
+      /* Mobile reference: AULA is the third block beside Account Type and BOT. */
+      if(row3 && aula.parentElement!==row3) row3.appendChild(aula);
+      aula.hidden=false;
+      aula.style.removeProperty('display');
+      aula.style.removeProperty('position');
+      aula.style.removeProperty('left');
+      aula.style.removeProperty('right');
+      aula.style.removeProperty('top');
+    }else if(center){
+      /* PC keeps AULA in the center area above the stage/wheel. */
+      if(aula.parentElement!==center) center.insertBefore(aula,center.children[1]||null);
+      aula.hidden=false;
+    }
+  }
+
+  function placeStage(){
+    const stage=document.getElementById('stageTracker');
+    const history=document.getElementById('historyScroll');
+    const card=history?.closest('.history-card');
+    const center=document.querySelector('.dashboard-center');
+    const aula=document.querySelector('.aula-strip');
+    const mobile=window.matchMedia('(max-width:599px)').matches;
+
+    if(!stage)return;
+
+    if(mobile){
+      /* Mobile: stage belongs inside Recent History. */
+      if(card && stage.parentElement!==card) card.appendChild(stage);
+      return;
+    }
+
+    if(center && aula && stage.parentElement!==center){
+      center.appendChild(stage);
+      aula.after(stage);
+    }
+  }
+
+  function positionWheel(){
+    const wheel=document.getElementById('wheel');
+    if(!wheel)return;
+    const nodes=[...wheel.querySelectorAll(':scope>.digit-node')];
+    const center=wheel.querySelector(':scope>.center');
+    const size=Math.min(wheel.clientWidth||300,wheel.clientHeight||300);
+    const cp=size/2,node=44,radius=Math.max(0,size/2-node/2-14);
+
+    nodes.forEach(n=>{
+      const d=Number(n.dataset.digit);
+      if(!Number.isFinite(d))return;
+      const a=d*Math.PI*2/10-Math.PI/2;
+      n.style.left=(cp+radius*Math.cos(a)-node/2)+'px';
+      n.style.top=(cp+radius*Math.sin(a)-node/2)+'px';
+      n.style.width=node+'px';
+      n.style.height=node+'px';
+      n.style.display='flex';
+      n.style.visibility='visible';
+      n.style.opacity='1';
+      n.style.transform='none';
+    });
+
+    if(center){
+      center.style.left='50%';
+      center.style.top='50%';
+      center.style.transform='translate(-50%,-50%)';
+    }
+  }
+
+  function run(){
+    placeControls();
+    placeAula();
+    placeStage();
+    positionWheel();
+    requestAnimationFrame(positionWheel);
+    setTimeout(placeControls,100);
+    setTimeout(placeAula,100);
+    setTimeout(placeStage,100);
+  }
+
+  if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',run,{once:true});
+  else run();
+
+  window.addEventListener('resize',run);
+  window.addEventListener('orientationchange',run);
+})();
+</script>
+<script src="/auth.js?v=20260927-history"></script>
+<script src="/language-symbols-fix.js" data-language-symbols-fix="1"></script>
+
+<script src="/live-analysis.js"></script>
+<script src="/deriv-realtime.js"></script>
+
+<script>
+(function(){
+'use strict';
+function initAulaController(){
+  const trigger=document.getElementById('aulaTrigger');
+  const options=document.getElementById('aulaLanguageOptions');
+  const buttons=[...document.querySelectorAll('.aula-language-btn')];
+  if(!trigger||!options||!buttons.length)return;
+  if(trigger.dataset.aulaController==='1')return;
+  trigger.dataset.aulaController='1';
+
+  const AULA_VIDEO_URLS={pt:'',en:''};
+
+  let saved='pt';
+  try{saved=localStorage.getItem('izitrader_aula_language')||'pt'}catch{}
+  buttons.forEach(btn=>btn.classList.toggle('active',btn.dataset.aulaLang===saved));
+
+  trigger.addEventListener('click',function(ev){
+    ev.preventDefault();
+    ev.stopPropagation();
+    const open=options.hidden;
+    options.hidden=!open;
+    trigger.setAttribute('aria-expanded',String(open));
+  });
+
+  buttons.forEach(btn=>{
+    btn.addEventListener('click',function(ev){
+      ev.preventDefault();
+      ev.stopPropagation();
+      const lang=btn.dataset.aulaLang==='en'?'en':'pt';
+      buttons.forEach(x=>x.classList.toggle('active',x===btn));
+      try{localStorage.setItem('izitrader_aula_language',lang)}catch{}
+      options.hidden=true;
+      trigger.setAttribute('aria-expanded','false');
+      const url=AULA_VIDEO_URLS[lang];
+      window.dispatchEvent(new CustomEvent('izitrader:aula-language-change',{
+        detail:{language:lang,url:url||''}
+      }));
+      if(url) window.location.href=url;
+    });
+  });
+}
+if(document.readyState==='loading'){
+  document.addEventListener('DOMContentLoaded',initAulaController,{once:true});
+}else{
+  initAulaController();
+}
+})();
+</script>
+</body>
+</html>
+:lost?'-
+
+  if(!wasClosed)operationCount++;
+  updateOps();
+
+  /* Keep up to 20 closed trades; only the oldest are removed if necessary. */
+  while(hist.children.length>20)hist.lastElementChild.remove();
+
+  hist.scrollLeft=0;
+});
+$('#iziAccountSelect').value=localStorage.getItem('izitrader_account_type')||'real';$('#iziAccountSelect').addEventListener('change',e=>{window.IziDerivWS?.setAccountType?.(e.target.value);ob.textContent='▶ Start Robot'});ob.textContent='▶ Start Robot';$('#sairBtn').addEventListener('click',async()=>{try{await fetch('/api/auth/logout',{method:'POST',credentials:'same-origin'})}catch{}window.location.replace('/')});
+
+(function(){
+  const dots=[$('#stageDot0'),$('#stageDot1'),$('#stageDot2')];
+  const lines=[$('#stageLine0'),$('#stageLine1')];
+  const labels=[$('#stageLabel0'),$('#stageLabel1'),$('#stageLabel2')];
+  let resetTimer=null;
+  function setStage(stage){
+    dots.forEach((d,i)=>d&&d.classList.toggle('active',i<=stage));
+    lines.forEach((l,i)=>l&&l.classList.toggle('active',i<stage));
+    labels.forEach((l,i)=>l&&l.classList.toggle('active',i<=stage));
+  }
+  setStage(0);
+  window.addEventListener('izitrader:buy',()=>{
+    if(resetTimer){clearTimeout(resetTimer);resetTimer=null}
+    setStage(1);
+  });
+  window.addEventListener('izitrader:contract-state',e=>{
+    if(e.detail?.closed){
+      setStage(2);
+      resetTimer=setTimeout(()=>setStage(0),3000);
+    }
+  });
+  const stageText={en:{labels:['ANALYZING','OPEN','CLOSED'],stop:'Stop Robot'},pt:{labels:['ANALISANDO','ABERTO','FECHADO'],stop:'Parar Robô'},es:{labels:['ANALIZANDO','ABIERTO','CERRADO'],stop:'Detener Robot'}};
+  function applyStageLanguage(){
+    const lang=localStorage.getItem('izitrader_language')||localStorage.getItem('izitrader_lang')||'pt';
+    const t=stageText[lang]||stageText.pt;
+    labels.forEach((l,i)=>{if(l)l.textContent=t.labels[i]});
+    const stopBtn=$('#stageStopBtn');if(stopBtn){stopBtn.title=t.stop;stopBtn.setAttribute('aria-label',t.stop)}
+  }
+  applyStageLanguage();
+  window.addEventListener('izitrader:language-change',applyStageLanguage);
+  const stopBtn=$('#stageStopBtn');
+  if(stopBtn)stopBtn.onclick=()=>{window.IziDerivWS?.stop?.();setStage(0)};
+})();
+</script>
+<script>
+(function(){
+  'use strict';
+
+  function placeControls(){
+    /* 25 TICKS, Account connected and METAS always live together in the control row,
+       as three items in one line: 25 TICKS (left) — status (middle) — METAS (right). */
+    const analysisWrap=document.querySelector('.analysis-wrap');
+    const targetWrap=document.querySelector('.target-wrap');
+    const controlRow=document.querySelector('.dashboard-control-row');
+    const status=document.querySelector('.dashboard-control-row .status, .dashboard-center>.status');
+    if(!analysisWrap||!targetWrap||!controlRow)return;
+    if(analysisWrap.parentElement!==controlRow||controlRow.firstElementChild!==analysisWrap){
+      controlRow.insertBefore(analysisWrap,controlRow.firstChild);
+    }
+    if(targetWrap.parentElement!==controlRow||controlRow.lastElementChild!==targetWrap){
+      controlRow.appendChild(targetWrap);
+    }
+    if(status&&status.parentElement===controlRow){
+      controlRow.insertBefore(status,targetWrap);
+    }
+  }
+  function placeAula(){
+    const aula=document.querySelector('.aula-strip');
+    const row3=document.querySelector('.row3');
+    const center=document.querySelector('.dashboard-center');
+    if(!aula)return;
+
+    const mobile=window.matchMedia('(max-width:899px)').matches;
+
+    if(mobile){
+      /* Mobile reference: AULA is the third block beside Account Type and BOT. */
+      if(row3 && aula.parentElement!==row3) row3.appendChild(aula);
+      aula.hidden=false;
+      aula.style.removeProperty('display');
+      aula.style.removeProperty('position');
+      aula.style.removeProperty('left');
+      aula.style.removeProperty('right');
+      aula.style.removeProperty('top');
+    }else if(center){
+      /* PC keeps AULA in the center area above the stage/wheel. */
+      if(aula.parentElement!==center) center.insertBefore(aula,center.children[1]||null);
+      aula.hidden=false;
+    }
+  }
+
+  function placeStage(){
+    const stage=document.getElementById('stageTracker');
+    const history=document.getElementById('historyScroll');
+    const card=history?.closest('.history-card');
+    const center=document.querySelector('.dashboard-center');
+    const aula=document.querySelector('.aula-strip');
+    const mobile=window.matchMedia('(max-width:599px)').matches;
+
+    if(!stage)return;
+
+    if(mobile){
+      /* Mobile: stage belongs inside Recent History. */
+      if(card && stage.parentElement!==card) card.appendChild(stage);
+      return;
+    }
+
+    if(center && aula && stage.parentElement!==center){
+      center.appendChild(stage);
+      aula.after(stage);
+    }
+  }
+
+  function positionWheel(){
+    const wheel=document.getElementById('wheel');
+    if(!wheel)return;
+    const nodes=[...wheel.querySelectorAll(':scope>.digit-node')];
+    const center=wheel.querySelector(':scope>.center');
+    const size=Math.min(wheel.clientWidth||300,wheel.clientHeight||300);
+    const cp=size/2,node=44,radius=Math.max(0,size/2-node/2-14);
+
+    nodes.forEach(n=>{
+      const d=Number(n.dataset.digit);
+      if(!Number.isFinite(d))return;
+      const a=d*Math.PI*2/10-Math.PI/2;
+      n.style.left=(cp+radius*Math.cos(a)-node/2)+'px';
+      n.style.top=(cp+radius*Math.sin(a)-node/2)+'px';
+      n.style.width=node+'px';
+      n.style.height=node+'px';
+      n.style.display='flex';
+      n.style.visibility='visible';
+      n.style.opacity='1';
+      n.style.transform='none';
+    });
+
+    if(center){
+      center.style.left='50%';
+      center.style.top='50%';
+      center.style.transform='translate(-50%,-50%)';
+    }
+  }
+
+  function run(){
+    placeControls();
+    placeAula();
+    placeStage();
+    positionWheel();
+    requestAnimationFrame(positionWheel);
+    setTimeout(placeControls,100);
+    setTimeout(placeAula,100);
+    setTimeout(placeStage,100);
+  }
+
+  if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',run,{once:true});
+  else run();
+
+  window.addEventListener('resize',run);
+  window.addEventListener('orientationchange',run);
+})();
+</script>
+<script src="/auth.js?v=20260927-history"></script>
+<script src="/language-symbols-fix.js" data-language-symbols-fix="1"></script>
+
+<script src="/live-analysis.js"></script>
+<script src="/deriv-realtime.js"></script>
+
+<script>
+(function(){
+'use strict';
+function initAulaController(){
+  const trigger=document.getElementById('aulaTrigger');
+  const options=document.getElementById('aulaLanguageOptions');
+  const buttons=[...document.querySelectorAll('.aula-language-btn')];
+  if(!trigger||!options||!buttons.length)return;
+  if(trigger.dataset.aulaController==='1')return;
+  trigger.dataset.aulaController='1';
+
+  const AULA_VIDEO_URLS={pt:'',en:''};
+
+  let saved='pt';
+  try{saved=localStorage.getItem('izitrader_aula_language')||'pt'}catch{}
+  buttons.forEach(btn=>btn.classList.toggle('active',btn.dataset.aulaLang===saved));
+
+  trigger.addEventListener('click',function(ev){
+    ev.preventDefault();
+    ev.stopPropagation();
+    const open=options.hidden;
+    options.hidden=!open;
+    trigger.setAttribute('aria-expanded',String(open));
+  });
+
+  buttons.forEach(btn=>{
+    btn.addEventListener('click',function(ev){
+      ev.preventDefault();
+      ev.stopPropagation();
+      const lang=btn.dataset.aulaLang==='en'?'en':'pt';
+      buttons.forEach(x=>x.classList.toggle('active',x===btn));
+      try{localStorage.setItem('izitrader_aula_language',lang)}catch{}
+      options.hidden=true;
+      trigger.setAttribute('aria-expanded','false');
+      const url=AULA_VIDEO_URLS[lang];
+      window.dispatchEvent(new CustomEvent('izitrader:aula-language-change',{
+        detail:{language:lang,url:url||''}
+      }));
+      if(url) window.location.href=url;
+    });
+  });
+}
+if(document.readyState==='loading'){
+  document.addEventListener('DOMContentLoaded',initAulaController,{once:true});
+}else{
+  initAulaController();
+}
+})();
+</script>
+</body>
+</html>
+:'
+
+  if(!wasClosed)operationCount++;
+  updateOps();
+
+  /* Keep up to 20 closed trades; only the oldest are removed if necessary. */
+  while(hist.children.length>20)hist.lastElementChild.remove();
+
+  hist.scrollLeft=0;
+});
+$('#iziAccountSelect').value=localStorage.getItem('izitrader_account_type')||'real';$('#iziAccountSelect').addEventListener('change',e=>{window.IziDerivWS?.setAccountType?.(e.target.value);ob.textContent='▶ Start Robot'});ob.textContent='▶ Start Robot';$('#sairBtn').addEventListener('click',async()=>{try{await fetch('/api/auth/logout',{method:'POST',credentials:'same-origin'})}catch{}window.location.replace('/')});
+
+(function(){
+  const dots=[$('#stageDot0'),$('#stageDot1'),$('#stageDot2')];
+  const lines=[$('#stageLine0'),$('#stageLine1')];
+  const labels=[$('#stageLabel0'),$('#stageLabel1'),$('#stageLabel2')];
+  let resetTimer=null;
+  function setStage(stage){
+    dots.forEach((d,i)=>d&&d.classList.toggle('active',i<=stage));
+    lines.forEach((l,i)=>l&&l.classList.toggle('active',i<stage));
+    labels.forEach((l,i)=>l&&l.classList.toggle('active',i<=stage));
+  }
+  setStage(0);
+  window.addEventListener('izitrader:buy',()=>{
+    if(resetTimer){clearTimeout(resetTimer);resetTimer=null}
+    setStage(1);
+  });
+  window.addEventListener('izitrader:contract-state',e=>{
+    if(e.detail?.closed){
+      setStage(2);
+      resetTimer=setTimeout(()=>setStage(0),3000);
+    }
+  });
+  const stageText={en:{labels:['ANALYZING','OPEN','CLOSED'],stop:'Stop Robot'},pt:{labels:['ANALISANDO','ABERTO','FECHADO'],stop:'Parar Robô'},es:{labels:['ANALIZANDO','ABIERTO','CERRADO'],stop:'Detener Robot'}};
+  function applyStageLanguage(){
+    const lang=localStorage.getItem('izitrader_language')||localStorage.getItem('izitrader_lang')||'pt';
+    const t=stageText[lang]||stageText.pt;
+    labels.forEach((l,i)=>{if(l)l.textContent=t.labels[i]});
+    const stopBtn=$('#stageStopBtn');if(stopBtn){stopBtn.title=t.stop;stopBtn.setAttribute('aria-label',t.stop)}
+  }
+  applyStageLanguage();
+  window.addEventListener('izitrader:language-change',applyStageLanguage);
+  const stopBtn=$('#stageStopBtn');
+  if(stopBtn)stopBtn.onclick=()=>{window.IziDerivWS?.stop?.();setStage(0)};
+})();
+</script>
+<script>
+(function(){
+  'use strict';
+
+  function placeControls(){
+    /* 25 TICKS, Account connected and METAS always live together in the control row,
+       as three items in one line: 25 TICKS (left) — status (middle) — METAS (right). */
+    const analysisWrap=document.querySelector('.analysis-wrap');
+    const targetWrap=document.querySelector('.target-wrap');
+    const controlRow=document.querySelector('.dashboard-control-row');
+    const status=document.querySelector('.dashboard-control-row .status, .dashboard-center>.status');
+    if(!analysisWrap||!targetWrap||!controlRow)return;
+    if(analysisWrap.parentElement!==controlRow||controlRow.firstElementChild!==analysisWrap){
+      controlRow.insertBefore(analysisWrap,controlRow.firstChild);
+    }
+    if(targetWrap.parentElement!==controlRow||controlRow.lastElementChild!==targetWrap){
+      controlRow.appendChild(targetWrap);
+    }
+    if(status&&status.parentElement===controlRow){
+      controlRow.insertBefore(status,targetWrap);
+    }
+  }
+  function placeAula(){
+    const aula=document.querySelector('.aula-strip');
+    const row3=document.querySelector('.row3');
+    const center=document.querySelector('.dashboard-center');
+    if(!aula)return;
+
+    const mobile=window.matchMedia('(max-width:899px)').matches;
+
+    if(mobile){
+      /* Mobile reference: AULA is the third block beside Account Type and BOT. */
+      if(row3 && aula.parentElement!==row3) row3.appendChild(aula);
+      aula.hidden=false;
+      aula.style.removeProperty('display');
+      aula.style.removeProperty('position');
+      aula.style.removeProperty('left');
+      aula.style.removeProperty('right');
+      aula.style.removeProperty('top');
+    }else if(center){
+      /* PC keeps AULA in the center area above the stage/wheel. */
+      if(aula.parentElement!==center) center.insertBefore(aula,center.children[1]||null);
+      aula.hidden=false;
+    }
+  }
+
+  function placeStage(){
+    const stage=document.getElementById('stageTracker');
+    const history=document.getElementById('historyScroll');
+    const card=history?.closest('.history-card');
+    const center=document.querySelector('.dashboard-center');
+    const aula=document.querySelector('.aula-strip');
+    const mobile=window.matchMedia('(max-width:599px)').matches;
+
+    if(!stage)return;
+
+    if(mobile){
+      /* Mobile: stage belongs inside Recent History. */
+      if(card && stage.parentElement!==card) card.appendChild(stage);
+      return;
+    }
+
+    if(center && aula && stage.parentElement!==center){
+      center.appendChild(stage);
+      aula.after(stage);
+    }
+  }
+
+  function positionWheel(){
+    const wheel=document.getElementById('wheel');
+    if(!wheel)return;
+    const nodes=[...wheel.querySelectorAll(':scope>.digit-node')];
+    const center=wheel.querySelector(':scope>.center');
+    const size=Math.min(wheel.clientWidth||300,wheel.clientHeight||300);
+    const cp=size/2,node=44,radius=Math.max(0,size/2-node/2-14);
+
+    nodes.forEach(n=>{
+      const d=Number(n.dataset.digit);
+      if(!Number.isFinite(d))return;
+      const a=d*Math.PI*2/10-Math.PI/2;
+      n.style.left=(cp+radius*Math.cos(a)-node/2)+'px';
+      n.style.top=(cp+radius*Math.sin(a)-node/2)+'px';
+      n.style.width=node+'px';
+      n.style.height=node+'px';
+      n.style.display='flex';
+      n.style.visibility='visible';
+      n.style.opacity='1';
+      n.style.transform='none';
+    });
+
+    if(center){
+      center.style.left='50%';
+      center.style.top='50%';
+      center.style.transform='translate(-50%,-50%)';
+    }
+  }
+
+  function run(){
+    placeControls();
+    placeAula();
+    placeStage();
+    positionWheel();
+    requestAnimationFrame(positionWheel);
+    setTimeout(placeControls,100);
+    setTimeout(placeAula,100);
+    setTimeout(placeStage,100);
+  }
+
+  if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',run,{once:true});
+  else run();
+
+  window.addEventListener('resize',run);
+  window.addEventListener('orientationchange',run);
+})();
+</script>
+<script src="/auth.js?v=20260927-history"></script>
+<script src="/language-symbols-fix.js" data-language-symbols-fix="1"></script>
+
+<script src="/live-analysis.js"></script>
+<script src="/deriv-realtime.js"></script>
+
+<script>
+(function(){
+'use strict';
+function initAulaController(){
+  const trigger=document.getElementById('aulaTrigger');
+  const options=document.getElementById('aulaLanguageOptions');
+  const buttons=[...document.querySelectorAll('.aula-language-btn')];
+  if(!trigger||!options||!buttons.length)return;
+  if(trigger.dataset.aulaController==='1')return;
+  trigger.dataset.aulaController='1';
+
+  const AULA_VIDEO_URLS={pt:'',en:''};
+
+  let saved='pt';
+  try{saved=localStorage.getItem('izitrader_aula_language')||'pt'}catch{}
+  buttons.forEach(btn=>btn.classList.toggle('active',btn.dataset.aulaLang===saved));
+
+  trigger.addEventListener('click',function(ev){
+    ev.preventDefault();
+    ev.stopPropagation();
+    const open=options.hidden;
+    options.hidden=!open;
+    trigger.setAttribute('aria-expanded',String(open));
+  });
+
+  buttons.forEach(btn=>{
+    btn.addEventListener('click',function(ev){
+      ev.preventDefault();
+      ev.stopPropagation();
+      const lang=btn.dataset.aulaLang==='en'?'en':'pt';
+      buttons.forEach(x=>x.classList.toggle('active',x===btn));
+      try{localStorage.setItem('izitrader_aula_language',lang)}catch{}
+      options.hidden=true;
+      trigger.setAttribute('aria-expanded','false');
+      const url=AULA_VIDEO_URLS[lang];
+      window.dispatchEvent(new CustomEvent('izitrader:aula-language-change',{
+        detail:{language:lang,url:url||''}
+      }));
+      if(url) window.location.href=url;
+    });
+  });
+}
+if(document.readyState==='loading'){
+  document.addEventListener('DOMContentLoaded',initAulaController,{once:true});
+}else{
+  initAulaController();
+}
+})();
+</script>
+</body>
+</html>
+)+value+'</span><span class="chip-tag">'+(won?'GANHO':lost?'PERDA':'ABERTO')+'</span>'+(bot?'<span class="chip-bot">'+bot+'</span>':'');
+}
 function updateOps(){opsCount.textContent=operationCount;localStorage.setItem('izitrader_operations',String(operationCount))}
-window.addEventListener('izitrader:buy',()=>{});
+window.addEventListener('izitrader:buy',e=>{
+  const c=e.detail||{},id=String(c.contract_id||'');
+  if(id)contractBots[id]=selectedBot?.name||localStorage.getItem('izitrader_bot')||'';
+});
 window.addEventListener('izitrader:contract-closed',e=>{
   const c=e.detail||{},id=String(c.contract_id||'');
   if(!id)return;
   let item=[...hist.children].find(x=>x.dataset.contractId===id);
   const result=String(c.result||((Number(c.profit_loss??c.profit)<0)?'LOST':'WON')).toUpperCase();
   const wasClosed=item?.dataset.closed==='1';
+  const botName=contractBots[id]||c?.bot_name||c?.bot||localStorage.getItem('izitrader_bot')||'';
   if(!item){
     item=document.createElement('div');
     item.dataset.contractId=id;
   }
   item.dataset.closed='1';
-  renderChip(item,c,result);
+  renderChip(item,c,result,botName);
+  delete contractBots[id];
   hist.prepend(item);
 
   /* Newest trade is always first; older trades remain available by swipe. */

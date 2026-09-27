@@ -30,7 +30,7 @@ function applyLanguage(lang){
  const t=T[lang]||T.pt;
  const labels=document.querySelectorAll('.balance-row .label');
  if(labels[0])labels[0].textContent=t.balance;
- if(labels[1])labels[1].textContent=t.pnl;
+ if(labels[1]){const pnlLabel=labels[1].querySelector('#pnlLabel');if(pnlLabel)pnlLabel.textContent=t.pnl;else labels[1].textContent=t.pnl;}
 
  const rowLabels=document.querySelectorAll('.row3 .field-label');
  if(rowLabels[0])rowLabels[0].textContent=t.account;

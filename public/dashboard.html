@@ -3869,7 +3869,24 @@ function positionWheelNodes(){
   });
 }
 positionWheelNodes();window.addEventListener('resize',positionWheelNodes);
-const db=$('#dropdownBtn'),dm=$('#dropdownMenu'),bn=$('#selectedBotName'),ob=$('#operateBtn');BOTS.forEach(b=>{const x=document.createElement('div');x.className='dropdown-item';x.innerHTML='<div class="name">'+b.name+'</div><div class="desc">'+b.desc+'</div>';x.onclick=()=>{selectedBot=b;bn.textContent=b.name;dm.classList.remove('open')};dm.appendChild(x)});db.onclick=e=>{e.stopPropagation();dm.classList.toggle('open')};
+const db=$('#dropdownBtn'),dm=$('#dropdownMenu'),bn=$('#selectedBotName'),ob=$('#operateBtn');
+const savedBot=localStorage.getItem('izitrader_bot')||'ProParity';
+selectedBot=BOTS.find(b=>b.name===savedBot)||BOTS[0];
+if(bn)bn.textContent=selectedBot.name;
+BOTS.forEach(b=>{
+  const x=document.createElement('div');
+  x.className='dropdown-item';
+  x.innerHTML='<div class="name">'+b.name+'</div><div class="desc">'+b.desc+'</div>';
+  x.onclick=()=>{
+    selectedBot=b;
+    bn.textContent=b.name;
+    dm.classList.remove('open');
+    try{localStorage.setItem('izitrader_bot',b.name)}catch{}
+    window.dispatchEvent(new CustomEvent('izitrader:bot-change',{detail:{id:b.id,name:b.name}}));
+  };
+  dm.appendChild(x);
+});
+db.onclick=e=>{e.stopPropagation();dm.classList.toggle('open')};
 const sb=$('#symbolBtn'),sm=$('#symbolMenu'),ss=$('#selectedSymbol');
 if(sb&&sm){
   sb.onclick=e=>{e.preventDefault();e.stopPropagation();sm.classList.toggle('open');};

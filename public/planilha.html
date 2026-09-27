@@ -1,0 +1,45 @@
+<!DOCTYPE html>
+<html lang="pt">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Izitrader — Planilha de Gerenciamento</title>
+<style>
+*{box-sizing:border-box}body{margin:0;background:#eef1f5;color:#17202a;font-family:-apple-system,"Segoe UI",Roboto,sans-serif;padding:18px}.wrap{max-width:720px;margin:auto}.card{background:#fff;border:1px solid #dfe4ea;border-radius:16px;padding:20px;box-shadow:0 8px 24px rgba(16,24,40,.06)}h1{font-size:21px;margin:0 0 6px}p{color:#697586;font-size:12px;line-height:1.5}.grid{display:grid;grid-template-columns:1fr 1fr;gap:12px}.field label{display:block;font-size:11px;color:#697586;margin-bottom:6px;font-weight:700}.field input{width:100%;padding:11px;border:1px solid #dfe4ea;border-radius:10px;background:#f7f8fa;font-size:15px;font-weight:700;outline:0}.result{display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-top:14px}.result>div{padding:13px;border-radius:12px;background:#f7f8fa;border:1px solid #dfe4ea}.result small{display:block;color:#697586;font-size:10px;margin-bottom:5px}.result b{font-family:ui-monospace,SFMono-Regular,Menlo,monospace;font-size:18px}.warning{margin-top:14px;padding:11px;border-radius:10px;background:#fff5f5;border:1px solid #f5c2c2;color:#b42318;font-size:11px;line-height:1.45}.top{display:flex;justify-content:space-between;align-items:center;gap:10px;margin-bottom:14px}.back{display:inline-block;color:#e24b4a;text-decoration:none;font-size:12px;font-weight:800}.lang{padding:7px 9px;border-radius:8px;border:1px solid #dfe4ea;background:#fff;font-weight:700;font-size:11px}@media(max-width:560px){.grid,.result{grid-template-columns:1fr}}
+</style>
+</head>
+<body>
+<div class="wrap"><div class="card">
+<div class="top"><a class="back" href="/dashboard.html">← Izitrader</a><select id="lang" class="lang"><option value="pt">Português</option><option value="en">English</option><option value="es">Español</option></select></div>
+<h1 id="title">📊 Planilha de Gerenciamento</h1>
+<p id="sub">Calcule o risco por operação e a exposição estimada antes de executar o robô.</p>
+<div class="grid">
+<div class="field"><label id="lBalance">Saldo</label><input id="balance" type="number" min="0" step="0.01" value="200"></div>
+<div class="field"><label id="lRisk">Risco por operação (%)</label><input id="risk" type="number" min="0" max="100" step="0.1" value="2"></div>
+<div class="field"><label id="lOps">Número de operações</label><input id="ops" type="number" min="1" step="1" value="10"></div>
+<div class="field"><label id="lLoss">Limite de perda (%)</label><input id="loss" type="number" min="0" max="100" step="0.1" value="10"></div>
+</div>
+<div class="result">
+<div><small id="rRisk">Risco por operação</small><b id="riskValue">4.00</b></div>
+<div><small id="rExposure">Exposição estimada</small><b id="exposureValue">40.00</b></div>
+<div><small id="rMaxLoss">Limite de perda</small><b id="maxLossValue">20.00</b></div>
+<div><small id="rAfter">Saldo após limite</small><b id="afterValue">180.00</b></div>
+</div>
+<div class="warning" id="warning">⚠️ Ferramenta de gestão de risco. Os cálculos são estimativas e não garantem lucro.</div>
+</div></div>
+<script>
+const $=id=>document.getElementById(id);
+const copy={
+pt:{title:'📊 Planilha de Gerenciamento',sub:'Calcule o risco por operação e a exposição estimada antes de executar o robô.',balance:'Saldo',risk:'Risco por operação (%)',ops:'Número de operações',loss:'Limite de perda (%)',riskValue:'Risco por operação',exposure:'Exposição estimada',maxLoss:'Limite de perda',after:'Saldo após limite',warning:'⚠️ Ferramenta de gestão de risco. Os cálculos são estimativas e não garantem lucro.'},
+en:{title:'📊 Risk Management Sheet',sub:'Calculate risk per operation and estimated exposure before running the robot.',balance:'Balance',risk:'Risk per operation (%)',ops:'Number of operations',loss:'Loss limit (%)',riskValue:'Risk per operation',exposure:'Estimated exposure',maxLoss:'Loss limit',after:'Balance after limit',warning:'⚠️ Risk management tool. Calculations are estimates and do not guarantee profit.'},
+es:{title:'📊 Planilla de Gestión',sub:'Calcula el riesgo por operación y la exposición estimada antes de ejecutar el robot.',balance:'Saldo',risk:'Riesgo por operación (%)',ops:'Número de operaciones',loss:'Límite de pérdida (%)',riskValue:'Riesgo por operación',exposure:'Exposición estimada',maxLoss:'Límite de pérdida',after:'Saldo después del límite',warning:'⚠️ Herramienta de gestión de riesgo. Los cálculos son estimaciones y no garantizan ganancias.'}
+};
+function calc(){const b=Math.max(0,Number($('balance').value)||0),r=Math.max(0,Math.min(100,Number($('risk').value)||0)),o=Math.max(1,Math.floor(Number($('ops').value)||1)),l=Math.max(0,Math.min(100,Number($('loss').value)||0));const rp=b*r/100,ex=rp*o,ml=b*l/100; $('riskValue').textContent=rp.toFixed(2);$('exposureValue').textContent=ex.toFixed(2);$('maxLossValue').textContent=ml.toFixed(2);$('afterValue').textContent=Math.max(0,b-ml).toFixed(2)}
+function lang(){return localStorage.getItem('izitrader_language')||localStorage.getItem('izitrader_lang')||'pt'}
+function apply(){const l=['pt','en','es'].includes(lang())?lang():'pt';const t=copy[l];$('lang').value=l;$('title').textContent=t.title;$('sub').textContent=t.sub;$('lBalance').textContent=t.balance;$('lRisk').textContent=t.risk;$('lOps').textContent=t.ops;$('lLoss').textContent=t.loss;$('rRisk').textContent=t.riskValue;$('rExposure').textContent=t.exposure;$('rMaxLoss').textContent=t.maxLoss;$('rAfter').textContent=t.after;$('warning').textContent=t.warning;document.documentElement.lang=l}
+['balance','risk','ops','loss'].forEach(id=>$(id).addEventListener('input',calc));
+$('lang').addEventListener('change',()=>{localStorage.setItem('izitrader_language',$('lang').value);localStorage.setItem('izitrader_lang',$('lang').value);apply()});
+apply();calc();
+</script>
+</body>
+</html>

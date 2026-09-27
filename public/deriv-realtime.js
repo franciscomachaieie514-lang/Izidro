@@ -109,6 +109,15 @@ function stop(){stopped=true;active=false;clearTimeout(reconnectTimer);clearInte
 window.IziDerivWS={stop,start:startStop,getState:()=>({active,connected,authorized,accountType,symbol,stake,martingaleLevel})};
 function boot(){const b=$('.operate-btn');if(b&&!b.dataset.iziMatosBound){b.dataset.iziMatosBound='1';b.disabled=true;b.addEventListener('click',startStop)}const sel=$('#iziAccountSelect');if(sel&&!sel.dataset.iziMatosBound){sel.dataset.iziMatosBound='1';sel.addEventListener('change',()=>{accountType=sel.value==='demo'?'demo':'real';localStorage.setItem('izitrader_account_type',accountType);resetConnection()})}document.querySelectorAll('.symbol-item').forEach(item=>item.addEventListener('click',()=>{const s=normalizeUiSymbol(item.getAttribute('data-symbol'));if(!SYMBOLS[s])return;uiSymbol=s;symbol=SYMBOLS[s];localStorage.setItem('izitrader_symbol',s);const label=$('#selectedSymbol');if(label)label.textContent=SYMBOL_LABELS[s]||s;resetConnection()}));const label=$('#selectedSymbol');if(label)label.textContent=SYMBOL_LABELS[uiSymbol]||'Volatility 100';const acc=$('#iziAccountSelect');if(acc)acc.value=accountType;setTimeout(connect,0)}
 if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',boot,{once:true});else boot();
+window.addEventListener('izitrader:bot-change',e=>{
+ const name=String(e?.detail?.name||'').trim();
+ if(!name)return;
+ botName=name;
+ try{localStorage.setItem('izitrader_bot',name)}catch{}
+ /* Bot changes only change the strategy. They do not reset P/L, history,
+    martingale state, open contract or accumulated session results. */
+ if(active)status(uiText('active'),true);
+});
 window.addEventListener('izitrader:language-change',()=>{
  const b=document.getElementById('operateBtn');
  if(b){b.textContent=active?uiText('stop'):uiText('start')}

@@ -130,3 +130,66 @@ window.addEventListener('izitrader:language-change',()=>{
 });
 window.addEventListener('izitrader:symbol-change',e=>{const s=e?.detail?.symbol;if(!s||!SYMBOLS[s]||s===uiSymbol)return;uiSymbol=s;symbol=SYMBOLS[s];localStorage.setItem('izitrader_symbol',s);resetConnection()});
 })();
+
+/* ===== Histórico diário de LUCRO/PERDA — isolado ===== */
+(function(){
+'use strict';
+const KEY='izitrader_daily_pnl';
+const botByContract=Object.create(null);
+const botNames=['ProParity','Octawin','OddEz','TradeSix'];
+const text={
+  pt:{title:'HISTÓRICO DIÁRIO',total:'Total',empty:'Nenhuma operação neste dia.',today:'Hoje',close:'Fechar',aria:'Abrir histórico diário'},
+  en:{title:'DAILY HISTORY',total:'Total',empty:'No trades on this day.',today:'Today',close:'Close',aria:'Open daily history'},
+  es:{title:'HISTORIAL DIARIO',total:'Total',empty:'No hay operaciones en este día.',today:'Hoy',close:'Cerrar',aria:'Abrir historial diario'}
+};
+function lang(){return localStorage.getItem('izitrader_language')||localStorage.getItem('izitrader_lang')||'pt'}
+function tr(){return text[lang()]||text.pt}
+function localDay(){const d=new Date();return d.getFullYear()+'-'+String(d.getMonth()+1).padStart(2,'0')+'-'+String(d.getDate()).padStart(2,'0')}
+function load(){try{return JSON.parse(localStorage.getItem(KEY)||'{}')}catch{return {}}}
+function save(v){try{localStorage.setItem(KEY,JSON.stringify(v))}catch{}}
+function money(n){const v=Number(n)||0;return(v>=0?'+':'-')+'$'+Math.abs(v).toFixed(2)}
+function ensureUI(){
+ const pnl=document.getElementById('pnl'),label=pnl?.parentElement?.querySelector('.label');
+ if(!pnl||!label||document.getElementById('pnlHistoryBtn'))return;
+ const wrap=label.parentElement;
+ wrap.style.position='relative';
+ const btn=document.createElement('button');
+ btn.type='button';btn.id='pnlHistoryBtn';btn.textContent='▾';btn.setAttribute('aria-expanded','false');btn.setAttribute('aria-label',tr().aria);
+ btn.style.cssText='border:0;background:transparent;color:var(--muted);font-size:13px;font-weight:900;line-height:1;padding:0 3px;margin-left:4px;cursor:pointer';
+ label.appendChild(btn);
+ const menu=document.createElement('div');menu.id='pnlHistoryMenu';menu.hidden=true;
+ menu.style.cssText='position:absolute;z-index:1000;top:100%;right:0;margin-top:8px;width:min(290px,calc(100vw - 36px));background:var(--card);border:1px solid var(--border);border-radius:12px;box-shadow:0 12px 30px rgba(16,24,40,.16);padding:12px';
+ menu.innerHTML='<div id="pnlHistoryHead" style="display:flex;align-items:center;justify-content:space-between;font-size:12px;margin-bottom:10px"></div><div style="display:flex;gap:6px"><input id="pnlHistoryDate" type="date" style="min-width:0;flex:1;border:1px solid var(--border);border-radius:8px;background:var(--field);color:var(--text);padding:7px 8px;font-size:11px"><button id="pnlHistoryAll" type="button" style="border:1px solid var(--border);border-radius:8px;background:var(--field);color:var(--text);padding:7px 9px;font-size:11px;font-weight:700;cursor:pointer"></button></div><div id="pnlHistoryTotal" style="margin:10px 0 8px;font-size:12px;font-weight:800"></div><div id="pnlHistoryBots"></div>';
+ wrap.appendChild(menu);
+ const date=menu.querySelector('#pnlHistoryDate');
+ date.value=localDay();
+ function render(){
+   const t=tr(),data=load(),d=data[date.value]||{total:0,bots:{}};
+   menu.querySelector('#pnlHistoryHead').innerHTML='<strong>'+t.title+'</strong><button id="pnlHistoryClose" type="button" style="border:0;background:transparent;color:var(--muted);font-size:18px;cursor:pointer" aria-label="'+t.close+'">×</button>';
+   menu.querySelector('#pnlHistoryAll').textContent=t.today;
+   menu.querySelector('#pnlHistoryTotal').textContent=t.total+': '+money(d.total);
+   const box=menu.querySelector('#pnlHistoryBots');box.innerHTML='';
+   const names=[...new Set([...botNames,...Object.keys(d.bots||{})])].filter(n=>Number(d.bots?.[n]||0)!==0);
+   if(!names.length){box.innerHTML='<div style="font-size:11px;color:var(--muted);padding:8px 0">'+t.empty+'</div>';return}
+   names.forEach(n=>{const row=document.createElement('div');row.style.cssText='display:flex;justify-content:space-between;gap:8px;padding:7px 0;border-top:1px solid var(--border);font-size:11px';row.innerHTML='<span>'+n+'</span><b style="font-family:ui-monospace,SFMono-Regular,Menlo,monospace">'+money(d.bots[n])+'</b>';box.appendChild(row)});
+   menu.querySelector('#pnlHistoryClose').onclick=()=>{menu.hidden=true;btn.setAttribute('aria-expanded','false')};
+ }
+ function record(c){
+   const p=Number(c?.profit_loss??c?.profit);if(!Number.isFinite(p))return;
+   const id=String(c?.contract_id||'');
+   const bot=String(botByContract[id]||c?.bot_name||c?.bot||localStorage.getItem('izitrader_bot')||'').trim()||'Desconhecido';
+   const dateKey=localDay(),data=load(),d=data[dateKey]||(data[dateKey]={total:0,bots:{}});
+   d.total=Number(d.total||0)+p;d.bots[bot]=Number(d.bots[bot]||0)+p;save(data);
+   if(date.value===dateKey&&!menu.hidden)render();
+   if(id)delete botByContract[id];
+ }
+ btn.onclick=e=>{e.preventDefault();e.stopPropagation();const open=menu.hidden;menu.hidden=!open;btn.setAttribute('aria-expanded',String(open));if(open)render()};
+ menu.querySelector('#pnlHistoryAll').onclick=()=>{date.value=localDay();render()};
+ date.onchange=render;
+ document.addEventListener('click',e=>{if(!e.target.closest('#pnlHistoryMenu')&&!e.target.closest('#pnlHistoryBtn')){menu.hidden=true;btn.setAttribute('aria-expanded','false')}});
+ window.addEventListener('izitrader:buy',e=>{const c=e.detail||{},id=String(c.contract_id||'');if(id)botByContract[id]=localStorage.getItem('izitrader_bot')||'ProParity'});
+ window.addEventListener('izitrader:contract-closed',e=>record(e.detail||{}));
+ window.addEventListener('izitrader:language-change',()=>{if(!menu.hidden)render();btn.setAttribute('aria-label',tr().aria)});
+}
+if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',ensureUI,{once:true});else ensureUI();
+})();

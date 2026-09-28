@@ -3677,6 +3677,26 @@ body.izi-menu-open .dropdown-menu,
 body.izi-menu-open .symbol-menu,
 body.izi-menu-open .analysis-menu,
 body.izi-menu-open .target-menu{display:none!important}
+
+/* Keep BOT controls inside the same left-column width as Balance/Recent History */
+@media (min-width:900px){
+  .dashboard-left .row3{
+    grid-template-columns:minmax(0,1fr)!important;
+    width:100%!important;
+  }
+  .dashboard-left .row3>div:nth-child(2){
+    width:100%!important;
+    max-width:100%!important;
+    grid-column:1!important;
+  }
+  .dashboard-left .row3>div:nth-child(1){display:none!important}
+  .dashboard-left .row3 .dropdown-btn{
+    width:100%!important;
+    max-width:100%!important;
+  }
+  .dashboard-left{position:relative!important;z-index:1!important;}
+  .dashboard-center{position:relative!important;z-index:2!important;}
+}
 </style>
 <style id="iziHistoryStageFinal">
 /* One authoritative size for the recent-history results and operation stages. */

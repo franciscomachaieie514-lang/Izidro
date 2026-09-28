@@ -3697,6 +3697,31 @@ body.izi-menu-open .target-menu{display:none!important}
   .dashboard-left{position:relative!important;z-index:1!important;}
   .dashboard-center{position:relative!important;z-index:2!important;}
 }
+
+/* Keep BOT inside the left column and prevent the operation stage from crossing over it */
+@media (min-width:900px){
+  .dashboard-left .row3{
+    display:grid!important;
+    grid-template-columns:minmax(0,1fr) minmax(0,1.2fr)!important;
+    width:100%!important;
+    gap:10px!important;
+  }
+  .dashboard-left .row3>div:nth-child(1),
+  .dashboard-left .row3>div:nth-child(2){
+    display:block!important;
+    grid-column:auto!important;
+    width:100%!important;
+    max-width:100%!important;
+  }
+  .dashboard-left .row3 .dropdown-btn,
+  .dashboard-left .row3 .account-select{
+    width:100%!important;
+    max-width:100%!important;
+  }
+  .dashboard-left{position:relative!important;z-index:20!important;}
+  .dashboard-center{position:relative!important;z-index:1!important;}
+  .dashboard-center #stageTracker{z-index:7!important;}
+}
 </style>
 <style id="iziHistoryStageFinal">
 /* One authoritative size for the recent-history results and operation stages. */

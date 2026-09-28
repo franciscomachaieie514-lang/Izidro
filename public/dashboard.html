@@ -3610,7 +3610,12 @@ body.dark .history-card .chip.loss .chip-tag{color:#ff5b5b!important;}
     height:40px!important;
   }
 }
-.telegram-menu-icon{width:20px;height:20px;display:inline-block;vertical-align:-4px;color:#229ED9;flex:0 0 20px}</style>
+.telegram-menu-icon{width:20px;height:20px;display:inline-block;vertical-align:-4px;color:#229ED9;flex:0 0 20px}
+/* Keep account connection status out of open dropdowns */
+.dropdown-menu{z-index:10000!important;background:var(--card)!important;opacity:1!important;}
+.dropdown-menu .status{display:none!important;}
+.dashboard-control-row>.status{position:relative!important;z-index:1!important;}
+</style>
 <style id="iziHistoryStageFinal">
 /* One authoritative size for the recent-history results and operation stages. */
 .history-card .history-row .chip,

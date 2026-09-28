@@ -21,7 +21,7 @@ function status(v,ok){const d=$('.status .dot');if(d)d.style.background=ok?'#35d
 function showError(v){const m=String(v||'Erro Deriv');status(m,false);emit('izitrader:deriv-error',{message:m})}
 function currentLang(){const l=localStorage.getItem('izitrader_language')||localStorage.getItem('izitrader_lang')||'pt';return ['en','pt','es'].includes(l)?l:'pt'}
 function uiText(key){const map={
-  active:{pt:'Robô ativo — aguardando sinal',en:'Robot active — waiting for signal',es:'Robot activo — esperando señal'},
+  active:{pt:'Robô ativo',en:'Active',es:'Activo'},
   targetProfit:{pt:'Meta de lucro atingida — robô parado',en:'Profit target reached — robot stopped',es:'Meta de ganancias alcanzada — robot detenido'},
   targetLoss:{pt:'Meta de perda atingida — robô parado',en:'Loss target reached — robot stopped',es:'Meta de pérdidas alcanzada — robot detenido'},
   waiting:{pt:'Aguardando ligação à Deriv…',en:'Waiting for Deriv connection…',es:'Esperando conexión a Deriv…'},

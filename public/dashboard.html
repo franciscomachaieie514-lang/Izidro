@@ -3618,6 +3618,24 @@ body.dark .history-card .chip.loss .chip-tag{color:#ff5b5b!important;}
 
 /* 3-point menu must hide the connection status underneath it */
 body.izi-menu-open .dashboard-center .status{visibility:hidden!important;pointer-events:none!important;}
+
+/* Keep full Account connected label visible between the side controls */
+.dashboard-center .dashboard-control-row>.status{
+  z-index:2!important;
+  overflow:visible!important;
+}
+.dashboard-center .dashboard-control-row>.status #statusText{
+  max-width:none!important;
+  overflow:visible!important;
+  text-overflow:clip!important;
+  white-space:nowrap!important;
+}
+@media (min-width:900px){
+  .dashboard-center .dashboard-control-row{
+    grid-template-columns:minmax(150px,1fr) minmax(150px,auto) minmax(150px,1fr)!important;
+    gap:12px!important;
+  }
+}
 </style>
 <style id="iziHistoryStageFinal">
 /* One authoritative size for the recent-history results and operation stages. */

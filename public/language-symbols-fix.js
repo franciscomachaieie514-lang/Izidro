@@ -12,9 +12,18 @@ const SYMBOLS=[
 ];
 
 const BOT_TEXT={
- en:{proparity:'ProParity',octawin:'OVER > 5 ou UNDER < 4',oddez:'Wins on odd digits',tradesix:'Wins if the digit is above 6'},
- pt:{proparity:'ProParity',octawin:'OVER > 5 ou UNDER < 4',oddez:'Ganha em dígito ímpar',tradesix:'Ganha se o dígito for maior que 6'},
- es:{proparity:'ProParity',octawin:'OVER > 5 ou UNDER < 4',oddez:'Gana con dígito impar',tradesix:'Gana si el dígito es mayor que 6'}
+ en:{
+  proparity:'Analyzes the last 5 ticks<br>Example:<br>2, 4, 8, 6, 3<br>Even: 2, 4, 8, 6<br>Odd: 3<br>Opens a position in favor of even digits.',
+  octawin:'OVER > 5 or UNDER < 4'
+ },
+ pt:{
+  proparity:'Analisa os últimos 5 ticks<br>Exemplo:<br>2, 4, 8, 6, 3<br>Pares: 2, 4, 8, 6<br>Ímpar: 3<br>Abre posição a favor de pares.',
+  octawin:'OVER > 5 ou UNDER < 4'
+ },
+ es:{
+  proparity:'Analiza los últimos 5 ticks<br>Ejemplo:<br>2, 4, 8, 6, 3<br>Pares: 2, 4, 8, 6<br>Impar: 3<br>Abre una posición a favor de los pares.',
+  octawin:'OVER > 5 o UNDER < 4'
+ }
 };
 
 const T={

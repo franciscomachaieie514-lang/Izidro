@@ -188,10 +188,8 @@
 
 <script>
 const BOTS = [
-  { id: "proparity", name: "ProParity", desc: "Ganha em dígito par", contractType: "DIGITEVEN" },
-  { id: "octawin", name: "Octawin", desc: "Ganha se o dígito for menor que 8", contractType: "DIGITUNDER", barrier: "8" },
-  { id: "oddez", name: "OddEz", desc: "Ganha em dígito ímpar", contractType: "DIGITODD" },
-  { id: "tradesix", name: "TradeSix", desc: "Ganha se o dígito for maior que 6", contractType: "DIGITOVER", barrier: "6" },
+  { id: "proparity", name: "ProParity", desc: "Analisa os últimos 5 ticks\\nExemplo:\\n2, 4, 8, 6, 3\\nPares: 2, 4, 8, 6\\nÍmpar: 3\\nAbre posição a favor de pares.", contractType: "DIGITEVEN" },
+  { id: "octawin", name: "Octawin", desc: "OVER > 5 ou UNDER < 4", contractType: "DIGITUNDER", barrier: "4" },
 ];
 
 let selectedBot = BOTS[0];
@@ -284,8 +282,6 @@ function addHistoryItem(entry) {
 
 [
   { bot: "ProParity", digit: 4, win: true, amount: "83.64", time: "9:20 AM" },
-  { bot: "TradeSix", digit: 8, win: true, amount: "41.20", time: "9:12 AM" },
-  { bot: "OddEz", digit: 2, win: false, amount: "25.00", time: "9:05 AM" },
   { bot: "Octawin", digit: 3, win: true, amount: "18.75", time: "8:58 AM" },
   { bot: "ProParity", digit: 7, win: false, amount: "25.00", time: "8:51 AM" },
 ].reverse().forEach(addHistoryItem);

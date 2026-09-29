@@ -4035,7 +4035,7 @@ body.izi-menu-open .target-menu{display:none!important}
 
   </main>
 <script>
-const BOTS=[{id:'proparity',name:'ProParity',desc:'Ganha com dígito par ou ímpar (4/5)',contractType:'DIGITEVEN'},{id:'octawin',name:'Octawin',desc:'OVER > 5 ou UNDER < 4 (4/5)',contractType:'DIGITOVER',barrier:'5'},{id:'oddez',name:'OddEz',desc:'Ganha com dígito ímpar ou par (4/5)',contractType:'DIGITODD'},{id:'tradesix',name:'TradeSix',desc:'Ganha com dígito par ou ímpar (4/5)',contractType:'DIGITEVEN'}];
+const BOTS=[{id:'proparity',name:'ProParity',desc:'Ganha em dígito par',contractType:'DIGITEVEN'},{id:'octawin',name:'Octawin',desc:'Ganha se o dígito for menor que 8',contractType:'DIGITUNDER',barrier:'8'},{id:'oddez',name:'OddEz',desc:'Ganha em dígito ímpar',contractType:'DIGITODD'},{id:'tradesix',name:'TradeSix',desc:'Ganha se o dígito for maior que 6',contractType:'DIGITOVER',barrier:'6'}];
 let selectedBot=BOTS[0],selectedSymbol='V100';
 const $=s=>document.querySelector(s), wheel=$('#wheel');
 function positionWheelNodes(){

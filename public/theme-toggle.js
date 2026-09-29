@@ -4,8 +4,22 @@
   if (window.IziThemeToggle) return;
 
   const STORAGE_KEY = 'izitrader_theme';
+  const DEFAULT_MIGRATION_KEY = 'izitrader_theme_default_light_v2';
+
+  function ensureDefaultTheme() {
+    try {
+      if (localStorage.getItem(DEFAULT_MIGRATION_KEY) !== '1') {
+        localStorage.removeItem(STORAGE_KEY);
+        localStorage.setItem(STORAGE_KEY, 'light');
+        localStorage.setItem(DEFAULT_MIGRATION_KEY, '1');
+      } else if (localStorage.getItem(STORAGE_KEY) !== 'dark') {
+        localStorage.setItem(STORAGE_KEY, 'light');
+      }
+    } catch {}
+  }
 
   function getTheme() {
+    ensureDefaultTheme();
     try {
       return localStorage.getItem(STORAGE_KEY) === 'dark' ? 'dark' : 'light';
     } catch {
@@ -16,7 +30,10 @@
   function applyTheme(theme) {
     const normalized = theme === 'dark' ? 'dark' : 'light';
     document.documentElement.dataset.theme = normalized;
-    if (document.body) document.body.classList.toggle('light', normalized === 'light');
+    if (document.body) {
+      document.body.classList.toggle('dark', normalized === 'dark');
+      document.body.classList.toggle('light', normalized === 'light');
+    }
 
     const button = document.getElementById('themeBtn');
     if (button) {

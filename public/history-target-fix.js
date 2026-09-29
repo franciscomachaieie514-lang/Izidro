@@ -14,8 +14,9 @@ function upsert(c){
   const row=getHistory(),id=String(c?.contract_id||c?.transaction_id||''),p=profitOf(c);
   if(!row||!id||p===null)return;
   let node=[...row.querySelectorAll('.chip')].find(x=>String(x.dataset.contractId||'')===id);
-  if(!node){node=document.createElement('div');node.dataset.contractId=id;row.prepend(node)}
+  if(!node){node=document.createElement('div');node.dataset.contractId=id;row.prepend(node)}else{row.prepend(node)}
   render(node,p);
+  row.scrollLeft=0;
   while(row.querySelectorAll('.chip').length>20){const last=row.lastElementChild;if(!last)break;last.remove()}
   const count=$('#opsCount');if(count)count.textContent=String(row.querySelectorAll('.chip[data-closed="1"]').length);
   try{localStorage.setItem('izitrader_operations',String(row.querySelectorAll('.chip[data-closed="1"]').length))}catch{}

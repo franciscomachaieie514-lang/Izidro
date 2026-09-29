@@ -12,7 +12,7 @@
 .whatsapp-btn{position:fixed;bottom:22px;right:22px;width:56px;height:56px;border-radius:50%;background:#25D366;display:flex;align-items:center;justify-content:center;z-index:30;text-decoration:none}
 @media(max-width:599px){.history-card{padding:18px 16px 16px}.history-hint{font-size:11px}.chip{flex-basis:78px}}
 
-/* ===== Professional responsive dashboard / Light mode default ===== */
+.chip .chip-digit{display:block!important;margin-top:1px!important;font-family:ui-monospace,SFMono-Regular,Menlo,monospace;font-size:8px!important;line-height:9px!important;font-weight:700!important;letter-spacing:0!important;color:var(--muted)!important;opacity:.9!important}\n\n/* ===== Professional responsive dashboard / Light mode default ===== */
 :root{
   --bg:#eef1f5;
   --card:#ffffff;
@@ -4098,9 +4098,10 @@ function moneyValue(c){const n=Number(c?.profit??c?.pnl??c?.amount??c?.payout??0
 function renderChip(item,c,result){
   const won=result==='WON',lost=result==='LOST';
   const value=moneyValue(c);
+  const digit=Number.isInteger(Number(c?.lastDigit))?Number(c.lastDigit):null;
   const prefix=won?String.fromCharCode(43,36):lost?String.fromCharCode(45,36):String.fromCharCode(36);
   item.className='chip '+(won?'win':lost?'loss':'');
-  item.innerHTML='<span><span class="chip-amount">'+prefix+value+'</span></span><span class="chip-tag">'+(won?'GANHO':lost?'PERDA':'ABERTO')+'</span>';
+  item.innerHTML='<span><span class="chip-amount">'+prefix+value+'</span>'+(digit==null?'':'<span class="chip-digit">NR '+digit+'</span>')+'</span><span class="chip-tag">'+(won?'GANHO':lost?'PERDA':'ABERTO')+'</span>';
 }
 function updateOps(){opsCount.textContent=operationCount;localStorage.setItem('izitrader_operations',String(operationCount))}
 window.addEventListener('izitrader:contract-closed',e=>{

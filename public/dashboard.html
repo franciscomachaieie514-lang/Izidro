@@ -3722,6 +3722,21 @@ body.izi-menu-open .target-menu{display:none!important}
   .dashboard-center{position:relative!important;z-index:1!important;}
   .dashboard-center #stageTracker{z-index:7!important;}
 }
+<style id="iziMobileRecentHistoryOrder">
+/* Mobile: newest recent trades start on the left. */
+@media (max-width:899px){
+  .history-card .history-row{
+    flex-direction:row!important;
+    flex-wrap:nowrap!important;
+    justify-content:flex-start!important;
+    align-items:stretch!important;
+    direction:ltr!important;
+    overflow-x:auto!important;
+    overflow-y:hidden!important;
+    scroll-behavior:auto!important;
+  }
+}
+</style>
 </style>
 <style id="iziHistoryStageFinal">
 /* One authoritative size for the recent-history results and operation stages. */

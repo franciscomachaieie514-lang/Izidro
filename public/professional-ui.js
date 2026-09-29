@@ -56,12 +56,18 @@ function alignWheel(){
 }
 
 function applyTheme(){
- const theme=localStorage.getItem('izitrader_theme')==='dark'?'dark':'light';
+ // Do not read/write localStorage here. theme-toggle.js owns the preference.
+ // The head resolver already set data-theme before first paint.
+ const theme=document.documentElement.dataset.theme==='dark'?'dark':'light';
  document.documentElement.dataset.theme=theme;
  document.body.classList.toggle('dark',theme==='dark');
- document.body.classList.toggle('light',theme!=='dark');
+ document.body.classList.toggle('light',theme==='light');
  const b=document.getElementById('themeBtn');
- if(b){b.textContent=theme==='light'?'🌙':'☀️';b.title=theme==='light'?'Dark mode':'Light mode'}
+ if(b){
+   b.textContent=theme==='light'?'🌙':'☀️';
+   b.title=theme==='light'?'Dark mode':'Light mode';
+   b.setAttribute('aria-label',b.title);
+ }
  alignWheel();
 }
 

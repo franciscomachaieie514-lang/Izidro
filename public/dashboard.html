@@ -3756,7 +3756,12 @@ body.izi-menu-open .target-menu{display:none!important}
   }
 }
 </style>
-<style id="iziHistoryBotName">.history-row .chip .chip-bot{font-size:6px!important;line-height:7px!important;font-weight:700!important;opacity:.9!important;display:block!important;max-width:100%!important;overflow:hidden!important;text-overflow:ellipsis!important;white-space:nowrap!important;letter-spacing:0!important}<style id="iziCommunityMenuStyles">.menu{min-width:280px;max-width:calc(100vw - 24px);right:0!important;max-height:calc(100vh - 90px);overflow-y:auto}.menu-online{padding:11px 14px;font-size:13px;font-weight:800;display:flex;align-items:center;gap:7px}.menu-online b{margin-left:auto;color:#1f9d55;font-family:ui-monospace,SFMono-Regular,Menlo,monospace}.menu-divider{height:1px;background:var(--border);margin:4px 0}.menu-link{width:100%;text-align:left;border:0;background:transparent;color:var(--text)}.menu-link{display:flex;align-items:center;gap:9px;padding:10px 14px;font-size:13px;font-weight:600;cursor:pointer}.menu-link span{white-space:nowrap;overflow:hidden;text-overflow:ellipsis}.menu-link:hover{background:var(--field)}@media(max-width:599px){.menu{min-width:270px;right:0!important}.menu-link{padding:11px 12px;font-size:12px}.menu-online{padding:10px 12px}}</style></head>
+<style id="iziHistoryBotName">.history-row .chip .chip-bot{font-size:6px!important;line-height:7px!important;font-weight:700!important;opacity:.9!important;display:block!important;max-width:100%!important;overflow:hidden!important;text-overflow:ellipsis!important;white-space:nowrap!important;letter-spacing:0!important}<style id="iziCommunityMenuStyles">.menu{min-width:280px;max-width:calc(100vw - 24px);right:0!important;max-height:calc(100vh - 90px);overflow-y:auto}.menu-online{padding:11px 14px;font-size:13px;font-weight:800;display:flex;align-items:center;gap:7px}.menu-online b{margin-left:auto;color:#1f9d55;font-family:ui-monospace,SFMono-Regular,Menlo,monospace}.menu-divider{height:1px;background:var(--border);margin:4px 0}.menu-link{width:100%;text-align:left;border:0;background:transparent;color:var(--text)}.menu-link{display:flex;align-items:center;gap:9px;padding:10px 14px;font-size:13px;font-weight:600;cursor:pointer}.menu-link span{white-space:nowrap;overflow:hidden;text-overflow:ellipsis}.menu-link:hover{background:var(--field)}@media(max-width:599px){.menu{min-width:270px;right:0!important}.menu-link{padding:11px 12px;font-size:12px}.menu-online{padding:10px 12px}}</style><style id="iziHistoryChipFinal">
+/* History result chips: no bot names; WIN is blue. */
+.history-row .chip .chip-bot{display:none!important}
+.history-row .chip.win .chip-tag{color:#3b82f6!important}
+</style>
+</head>
 <body>
 <div class="auth-page hidden" id="authPage"><div class="auth-card"><img class="auth-logo" src="/favicon.svg" alt="Izitrader"><div class="auth-brand">Izi<span>trader</span></div><div class="auth-title">Bem-vindo ao Izitrader</div><p class="auth-subtitle">Entre ou crie a sua conta Deriv para continuar.</p><a class="auth-btn auth-primary" href="https://track.deriv.com/_PZZnG4RWbBdZl7VyVw174GNd7ZgqdRLk/1/" target="_blank" rel="noopener">Criar conta na Deriv</a><a class="auth-btn auth-secondary" href="/api/auth/login" id="loginLink">Entrar com a Deriv</a></div></div>
 <div class="auth-page" id="sessionLoading"><div class="auth-card"><img class="auth-logo" src="/favicon.svg" alt="Izitrader"><div class="auth-brand">Izi<span>trader</span></div><div class="auth-title">A verificar a sessão...</div><p class="auth-subtitle">Aguarde enquanto ligamos à sua conta.</p></div></div>
@@ -4019,7 +4024,6 @@ const ab=$('#analysisBtn'),al=$('#analysisLabel'),am=$('#analysisMenu');let anal
 const targetBtn=$('#targetBtn'),targetMenu=$('#targetMenu'),profitTarget=$('#profitTarget'),lossTarget=$('#lossTarget'),targetStatus=$('#targetStatus');let pg=Number(localStorage.getItem('izitrader_profit_goal')||0),lg=Number(localStorage.getItem('izitrader_loss_goal')||0);if(pg)profitTarget.value=pg;if(lg)lossTarget.value=lg;function targetText(){targetStatus.textContent=pg||lg?'Lucro: $'+pg.toFixed(2)+' • Perda: $'+lg.toFixed(2):'Nenhuma meta definida'}targetText();targetBtn.onclick=e=>{e.stopPropagation();targetMenu.classList.toggle('open')};$('#targetSave').onclick=()=>{pg=Math.max(0,Number(profitTarget.value)||0);lg=Math.max(0,Number(lossTarget.value)||0);localStorage.setItem('izitrader_profit_goal',pg);localStorage.setItem('izitrader_loss_goal',lg);targetText();targetMenu.classList.remove('open')};
 document.addEventListener('click',e=>{if(!e.target.closest('.dropdown'))dm.classList.remove('open');if(!e.target.closest('.symbol-dropdown'))sm.classList.remove('open');if(!e.target.closest('.header-actions')){menu.classList.remove('open');lo.classList.remove('open')};if(!e.target.closest('.analysis-wrap'))am.classList.remove('open');if(!e.target.closest('.target-wrap'))targetMenu.classList.remove('open')});
 const hist=$('#historyScroll'),opsCount=$('#opsCount');let operationCount=Number(localStorage.getItem('izitrader_operations')||0);
-const contractBots=Object.create(null);
 opsCount.textContent=operationCount;
 function moneyValue(c){const n=Number(c?.profit??c?.pnl??c?.amount??c?.payout??0);return Number.isFinite(n)?Math.abs(n).toFixed(2):'0.00'}
 function renderChip(item,c,result){
@@ -4030,18 +4034,13 @@ function renderChip(item,c,result){
   item.innerHTML='<span><span class="chip-amount">'+prefix+value+'</span></span><span class="chip-tag">'+(won?'GANHO':lost?'PERDA':'ABERTO')+'</span>';
 }
 function updateOps(){opsCount.textContent=operationCount;localStorage.setItem('izitrader_operations',String(operationCount))}
-window.addEventListener('izitrader:buy',e=>{
-  const c=e.detail||{},id=String(c.contract_id||'');
-  if(id)contractBots[id]=selectedBot?.name||localStorage.getItem('izitrader_bot')||'';
-});
 window.addEventListener('izitrader:contract-closed',e=>{
   const c=e.detail||{},id=String(c.contract_id||'');
   if(!id)return;
   let item=[...hist.children].find(x=>x.dataset.contractId===id);
   const result=String(c.result||((Number(c.profit_loss??c.profit)<0)?'LOST':'WON')).toUpperCase();
   const wasClosed=item?.dataset.closed==='1';
-  const botName=contractBots[id]||c?.bot_name||c?.bot||localStorage.getItem('izitrader_bot')||'';
-  if(!item){
+    if(!item){
     item=document.createElement('div');
     item.dataset.contractId=id;
   }

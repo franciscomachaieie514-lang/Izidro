@@ -34,17 +34,32 @@ async function getJson(url){const r=await fetch(url,{credentials:'same-origin',c
 function getDigit(q,p){const n=Number(q);if(!Number.isFinite(n))return null;const pp=Number.isInteger(Number(p))?Number(p):2;return Number(n.toFixed(Math.max(0,Math.min(10,pp))).slice(-1))}
 function getContractLastDigit(c){const direct=Number(c?.lastDigit);if(Number.isInteger(direct)&&direct>=0&&direct<=9)return direct;const display=c?.exit_tick_display_value??c?.exit_spot_display_value??c?.sell_spot_display_value;const shown=String(display??'').match(/(\d)\s*$/);if(shown)return Number(shown[1]);const raw=c?.exit_spot??c?.exit_tick??c?.sell_spot;if(raw==null)return null;const n=Number(raw);if(!Number.isFinite(n))return null;const pp=Number.isInteger(Number(c?.pip_size))?Number(c.pip_size):lastPipSize;return getDigit(n,pp)}
 const BOT_STRATEGIES={
-  ProParity:{type:'EVEN'},
-  Octawin:{type:'UNDER',barrier:'8'},
-  OddEz:{type:'ODD'},
-  TradeSix:{type:'OVER',barrier:'6'}
+  ProParity:{type:'PARITY'},
+  Octawin:{type:'OVER_UNDER',overBarrier:5,underBarrier:4},
+  OddEz:{type:'PARITY'},
+  TradeSix:{type:'PARITY'}
 };
 function getBotStrategy(){
   const name=String(botName||'ProParity').trim().toLowerCase();
   const key=Object.keys(BOT_STRATEGIES).find(k=>k.toLowerCase()===name);
   return key?BOT_STRATEGIES[key]:BOT_STRATEGIES.ProParity;
 }
-function getSignal(){if(ticks.length<5)return null;const d=ticks.slice(-5).map(x=>getDigit(x.quote,x.pip_size));if(d.some(x=>x===null))return null;const s=getBotStrategy();let score=0;if(s.type==='EVEN')score=d.filter(x=>x%2===0).length*20;if(s.type==='ODD')score=d.filter(x=>x%2!==0).length*20;if(s.type==='UNDER')score=d.filter(x=>x<Number(s.barrier)).length*20;if(s.type==='OVER')score=d.filter(x=>x>Number(s.barrier)).length*20;return score>=65?[s.type,score,s.barrier]:null}
+function getSignal(){if(ticks.length<5)return null;const d=ticks.slice(-5).map(x=>getDigit(x.quote,x.pip_size));if(d.some(x=>x===null))return null;const s=getBotStrategy();
+  if(s.type==='PARITY'){
+    const even=d.filter(x=>x%2===0).length*20;
+    const odd=d.filter(x=>x%2!==0).length*20;
+    if(even>=65)return ['EVEN',even];
+    if(odd>=65)return ['ODD',odd];
+    return null;
+  }
+  if(s.type==='OVER_UNDER'){
+    const over=d.filter(x=>x>Number(s.overBarrier)).length*20;
+    const under=d.filter(x=>x<Number(s.underBarrier)).length*20;
+    if(over>=65)return ['OVER',over,s.overBarrier];
+    if(under>=65)return ['UNDER',under,s.underBarrier];
+  }
+  return null;
+}
 function updateStake(){const input=$('#stakeInput');if(input&&document.activeElement!==input)input.value=Number(stake).toFixed(2);const row=$('.stake-row');if(row){let info=$('#martingaleInfo');if(!info){info=document.createElement('div');info.id='martingaleInfo';info.style.cssText='margin-top:7px;text-align:right;font-size:10px;color:var(--muted)';row.parentElement.insertBefore(info,row.nextSibling)}info.textContent='Martingale '+martingaleLevel+'/'+MARTINGALE_MAX_LEVEL+' · próxima aposta $'+Number(stake).toFixed(2)}}
 window.addEventListener('izitrader:stake-change',e=>{const n=Number(e?.detail?.stake);if(!Number.isFinite(n)||n<.35)return;baseStake=Number(n.toFixed(2));if(martingaleLevel===0)stake=baseStake;updateStake();});
 function setupStake(){const row=$('.stake-row');if(!row)return;let input=$('#stakeInput');if(!input){const value=row.querySelector('.stake-value');input=document.createElement('input');input.id='stakeInput';input.type='number';input.min='.35';input.step='.01';input.inputMode='decimal';input.value=baseStake.toFixed(2);input.style.cssText='width:110px;background:var(--field);border:1px solid var(--border);border-radius:9px;color:var(--text);font-size:22px;font-weight:800;text-align:right;padding:5px 8px;outline:none';if(value)value.replaceWith(input);else row.appendChild(input)}input.onchange=()=>{let n=Number(input.value);if(!Number.isFinite(n)||n<.35)n=.35;baseStake=Number(n.toFixed(2));localStorage.setItem('izitrader_stake',String(baseStake));if(martingaleLevel===0)stake=baseStake;updateStake()};updateStake()}

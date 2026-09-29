@@ -44,7 +44,7 @@ function getBotStrategy(){
   const key=Object.keys(BOT_STRATEGIES).find(k=>k.toLowerCase()===name);
   return key?BOT_STRATEGIES[key]:BOT_STRATEGIES.ProParity;
 }
-function getSignal(){if(ticks.length<5)return null;const d=ticks.slice(-5).map(x=>getDigit(x.quote,x.pip_size));if(d.some(x=>x===null))return null;const s=getBotStrategy();
+function getSignal(){const s=getBotStrategy();const windowSize=s.type==='PARITY'&&String(botName||'').trim().toLowerCase()==='proparity'?25:5;if(ticks.length<windowSize)return null;const d=ticks.slice(-windowSize).map(x=>getDigit(x.quote,x.pip_size));if(d.some(x=>x===null))return null;
   if(s.type==='PARITY'){
     const even=d.filter(x=>x%2===0).length*20;
     const odd=d.filter(x=>x%2!==0).length*20;

@@ -194,6 +194,7 @@ function bindLanguages(){
    window.dispatchEvent(new CustomEvent('izitrader:language-change',{detail:{lang:lang}}));
    document.getElementById('languageOptions')?.classList.remove('open');
    document.getElementById('menu')?.classList.remove('open');
+   document.body.classList.remove('izi-menu-open');
   });
  });
 }
@@ -208,7 +209,13 @@ function boot(){
 if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',boot,{once:true});
 else boot();
 
-window.addEventListener('izitrader:language-change',function(e){applyLanguage(e?.detail?.lang||getLang());renderSymbols()});
+window.addEventListener('izitrader:language-change',function(e){
+ applyLanguage(e?.detail?.lang||getLang());
+ renderSymbols();
+ document.getElementById('languageOptions')?.classList.remove('open');
+ document.getElementById('menu')?.classList.remove('open');
+ document.body.classList.remove('izi-menu-open');
+});
 window.addEventListener('izitrader:contract-closed',function(){setTimeout(function(){applyLanguage(getLang())},0)});
 window.addEventListener('izitrader:martingale',function(){setTimeout(function(){applyLanguage(getLang())},0)});
 window.addEventListener('izitrader:ws-open',function(){setTimeout(function(){applyLanguage(getLang())},0)});

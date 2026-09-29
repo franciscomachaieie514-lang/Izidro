@@ -87,3 +87,30 @@ html,body{width:100%;min-height:100%;overflow-x:hidden}
   .auth-form{width:100%;max-width:none;grid-template-columns:repeat(2,minmax(0,1fr));flex:0 0 auto}
   .form-submit{max-width:620px}
 }
+
+/* ===== Global platform loading: always centered in the viewport ===== */
+.loading-screen{
+  position:fixed!important;
+  inset:0!important;
+  z-index:2147483647!important;
+  width:100vw!important;
+  min-width:100vw!important;
+  height:100vh!important;
+  min-height:100vh!important;
+  margin:0!important;
+  padding:24px!important;
+  display:flex!important;
+  align-items:center!important;
+  justify-content:center!important;
+  overflow:hidden!important;
+}
+.loading-screen .loading-shell{
+  width:min(430px,100%)!important;
+  max-width:430px!important;
+  margin:0!important;
+}
+.loading-screen .loading-card{
+  width:100%!important;
+  margin:0!important;
+  text-align:center!important;
+}

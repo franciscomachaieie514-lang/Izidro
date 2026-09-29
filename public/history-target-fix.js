@@ -22,7 +22,7 @@ function render(node,p,digit){
   if(!node){node=document.createElement('div');node.dataset.contractId=id;row.prepend(node)}else{row.prepend(node)}
   render(node,p,lastDigitOf(c));
   row.scrollLeft=0;
-  while(row.querySelectorAll('.chip').length>20){const last=row.lastElementChild;if(!last)break;last.remove()}
+  while(row.querySelectorAll('.chip').length>700){const last=row.lastElementChild;if(!last)break;last.remove()}
   const count=$('#opsCount');if(count)count.textContent=String(row.querySelectorAll('.chip[data-closed="1"]').length);
   try{localStorage.setItem('izitrader_operations',String(row.querySelectorAll('.chip[data-closed="1"]').length))}catch{}
 }
@@ -48,7 +48,7 @@ function upsert(c){
   if(!node){node=document.createElement('div');node.dataset.contractId=id;row.prepend(node)}else{row.prepend(node)}
   render(node,p);
   row.scrollLeft=0;
-  while(row.querySelectorAll('.chip').length>20){const last=row.lastElementChild;if(!last)break;last.remove()}
+  while(row.querySelectorAll('.chip').length>700){const last=row.lastElementChild;if(!last)break;last.remove()}
   const count=$('#opsCount');if(count)count.textContent=String(row.querySelectorAll('.chip[data-closed="1"]').length);
   try{localStorage.setItem('izitrader_operations',String(row.querySelectorAll('.chip[data-closed="1"]').length))}catch{}
 }

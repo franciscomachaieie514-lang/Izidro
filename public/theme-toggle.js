@@ -4,7 +4,7 @@
   if (window.IziThemeToggle) return;
 
   const STORAGE_KEY = 'izitrader_theme';
-  const DEFAULT_MIGRATION_KEY = 'izitrader_theme_default_light_v3';
+  const DEFAULT_MIGRATION_KEY = 'izitrader_theme_default_light_v4';
 
   function ensureDefaultTheme() {
     try {

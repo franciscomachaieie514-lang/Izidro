@@ -12,9 +12,9 @@ const SYMBOLS=[
 ];
 
 const BOT_TEXT={
- en:{proparity:'Wins on even digits',octawin:'Wins if the digit is below 8',oddez:'Wins on odd digits',tradesix:'Wins if the digit is above 6'},
- pt:{proparity:'Ganha em dígito par',octawin:'Ganha se o dígito for menor que 8',oddez:'Ganha em dígito ímpar',tradesix:'Ganha se o dígito for maior que 6'},
- es:{proparity:'Gana con dígito par',octawin:'Gana si el dígito es menor que 8',oddez:'Gana con dígito impar',tradesix:'Gana si el dígito es mayor que 6'}
+ en:{proparity:'ProParity',octawin:'OVER > 5 ou UNDER < 4',oddez:'Wins on odd digits',tradesix:'Wins if the digit is above 6'},
+ pt:{proparity:'ProParity',octawin:'OVER > 5 ou UNDER < 4',oddez:'Ganha em dígito ímpar',tradesix:'Ganha se o dígito for maior que 6'},
+ es:{proparity:'ProParity',octawin:'OVER > 5 ou UNDER < 4',oddez:'Gana con dígito impar',tradesix:'Gana si el dígito es mayor que 6'}
 };
 
 const T={

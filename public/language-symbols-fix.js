@@ -138,6 +138,19 @@ function renderSymbols(){
   menu.style.overflowY='auto';
   menu.style.overflowX='hidden';
   menu.style.zIndex='1000';
+
+  /* Selecting a symbol must immediately close the dropdown. */
+  if(!menu.dataset.iziSymbolItemBound){
+   menu.dataset.iziSymbolItemBound='1';
+   menu.addEventListener('click',function(e){
+    const item=e.target.closest('.symbol-item');
+    if(!item)return;
+    e.preventDefault();
+    e.stopPropagation();
+    menu.classList.remove('open');
+    menu.style.display='none';
+   });
+  }
  }
 
  const saved=localStorage.getItem('izitrader_symbol')||'V100';

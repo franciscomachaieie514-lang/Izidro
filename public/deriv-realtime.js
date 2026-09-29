@@ -186,7 +186,7 @@ function init(){
    const t=tr(),d=(load()[date.value]||{total:0,bots:{}}),head=menu.querySelector('#pnlHistoryHead'),all=menu.querySelector('#pnlHistoryAll'),total=menu.querySelector('#pnlHistoryTotal'),box=menu.querySelector('#pnlHistoryBots');
    head.innerHTML='<strong>'+t.title+'</strong><button id="pnlHistoryClose" type="button" style="border:0;background:transparent;color:var(--muted);font-size:18px;cursor:pointer" aria-label="'+t.close+'">×</button>';
    all.textContent=t.today;total.textContent=t.total+': '+money(d.total);box.innerHTML='';
-   const names=[...new Set([...botNames,...Object.keys(d.bots||{})])].filter(n=>Number(d.bots?.[n]||0)!==0);
+   const names=botNames.filter(n=>Number(d.bots?.[n]||0)!==0);
    if(!names.length){box.innerHTML='<div style="font-size:11px;color:var(--muted);padding:8px 0">'+t.empty+'</div>'}
    names.forEach(n=>{const row=document.createElement('div');row.style.cssText='display:flex;justify-content:space-between;gap:8px;padding:7px 0;border-top:1px solid var(--border);font-size:11px';row.innerHTML='<span>'+n+'</span><b style="font-family:ui-monospace,SFMono-Regular,Menlo,monospace">'+money(d.bots[n])+'</b>';box.appendChild(row)});
    const closeBtn=menu.querySelector('#pnlHistoryClose');

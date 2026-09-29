@@ -3736,6 +3736,23 @@ body.izi-menu-open .target-menu{display:none!important}
     scroll-behavior:auto!important;
   }
 }
+
+/* ===== FINAL DESKTOP MENU LAYERING ===== */
+@media (min-width:900px){
+  /* Keep the 25 TICKS / METAS controls and their open menus above AULA. */
+  .dashboard-center .dashboard-control-row{
+    position:relative!important;
+    z-index:1100!important;
+  }
+  .dashboard-center .dashboard-control-row .analysis-menu,
+  .dashboard-center .dashboard-control-row .target-menu{
+    z-index:1200!important;
+  }
+  .dashboard-center .aula-strip{
+    z-index:100!important;
+  }
+}
+
 </style>
 </style>
 <style id="iziHistoryStageFinal">

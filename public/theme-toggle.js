@@ -4,15 +4,16 @@
   if (window.IziThemeToggle) return;
 
   const STORAGE_KEY = 'izitrader_theme';
-  const DEFAULT_MIGRATION_KEY = 'izitrader_theme_default_light_v4';
+  const DEFAULT_MIGRATION_KEY = 'izitrader_theme_default_light_v5';
 
   function ensureDefaultTheme() {
     try {
+      // Light is the first-use/default theme. Once the user explicitly
+      // chooses Dark, keep that choice instead of fighting it on refresh.
       if (localStorage.getItem(DEFAULT_MIGRATION_KEY) !== '1') {
-        localStorage.removeItem(STORAGE_KEY);
         localStorage.setItem(STORAGE_KEY, 'light');
         localStorage.setItem(DEFAULT_MIGRATION_KEY, '1');
-      } else if (localStorage.getItem(STORAGE_KEY) !== 'dark') {
+      } else if (!localStorage.getItem(STORAGE_KEY)) {
         localStorage.setItem(STORAGE_KEY, 'light');
       }
     } catch {}
@@ -29,6 +30,8 @@
 
   function applyTheme(theme) {
     const normalized = theme === 'dark' ? 'dark' : 'light';
+    // data-theme is the single source of truth; body classes remain only
+    // for legacy CSS that still uses body.dark/body.light.
     document.documentElement.dataset.theme = normalized;
     if (document.body) {
       document.body.classList.toggle('dark', normalized === 'dark');

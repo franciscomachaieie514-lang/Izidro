@@ -120,7 +120,7 @@ function applyLanguage(lang){
   const name=(item.querySelector('.name')?.textContent||'').trim().toLowerCase();
   const key=['proparity','octawin','oddez','tradesix'].includes(name)?name:null;
   const desc=item.querySelector('.desc');
-  if(desc&&key)desc.textContent=BOT_TEXT[lang][key];
+  if(desc&&key)desc.innerHTML=BOT_TEXT[lang][key];
  });
 
  document.querySelectorAll('.chip-tag').forEach(tag=>{

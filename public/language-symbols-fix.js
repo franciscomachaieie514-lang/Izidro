@@ -14,15 +14,15 @@ const SYMBOLS=[
 const BOT_TEXT={
  en:{
   proparity:'Analyzes the last 5 ticks<br>Example:<br>2, 4, 8, 6, 3<br>Even: 2, 4, 8, 6<br>Odd: 3<br>Opens a position in favor of even digits.',
-  octawin:'OVER > 5 or UNDER < 4'
+  octawin:'Analysis: 5 ticks<br>OVER 5 / UNDER 4<br>Example:<br>2 — 8 — 7 — 9 — 6<br>Then classify each digit:<br>OVER → digit &gt; 5 → 6, 7, 8, 9<br>UNDER → digit &lt; 4 → 2<br>Enters OVER 5'
  },
  pt:{
   proparity:'Analisa os últimos 5 ticks<br>Exemplo:<br>2, 4, 8, 6, 3<br>Pares: 2, 4, 8, 6<br>Ímpar: 3<br>Abre posição a favor de pares.',
-  octawin:'OVER > 5 ou UNDER < 4'
+  octawin:'Análise 5 ticks<br>OVER 5 / UNDER 4<br>Exemplo:<br>2 — 8 — 7 — 9 — 6<br>Depois classifica cada dígito:<br>OVER → dígito &gt; 5 → 6, 7, 8, 9<br>UNDER → dígito &lt; 4 → 2<br>Entra no Over 5'
  },
  es:{
   proparity:'Analiza los últimos 5 ticks<br>Ejemplo:<br>2, 4, 8, 6, 3<br>Pares: 2, 4, 8, 6<br>Impar: 3<br>Abre una posición a favor de los pares.',
-  octawin:'OVER > 5 o UNDER < 4'
+  octawin:'Análisis de 5 ticks<br>OVER 5 / UNDER 4<br>Ejemplo:<br>2 — 8 — 7 — 9 — 6<br>Después clasifica cada dígito:<br>OVER → dígito &gt; 5 → 6, 7, 8, 9<br>UNDER → dígito &lt; 4 → 2<br>Entra en OVER 5'
  }
 };
 

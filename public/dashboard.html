@@ -4116,7 +4116,7 @@ html[data-theme="light"] .history-row .chip{
 
   </main>
 <script>
-const BOTS=[{id:'proparity',name:'ProParity',desc:'Analisa os últimos 5 ticks<br>Exemplo:<br>2, 4, 8, 6, 3<br>Pares: 2, 4, 8, 6<br>Ímpar: 3<br>Abre posição a favor de pares.',contractType:'DIGITEVEN'},{id:'octawin',name:'Octawin',desc:'Ganha se o dígito for menor que 8',contractType:'DIGITUNDER',barrier:'8'},{id:'oddez',name:'OddEz',desc:'Ganha em dígito ímpar',contractType:'DIGITODD'},{id:'tradesix',name:'TradeSix',desc:'Ganha se o dígito for maior que 6',contractType:'DIGITOVER',barrier:'6'}];
+const BOTS=[{id:'proparity',name:'ProParity',desc:'Analisa os últimos 5 ticks<br>Exemplo:<br>2, 4, 8, 6, 3<br>Pares: 2, 4, 8, 6<br>Ímpar: 3<br>Abre posição a favor de pares.',contractType:'DIGITEVEN'},{id:'octawin',name:'Octawin',desc:'OVER &gt; 5 ou UNDER &lt; 4',contractType:'DIGITUNDER',barrier:'4'},{id:'oddez',name:'OddEz',desc:'Ganha em dígito ímpar',contractType:'DIGITODD'},{id:'tradesix',name:'TradeSix',desc:'Ganha se o dígito for maior que 6',contractType:'DIGITOVER',barrier:'6'}];
 let selectedBot=BOTS[0],selectedSymbol='V100';
 const $=s=>document.querySelector(s), wheel=$('#wheel');
 function positionWheelNodes(){

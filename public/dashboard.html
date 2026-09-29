@@ -4365,6 +4365,62 @@ $('#iziAccountSelect').value=localStorage.getItem('izitrader_account_type')||'re
 </script>
 <script src="/auth.js?v=20260927-history"></script>
 <script src="/language-symbols-fix.js?v=20260929-bots-v3" data-language-symbols-fix="1"></script>
+<script>
+/* ===== Dropdown resilience after language changes =====
+   Rebind only the three dashboard dropdown triggers after the language
+   script updates translated labels. This does not change trading logic. */
+(function(){
+  'use strict';
+  function rebindDashboardDropdowns(){
+    const botBtn=document.getElementById('dropdownBtn');
+    const botMenu=document.getElementById('dropdownMenu');
+    const ticksBtn=document.getElementById('analysisBtn');
+    const ticksMenu=document.getElementById('analysisMenu');
+    const metasBtn=document.getElementById('targetBtn');
+    const metasMenu=document.getElementById('targetMenu');
+
+    if(botBtn&&botMenu){
+      botBtn.onclick=function(e){
+        e.preventDefault();
+        e.stopPropagation();
+        botMenu.classList.toggle('open');
+        ticksMenu?.classList.remove('open');
+        metasMenu?.classList.remove('open');
+      };
+    }
+
+    if(ticksBtn&&ticksMenu){
+      ticksBtn.onclick=function(e){
+        e.preventDefault();
+        e.stopPropagation();
+        ticksMenu.classList.toggle('open');
+        botMenu?.classList.remove('open');
+        metasMenu?.classList.remove('open');
+      };
+    }
+
+    if(metasBtn&&metasMenu){
+      metasBtn.onclick=function(e){
+        e.preventDefault();
+        e.stopPropagation();
+        metasMenu.classList.toggle('open');
+        botMenu?.classList.remove('open');
+        ticksMenu?.classList.remove('open');
+      };
+    }
+  }
+
+  if(document.readyState==='loading'){
+    document.addEventListener('DOMContentLoaded',rebindDashboardDropdowns,{once:true});
+  }else{
+    rebindDashboardDropdowns();
+  }
+
+  window.addEventListener('izitrader:language-change',function(){
+    requestAnimationFrame(rebindDashboardDropdowns);
+  });
+})();
+</script>
 
 <script src="/live-analysis.js"></script>
 <script src="/deriv-realtime.js"></script>

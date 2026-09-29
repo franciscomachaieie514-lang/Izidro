@@ -9,6 +9,7 @@ const SYMBOL_LABELS={V10:'Volatility 10',V15:'Volatility 15 (1s)',V25:'Volatilit
 const LEGACY_SYMBOLS=Object.fromEntries(Object.entries(SYMBOLS).map(([k,v])=>[v,k]));
 function normalizeUiSymbol(value){const v=String(value||'V100');return SYMBOLS[v]?v:(LEGACY_SYMBOLS[v]||'V100')}
 let accountType=localStorage.getItem('izitrader_account_type')||'real',uiSymbol=normalizeUiSymbol(localStorage.getItem('izitrader_symbol')),symbol=SYMBOLS[uiSymbol],botName=localStorage.getItem('izitrader_bot')||'ProParity';
+if(botName!=='ProParity'&&botName!=='Octawin'){botName='ProParity';try{localStorage.setItem('izitrader_bot',botName)}catch{}}
 localStorage.setItem('izitrader_symbol',uiSymbol);
 let baseStake=Math.max(.35,Number(localStorage.getItem('izitrader_stake')||.35)),stake=baseStake,martingaleLevel=0;
 const MARTINGALE_MAX_LEVEL=20;
@@ -35,9 +36,7 @@ function getDigit(q,p){const n=Number(q);if(!Number.isFinite(n))return null;cons
 function getContractLastDigit(c){const direct=Number(c?.lastDigit);if(Number.isInteger(direct)&&direct>=0&&direct<=9)return direct;const display=c?.exit_tick_display_value??c?.exit_spot_display_value??c?.sell_spot_display_value;const shown=String(display??'').match(/(\d)\s*$/);if(shown)return Number(shown[1]);const raw=c?.exit_spot??c?.exit_tick??c?.sell_spot;if(raw==null)return null;const n=Number(raw);if(!Number.isFinite(n))return null;const pp=Number.isInteger(Number(c?.pip_size))?Number(c.pip_size):lastPipSize;return getDigit(n,pp)}
 const BOT_STRATEGIES={
   ProParity:{type:'PARITY'},
-  Octawin:{type:'OVER_UNDER',overBarrier:5,underBarrier:4},
-  OddEz:{type:'PARITY'},
-  TradeSix:{type:'PARITY'}
+  Octawin:{type:'OVER_UNDER',overBarrier:5,underBarrier:4}
 };
 function getBotStrategy(){
   const name=String(botName||'ProParity').trim().toLowerCase();

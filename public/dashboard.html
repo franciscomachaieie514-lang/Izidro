@@ -6,7 +6,7 @@
 <script>
 (function(){
   try{
-    var KEY='izitrader_theme',MIG='izitrader_theme_default_light_v4';
+    var KEY='izitrader_theme',MIG='izitrader_theme_default_light_v5';
     if(localStorage.getItem(MIG)!=='1'){
       localStorage.removeItem(KEY);
       localStorage.setItem(KEY,'light');
@@ -3847,6 +3847,35 @@ body.izi-menu-open .target-menu{display:none!important}
   }
 }
 </style>
+</style>
+<style id="iziThemeAuthority">
+/* Theme authority: data-theme is resolved in <head> before first paint. */
+html[data-theme="light"] body{
+  --bg:#eef1f5;
+  --card:#ffffff;
+  --field:#f7f8fa;
+  --text:#17202a;
+  --muted:#697586;
+  --border:#dfe4ea;
+  --accent:#e24b4a;
+  --green:#1f9d55;
+  --red:#e24b4a;
+  --shadow:0 8px 24px rgba(16,24,40,.06);
+  color-scheme:light;
+}
+html[data-theme="dark"] body{
+  --bg:#0a0f1c;
+  --card:#111a2e;
+  --field:#131b2e;
+  --text:#fff;
+  --muted:#7c88a3;
+  --border:#22304a;
+  --accent:#e24b4a;
+  --green:#35d492;
+  --red:#e24b4a;
+  --shadow:0 16px 40px rgba(0,0,0,.22);
+  color-scheme:dark;
+}
 </style>
 </head>
 <body>

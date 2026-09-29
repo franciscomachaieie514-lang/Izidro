@@ -140,13 +140,13 @@ const $=s=>document.querySelector(s),lang=()=>localStorage.getItem('izitrader_la
 function init(){
  const pnl=$('#pnl');if(!pnl)return;
  const wrap=pnl.parentElement; if(!wrap)return;
- let btn=$('#pnlHistoryBtn'),menu=$('#pnlHistoryMenu');
+ let btn=$('#pnlDropdownBtn'),menu=$('#pnlHistoryMenu');
  if(!btn){
    const label=wrap.querySelector('.label');if(!label)return;
-   btn=document.createElement('button');btn.id='pnlHistoryBtn';btn.type='button';btn.textContent='▾';btn.setAttribute('aria-expanded','false');btn.setAttribute('aria-label',tr().aria);
-   btn.style.cssText='border:0;background:transparent;color:var(--muted);font-size:13px;font-weight:900;line-height:1;padding:0 3px;margin-left:4px;cursor:pointer';
+   btn=document.createElement('button');btn.id='pnlDropdownBtn';btn.type='button';btn.className='pnl-refresh-icon';btn.innerHTML='<svg viewBox="0 0 24 24" fill="none" aria-hidden="true"><path d="M20 11a8.2 8.2 0 0 0-14.1-5.7L4 7.2" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"/><path d="M4 3.5v3.7h3.7" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"/><path d="M12 8.1v4.1l2.8 1.9" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"/><path d="M4 13a8.2 8.2 0 0 0 14.1 5.7L20 16.8" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"/></svg>';btn.setAttribute('aria-expanded','false');
    label.appendChild(btn);
  }
+ btn.setAttribute('aria-controls','pnlHistoryMenu');
  if(!menu){
    menu=document.createElement('div');menu.id='pnlHistoryMenu';menu.hidden=true;
    menu.style.cssText='position:absolute;z-index:1000;top:100%;right:0;margin-top:8px;width:min(290px,calc(100vw - 36px));background:var(--card);border:1px solid var(--border);border-radius:12px;box-shadow:0 12px 30px rgba(16,24,40,.16);padding:12px';
@@ -166,6 +166,7 @@ function init(){
    if(closeBtn)closeBtn.onclick=e=>{e.preventDefault();e.stopPropagation();menu.hidden=true;btn.setAttribute('aria-expanded','false')};
  }
  btn.onclick=e=>{e.preventDefault();e.stopPropagation();const open=menu.hidden;menu.hidden=!open;btn.setAttribute('aria-expanded',String(open));if(open)render()};
+ document.addEventListener('click',e=>{if(!wrap.contains(e.target)){menu.hidden=true;btn.setAttribute('aria-expanded','false')}},{passive:true});
  menu.querySelector('#pnlHistoryAll').onclick=e=>{e.preventDefault();e.stopPropagation();date.value=day();render()};
  date.onchange=render;
  window.addEventListener('izitrader:buy',e=>{const c=e.detail||{},id=String(c.contract_id||'');if(id)botByContract[id]=localStorage.getItem('izitrader_bot')||'ProParity'});

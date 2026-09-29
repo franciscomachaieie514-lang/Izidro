@@ -3875,7 +3875,18 @@ html[data-theme="dark"] body{
   --red:#e24b4a;
   --shadow:0 16px 40px rgba(0,0,0,.22);
   color-scheme:dark;
+/* Recent history follows the active theme and hides the last-digit badge. */
+html[data-theme="light"] .history-card{
+  background:#fff!important;
+  border-color:#dfe4ea!important;
+  color:#17202a!important;
 }
+html[data-theme="light"] .history-row .chip{
+  background:#fff!important;
+  border-color:#dfe4ea!important;
+  color:#17202a!important;
+}
+.history-row .chip .chip-digit{display:none!important;}
 </style>
 </head>
 <body>

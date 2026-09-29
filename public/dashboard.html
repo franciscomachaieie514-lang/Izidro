@@ -3889,25 +3889,27 @@ html[data-theme="light"] .history-row .chip{
 .history-row .chip .chip-digit{display:none!important;}
 </style>
 <style id="iziSessionLoadingCenter">
-@media (min-width:900px){
-  #sessionLoading.auth-page:not(.hidden){
-    position:fixed!important;
-    inset:0!important;
-    z-index:2147483647!important;
-    width:100vw!important;
-    max-width:none!important;
-    height:100vh!important;
-    min-height:100vh!important;
-    margin:0!important;
-    padding:24px!important;
-    display:flex!important;
-    align-items:center!important;
-    justify-content:center!important;
-  }
-  #sessionLoading .auth-card{
-    width:min(420px,100%)!important;
-    margin:0!important;
-  }
+/* Session/auth loading is always centered against the full viewport. */
+#sessionLoading.auth-page:not(.hidden),
+#authPage.auth-page:not(.hidden){
+  position:fixed!important;
+  inset:0!important;
+  z-index:2147483647!important;
+  width:100vw!important;
+  max-width:none!important;
+  height:100vh!important;
+  min-height:100vh!important;
+  margin:0!important;
+  padding:24px!important;
+  display:flex!important;
+  align-items:center!important;
+  justify-content:center!important;
+  overflow:hidden!important;
+}
+#sessionLoading .auth-card,
+#authPage .auth-card{
+  width:min(420px,100%)!important;
+  margin:0!important;
 }
 </style>
 </head>

@@ -161,7 +161,7 @@ window.addEventListener('izitrader:symbol-change',e=>{const s=e?.detail?.symbol;
 /* ===== Histórico diário de LUCRO/PERDA — isolado ===== */
 (function(){
 'use strict';
-const KEY='izitrader_daily_pnl',botByContract=Object.create(null),botNames=['ProParity','Octawin','OddEz','TradeSix'];
+const KEY='izitrader_daily_pnl',botByContract=Object.create(null),botNames=['ProParity','Octawin'];
 const text={pt:{title:'HISTÓRICO DIÁRIO',total:'Total',empty:'Nenhuma operação neste dia.',today:'Hoje',close:'Fechar',aria:'Abrir histórico diário'},en:{title:'DAILY HISTORY',total:'Total',empty:'No trades on this day.',today:'Today',close:'Close',aria:'Open daily history'},es:{title:'HISTORIAL DIARIO',total:'Total',empty:'No hay operaciones en este día.',today:'Hoy',close:'Cerrar',aria:'Abrir historial diario'}};
 const $=s=>document.querySelector(s),lang=()=>localStorage.getItem('izitrader_language')||localStorage.getItem('izitrader_lang')||'pt',tr=()=>text[lang()]||text.pt,day=()=>{const d=new Date();return d.getFullYear()+'-'+String(d.getMonth()+1).padStart(2,'0')+'-'+String(d.getDate()).padStart(2,'0')},load=()=>{try{return JSON.parse(localStorage.getItem(KEY)||'{}')}catch{return {}}},save=v=>{try{localStorage.setItem(KEY,JSON.stringify(v))}catch{}},money=n=>{const v=Number(n)||0;return(v>=0?'+':'-')+'$'+Math.abs(v).toFixed(2)};
 function init(){

@@ -3,6 +3,23 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
+<script>
+(function(){
+  try{
+    var KEY='izitrader_theme',MIG='izitrader_theme_default_light_v4';
+    if(localStorage.getItem(MIG)!=='1'){
+      localStorage.removeItem(KEY);
+      localStorage.setItem(KEY,'light');
+      localStorage.setItem(MIG,'1');
+    }else if(localStorage.getItem(KEY)!=='dark'){
+      localStorage.setItem(KEY,'light');
+    }
+    document.documentElement.dataset.theme=localStorage.getItem(KEY)==='dark'?'dark':'light';
+  }catch(e){
+    document.documentElement.dataset.theme='light';
+  }
+})();
+</script>
 <link rel="icon" type="image/svg+xml" href="/favicon.svg">
 <title>Izitrader</title>
 <style>

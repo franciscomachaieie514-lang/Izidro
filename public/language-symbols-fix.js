@@ -18,7 +18,7 @@ const BOT_TEXT={
  },
  pt:{
   proparity:'Analisa os últimos 5 ticks<br>Exemplo:<br>2, 4, 8, 6, 3<br>Pares: 2, 4, 8, 6<br>Ímpar: 3<br>Abre posição a favor de pares.',
-  octawin:'Análise 5 ticks<br>OVER 5 / UNDER 4<br>Exemplo:<br>2 — 8 — 7 — 9 — 6<br>Depois classifica cada dígito:<br>OVER → dígito &gt; 5 → 6, 7, 8, 9<br>UNDER → dígito &lt; 4 → 2<br>Entra no Over 5'
+  octawin:'Análise de 5 ticks<br>ACIMA (OVER) 5 / ABAIXO (UNDER) 4<br>Exemplo:<br>2 — 8 — 7 — 9 — 6<br>Depois classifica cada dígito:<br>ACIMA (OVER) → dígito &gt; 5 → 6, 7, 8, 9<br>ABAIXO (UNDER) → dígito &lt; 4 → 2<br>Entra no ACIMA (OVER) 5'
  },
  es:{
   proparity:'Analiza los últimos 5 ticks<br>Ejemplo:<br>2, 4, 8, 6, 3<br>Pares: 2, 4, 8, 6<br>Impar: 3<br>Abre una posición a favor de los pares.',

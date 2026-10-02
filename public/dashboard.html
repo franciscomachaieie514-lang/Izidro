@@ -4025,6 +4025,7 @@ html[data-theme="light"] .history-row .chip{
       <div class="aula-language-options" id="aulaLanguageOptions" role="group" aria-label="Idioma da aula" hidden>
         <button type="button" class="aula-language-btn" data-aula-lang="pt">Português</button>
         <button type="button" class="aula-language-btn" data-aula-lang="en">English</button>
+        <button type="button" class="aula-language-btn" data-aula-lang="es">Español</button>
       </div>
     </div>
 
@@ -4436,7 +4437,7 @@ function initAulaController(){
   if(trigger.dataset.aulaController==='1')return;
   trigger.dataset.aulaController='1';
 
-  const AULA_VIDEO_URLS={pt:'',en:''};
+  const AULA_VIDEO_URLS={pt:'',en:'',es:''};
 
   let saved='pt';
   try{saved=localStorage.getItem('izitrader_aula_language')||'pt'}catch{}
@@ -4454,7 +4455,7 @@ function initAulaController(){
     btn.addEventListener('click',function(ev){
       ev.preventDefault();
       ev.stopPropagation();
-      const lang=btn.dataset.aulaLang==='en'?'en':'pt';
+      const lang=btn.dataset.aulaLang==='en'?'en':(btn.dataset.aulaLang==='es'?'es':'pt');
       buttons.forEach(x=>x.classList.toggle('active',x===btn));
       try{localStorage.setItem('izitrader_aula_language',lang)}catch{}
       options.hidden=true;

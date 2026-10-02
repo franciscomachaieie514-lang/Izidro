@@ -257,14 +257,18 @@ function closeAulaVersionChooser(){
 
 function openAulaVersionChooser(language){
  const overlay=ensureAulaVersionChooser();
- const lang=language==='en'?'en':'pt';
+ const lang=language==='en'||language==='es'?language:'pt';
  overlay.dataset.language=lang;
- const en=lang==='en';
- document.getElementById('aulaVersionTitle').textContent=en?'Choose lesson version':'Escolha a versão da aula';
- document.getElementById('aulaVersionSubtitle').textContent=en?'First choose the language, then choose the version for your device.':'Primeiro escolha o idioma, depois escolha a versão para o seu dispositivo.';
- document.getElementById('aulaPcText').textContent=en?'PC version':'Versão PC';
- document.getElementById('aulaMobileText').textContent=en?'Mobile version':'Versão Mobile';
- document.getElementById('aulaVersionCancel').textContent=en?'Cancel':'Cancelar';
+ const copy={
+  pt:{title:'Escolha a versão da aula',subtitle:'Primeiro escolha a versão para o seu dispositivo.',pc:'Versão PC',mobile:'Versão Mobile',cancel:'Cancelar'},
+  en:{title:'Choose lesson version',subtitle:'First choose the version for your device.',pc:'PC version',mobile:'Mobile version',cancel:'Cancel'},
+  es:{title:'Elige la versión de la lección',subtitle:'Primero elige la versión para tu dispositivo.',pc:'Versión PC',mobile:'Versión Mobile',cancel:'Cancelar'}
+ }[lang];
+ document.getElementById('aulaVersionTitle').textContent=copy.title;
+ document.getElementById('aulaVersionSubtitle').textContent=copy.subtitle;
+ document.getElementById('aulaPcText').textContent=copy.pc;
+ document.getElementById('aulaMobileText').textContent=copy.mobile;
+ document.getElementById('aulaVersionCancel').textContent=copy.cancel;
  overlay.hidden=false;
 }
 

@@ -29,7 +29,7 @@ const BOT_TEXT={
 const T={
  en:{balance:'BALANCE',pnl:'PROFIT/LOSS',account:'ACCOUNT TYPE',bot:'BOT',classroom:'LESSON',history:'RECENT HISTORY',slide:'swipe to see more →',stake:'STAKE',minimum:'minimum: $0.35 USD',symbol:'SYMBOL',start:'▶ START ROBOT',goals:'TARGETS',save:'Save targets',profitTarget:'Profit target (USD)',lossTarget:'Loss target (USD)',accountReal:'Real',accountDemo:'Demo',analyzing:'ANALYZING',open:'OPEN',closed:'CLOSED',gain:'WIN',loss:'LOSS',operations:'OPERATIONS',settings:'Settings',language:'Language',help:'Help',logout:'Logout',online:'ONLINE',managementSheet:'MANAGEMENT SHEET',telegramSupport:'TELEGRAM SUPPORT',telegramGroupPt:'TELEGRAM GROUP PORTUGUÊS',telegramGroupEn:'TELEGRAM GROUP ENGLISH',terms:'TERMS AND CONDITIONS'},
  pt:{balance:'SALDO',pnl:'LUCRO/PERDA',account:'TIPO DE CONTA',bot:'BOT',classroom:'AULA',history:'HISTÓRICO RECENTE',slide:'deslize para ver mais →',stake:'APOSTA',minimum:'mínimo: $0.35 USD',symbol:'SÍMBOLO',start:'▶ INICIAR ROBÔ',goals:'METAS',save:'Guardar metas',profitTarget:'Meta de lucros (USD)',lossTarget:'Meta de perdas (USD)',accountReal:'Real',accountDemo:'Demo',analyzing:'ANALISANDO',open:'ABERTO',closed:'FECHADO',gain:'GANHO',loss:'PERDA',operations:'OPERAÇÕES',settings:'Definições',language:'Idioma',help:'Ajuda',logout:'Sair',online:'ONLINE',managementSheet:'PLANILHA DE GERENCIAMENTO',telegramSupport:'SUPORTE TELEGRAM',telegramGroupPt:'GRUPO TELEGRAM PORTUGUÊS',telegramGroupEn:'GRUPO TELEGRAM ENGLISH',terms:'TERMOS E CONDIÇÕES'},
- es:{balance:'SALDO',pnl:'GANANCIA/PÉRDIDA',account:'TIPO DE CUENTA',bot:'BOT',classroom:'LECCIÓN',history:'HISTORIAL RECIENTE',slide:'desliza para ver más →',stake:'APUESTA',minimum:'mínimo: $0.35 USD',symbol:'SÍMBOLO',start:'▶ INICIAR ROBOT',goals:'OBJETIVOS',save:'Guardar objetivos',profitTarget:'Meta de ganancias (USD)',lossTarget:'Meta de pérdidas (USD)',accountReal:'Real',accountDemo:'Demo',analyzing:'ANALIZANDO',open:'ABIERTO',closed:'CERRADO',gain:'GANANCIA',loss:'PÉRDIDA',operations:'OPERACIONES',settings:'Ajustes',language:'Idioma',help:'Ayuda',logout:'Cerrar sesión',online:'EN LÍNEA',managementSheet:'PLANILLA DE GESTIÓN',telegramSupport:'SOPORTE TELEGRAM',telegramGroupPt:'GRUPO TELEGRAM PORTUGUÉS',telegramGroupEn:'GRUPO TELEGRAM INGLÉS',terms:'TÉRMINOS Y CONDICIONES'}
+ es:{balance:'SALDO',pnl:'GANANCIA/PÉRDIDA',account:'TIPO DE CUENTA',bot:'BOT',classroom:'LECCIÓN',history:'HISTORIAL RECIENTE',slide:'desliza para ver más →',stake:'APUESTA',minimum:'mínimo: $0.35 USD',symbol:'SÍMBOLO',start:'▶ INICIAR ROBOT',goals:'OBJETIVOS',save:'Guardar objetivos',profitTarget:'Meta de ganancias (USD)',lossTarget:'Meta de pérdidas (USD)',accountReal:'Real',accountDemo:'Demo',analyzing:'ANALIZANDO',open:'ABIERTO',closed:'CERRADO',gain:'GANANCIA',loss:'PÉRDIDA',operations:'OPERACIONES',settings:'Ajustes',language:'Idioma',help:'Ayuda',logout:'Cerrar sesión',online:'EN LÍNEA',managementSheet:'PLANILLA DE GESTIÓN',telegramSupport:'SOPORTE TELEGRAM',telegramGroupPt:'GRUPO TELEGRAM PORTUGUÊS',telegramGroupEn:'GRUPO TELEGRAM INGLÉS',terms:'TÉRMINOS Y CONDICIONES'}
 };
 
 function getLang(){try{const lang=localStorage.getItem('izitrader_language')||localStorage.getItem('izitrader_lang')||'pt';return T[lang]?lang:'pt'}catch{return'pt'}}
@@ -148,7 +148,6 @@ function renderSymbols(){
   menu.style.overflowX='hidden';
   menu.style.zIndex='1000';
 
-  /* Selecting a symbol must immediately close the dropdown. */
   if(!menu.dataset.iziSymbolItemBound){
    menu.dataset.iziSymbolItemBound='1';
    menu.addEventListener('click',function(e){
@@ -199,11 +198,82 @@ function bindLanguages(){
  });
 }
 
+/* ===== AULA: language -> PC/mobile version ===== */
+function ensureAulaVersionChooser(){
+ if(document.getElementById('aulaVersionChooser'))return document.getElementById('aulaVersionChooser');
+
+ const style=document.createElement('style');
+ style.id='aulaVersionChooserStyle';
+ style.textContent=`
+#aulaVersionChooser{position:fixed;inset:0;background:rgba(0,0,0,.48);display:flex;align-items:center;justify-content:center;padding:18px;z-index:1000000}
+#aulaVersionChooser[hidden]{display:none}
+.aula-version-card{width:min(380px,100%);background:var(--card,#fff);color:var(--text,#17202a);border:1px solid var(--border,#dfe4ea);border-radius:16px;padding:20px;box-shadow:0 18px 50px rgba(0,0,0,.22);text-align:center}
+.aula-version-title{font-size:18px;font-weight:800;margin-bottom:6px}
+.aula-version-subtitle{font-size:12px;color:var(--muted,#697586);margin-bottom:16px}
+.aula-version-actions{display:grid;grid-template-columns:1fr 1fr;gap:10px}
+.aula-version-btn{border:1px solid var(--border,#dfe4ea);background:var(--field,#f7f8fa);color:var(--text,#17202a);border-radius:12px;padding:14px 10px;font-weight:800;font-size:14px;cursor:pointer}
+.aula-version-btn:hover{border-color:var(--accent,#e24b4a)}
+.aula-version-cancel{margin-top:12px;border:0;background:transparent;color:var(--muted,#697586);font-size:12px;cursor:pointer}
+@media(max-width:599px){.aula-version-actions{grid-template-columns:1fr}.aula-version-card{padding:18px}}
+`;
+ document.head.appendChild(style);
+
+ const overlay=document.createElement('div');
+ overlay.id='aulaVersionChooser';
+ overlay.hidden=true;
+ overlay.innerHTML=`
+  <div class="aula-version-card" role="dialog" aria-modal="true" aria-labelledby="aulaVersionTitle">
+   <div class="aula-version-title" id="aulaVersionTitle"></div>
+   <div class="aula-version-subtitle" id="aulaVersionSubtitle"></div>
+   <div class="aula-version-actions">
+    <button type="button" class="aula-version-btn" data-aula-version="pc">💻 <span id="aulaPcText"></span></button>
+    <button type="button" class="aula-version-btn" data-aula-version="mobile">📱 <span id="aulaMobileText"></span></button>
+   </div>
+   <button type="button" class="aula-version-cancel" id="aulaVersionCancel"></button>
+  </div>`;
+ document.body.appendChild(overlay);
+
+ overlay.addEventListener('click',function(e){
+  if(e.target===overlay)closeAulaVersionChooser();
+  const btn=e.target.closest('[data-aula-version]');
+  if(!btn)return;
+  const version=btn.dataset.aulaVersion;
+  const language=overlay.dataset.language||getLang();
+  try{localStorage.setItem('izitrader_aula_language',language);localStorage.setItem('izitrader_aula_version',version)}catch{}
+  closeAulaVersionChooser();
+  window.dispatchEvent(new CustomEvent('izitrader:aula-version-change',{detail:{language:language,version:version}}));
+ });
+ document.getElementById('aulaVersionCancel').addEventListener('click',closeAulaVersionChooser);
+ document.addEventListener('keydown',function(e){if(e.key==='Escape'&&!overlay.hidden)closeAulaVersionChooser()});
+ return overlay;
+}
+
+function closeAulaVersionChooser(){
+ const overlay=document.getElementById('aulaVersionChooser');
+ if(!overlay)return;
+ overlay.hidden=true;
+ overlay.removeAttribute('data-language');
+}
+
+function openAulaVersionChooser(language){
+ const overlay=ensureAulaVersionChooser();
+ const lang=language==='en'?'en':'pt';
+ overlay.dataset.language=lang;
+ const en=lang==='en';
+ document.getElementById('aulaVersionTitle').textContent=en?'Choose lesson version':'Escolha a versão da aula';
+ document.getElementById('aulaVersionSubtitle').textContent=en?'First choose the language, then choose the version for your device.':'Primeiro escolha o idioma, depois escolha a versão para o seu dispositivo.';
+ document.getElementById('aulaPcText').textContent=en?'PC version':'Versão PC';
+ document.getElementById('aulaMobileText').textContent=en?'Mobile version':'Versão Mobile';
+ document.getElementById('aulaVersionCancel').textContent=en?'Cancel':'Cancelar';
+ overlay.hidden=false;
+}
+
 function boot(){
  const lang=getLang();
  applyLanguage(lang);
  renderSymbols();
  bindLanguages();
+ ensureAulaVersionChooser();
 }
 
 if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',boot,{once:true});
@@ -219,4 +289,12 @@ window.addEventListener('izitrader:language-change',function(e){
 window.addEventListener('izitrader:contract-closed',function(){setTimeout(function(){applyLanguage(getLang())},0)});
 window.addEventListener('izitrader:martingale',function(){setTimeout(function(){applyLanguage(getLang())},0)});
 window.addEventListener('izitrader:ws-open',function(){setTimeout(function(){applyLanguage(getLang())},0)});
+
+/* The AULA controller in dashboard.html dispatches this event after the
+   user chooses Portuguese or English. At that point we intentionally ask
+   for PC or Mobile before continuing. */
+window.addEventListener('izitrader:aula-language-change',function(e){
+ const lang=e?.detail?.language==='en'?'en':'pt';
+ openAulaVersionChooser(lang);
+});
 })();

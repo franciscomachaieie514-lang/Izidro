@@ -4464,12 +4464,23 @@ function initAulaController(){
   try{saved=localStorage.getItem('izitrader_aula_language')||'pt'}catch{}
   buttons.forEach(btn=>btn.classList.toggle('active',btn.dataset.aulaLang===saved));
 
+  // Automatic lesson routing: clicking the play button immediately opens
+  // the Portuguese tutorial for the selected bot and detected screen size.
   trigger.addEventListener('click',function(ev){
     ev.preventDefault();
     ev.stopPropagation();
-    const open=options.hidden;
-    options.hidden=!open;
-    trigger.setAttribute('aria-expanded',String(open));
+    const savedLanguage=(()=>{try{return localStorage.getItem('izitrader_aula_language')||'pt'}catch{return 'pt'}})();
+    const url=resolveAulaVideoUrl(savedLanguage);
+    if(url){
+      window.dispatchEvent(new CustomEvent('izitrader:aula-language-change',{
+        detail:{language:savedLanguage,url}
+      }));
+      window.location.href=url;
+      return;
+    }
+    // Keep language options available only if the selected language has no configured video.
+    options.hidden=false;
+    trigger.setAttribute('aria-expanded','true');
   });
 
   buttons.forEach(btn=>{

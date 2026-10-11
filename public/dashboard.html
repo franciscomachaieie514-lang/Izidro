@@ -4436,7 +4436,29 @@ function initAulaController(){
   if(trigger.dataset.aulaController==='1')return;
   trigger.dataset.aulaController='1';
 
-  const AULA_VIDEO_URLS={pt:'',en:''};
+  // Lesson links depend on the selected bot and the device layout.
+  // English lesson links are left empty because no English videos were provided.
+  const AULA_VIDEO_URLS={
+    pt:{
+      proparity:{
+        pc:'https://youtu.be/2yIO-2Lq7VA',
+        mobile:'https://youtu.be/9GKHv5qQbWo'
+      },
+      octawin:{
+        mobile:'https://youtu.be/BRciO9ttHUU',
+        pc:'https://youtu.be/vi8pMWGB8gg'
+      }
+    },
+    en:''
+  };
+
+  function resolveAulaVideoUrl(language){
+    if(language!=='pt') return '';
+    const selectedBotName=(document.getElementById('selectedBotName')?.textContent||'').trim().toLowerCase();
+    const botKey=selectedBotName.includes('octa')?'octawin':'proparity';
+    const deviceKey=window.matchMedia('(max-width:899px)').matches?'mobile':'pc';
+    return AULA_VIDEO_URLS.pt[botKey][deviceKey]||'';
+  }
 
   let saved='pt';
   try{saved=localStorage.getItem('izitrader_aula_language')||'pt'}catch{}
@@ -4459,7 +4481,7 @@ function initAulaController(){
       try{localStorage.setItem('izitrader_aula_language',lang)}catch{}
       options.hidden=true;
       trigger.setAttribute('aria-expanded','false');
-      const url=AULA_VIDEO_URLS[lang];
+      const url=resolveAulaVideoUrl(lang);
       window.dispatchEvent(new CustomEvent('izitrader:aula-language-change',{
         detail:{language:lang,url:url||''}
       }));

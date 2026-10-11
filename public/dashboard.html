@@ -4022,10 +4022,7 @@ html[data-theme="light"] .history-row .chip{
       <button type="button" class="pill pill-aula aula-trigger" id="aulaTrigger" aria-expanded="false" aria-haspopup="true" aria-label="Abrir aula">
         <span aria-hidden="true">▶</span>
       </button>
-      <div class="aula-language-options" id="aulaLanguageOptions" role="group" aria-label="Idioma da aula" hidden>
-        <button type="button" class="aula-language-btn" data-aula-lang="pt">Português</button>
-        <button type="button" class="aula-language-btn" data-aula-lang="en">English</button>
-      </div>
+      <div class="aula-language-options" id="aulaLanguageOptions" role="group" aria-label="Idioma da aula" hidden></div>
     </div>
 
       <div class="history-stage stage-tracker" id="stageTracker">
@@ -4431,73 +4428,31 @@ $('#iziAccountSelect').value=localStorage.getItem('izitrader_account_type')||'re
 function initAulaController(){
   const trigger=document.getElementById('aulaTrigger');
   const options=document.getElementById('aulaLanguageOptions');
-  const buttons=[...document.querySelectorAll('.aula-language-btn')];
-  if(!trigger||!options||!buttons.length)return;
+  if(!trigger)return;
   if(trigger.dataset.aulaController==='1')return;
   trigger.dataset.aulaController='1';
 
-  // Lesson links depend on the selected bot and the device layout.
-  // English lesson links are left empty because no English videos were provided.
   const AULA_VIDEO_URLS={
-    pt:{
-      proparity:{
-        pc:'https://youtu.be/2yIO-2Lq7VA',
-        mobile:'https://youtu.be/9GKHv5qQbWo'
-      },
-      octawin:{
-        mobile:'https://youtu.be/BRciO9ttHUU',
-        pc:'https://youtu.be/vi8pMWGB8gg'
-      }
+    proparity:{
+      pc:'https://youtu.be/2yIO-2Lq7VA',
+      mobile:'https://youtu.be/9GKHv5qQbWo'
     },
-    en:''
+    octawin:{
+      pc:'https://youtu.be/vi8pMWGB8gg',
+      mobile:'https://youtu.be/BRciO9ttHUU'
+    }
   };
 
-  function resolveAulaVideoUrl(language){
-    if(language!=='pt') return '';
-    const selectedBotName=(document.getElementById('selectedBotName')?.textContent||'').trim().toLowerCase();
-    const botKey=selectedBotName.includes('octa')?'octawin':'proparity';
-    const deviceKey=window.matchMedia('(max-width:899px)').matches?'mobile':'pc';
-    return AULA_VIDEO_URLS.pt[botKey][deviceKey]||'';
-  }
-
-  let saved='pt';
-  try{saved=localStorage.getItem('izitrader_aula_language')||'pt'}catch{}
-  buttons.forEach(btn=>btn.classList.toggle('active',btn.dataset.aulaLang===saved));
-
-  // Automatic lesson routing: clicking the play button immediately opens
-  // the Portuguese tutorial for the selected bot and detected screen size.
   trigger.addEventListener('click',function(ev){
     ev.preventDefault();
     ev.stopPropagation();
-    const savedLanguage=(()=>{try{return localStorage.getItem('izitrader_aula_language')||'pt'}catch{return 'pt'}})();
-    const url=resolveAulaVideoUrl(savedLanguage);
-    if(url){
-      window.dispatchEvent(new CustomEvent('izitrader:aula-language-change',{
-        detail:{language:savedLanguage,url}
-      }));
-      window.location.href=url;
-      return;
-    }
-    // Keep language options available only if the selected language has no configured video.
-    options.hidden=false;
-    trigger.setAttribute('aria-expanded','true');
-  });
-
-  buttons.forEach(btn=>{
-    btn.addEventListener('click',function(ev){
-      ev.preventDefault();
-      ev.stopPropagation();
-      const lang=btn.dataset.aulaLang==='en'?'en':'pt';
-      buttons.forEach(x=>x.classList.toggle('active',x===btn));
-      try{localStorage.setItem('izitrader_aula_language',lang)}catch{}
-      options.hidden=true;
-      trigger.setAttribute('aria-expanded','false');
-      const url=resolveAulaVideoUrl(lang);
-      window.dispatchEvent(new CustomEvent('izitrader:aula-language-change',{
-        detail:{language:lang,url:url||''}
-      }));
-      if(url) window.location.href=url;
-    });
+    const name=(document.getElementById('selectedBotName')?.textContent||'').trim().toLowerCase();
+    const bot=name.includes('octa')?'octawin':'proparity';
+    const device=window.matchMedia('(max-width:899px)').matches?'mobile':'pc';
+    const url=AULA_VIDEO_URLS[bot][device];
+    if(options) options.hidden=true;
+    trigger.setAttribute('aria-expanded','false');
+    window.location.href=url;
   });
 }
 if(document.readyState==='loading'){

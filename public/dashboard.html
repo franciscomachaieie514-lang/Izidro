@@ -3399,6 +3399,21 @@ body.dark .history-card .chip.loss .chip-tag{color:#ff5b5b!important;}
   border-color:var(--accent)!important;
   color:#fff!important;
 }
+.aula-device-btn{
+  flex:1!important;
+  min-width:0!important;
+  height:36px!important;
+  padding:6px 8px!important;
+  border:1px solid var(--border)!important;
+  border-radius:8px!important;
+  background:var(--field)!important;
+  color:var(--text)!important;
+  font:inherit!important;
+  font-size:11px!important;
+  font-weight:800!important;
+  cursor:pointer!important;
+}
+.aula-device-btn[hidden]{display:none!important;}
 @media(max-width:899px){
   .dashboard-left .row3{
     align-items:start!important;
@@ -4025,6 +4040,8 @@ html[data-theme="light"] .history-row .chip{
       <div class="aula-language-options" id="aulaLanguageOptions" role="group" aria-label="Idioma da aula" hidden>
         <button type="button" class="aula-language-btn" data-aula-lang="pt">Português</button>
         <button type="button" class="aula-language-btn" data-aula-lang="en">English</button>
+        <button type="button" class="aula-device-btn" data-aula-device="mobile" hidden>Mobile</button>
+        <button type="button" class="aula-device-btn" data-aula-device="pc" hidden>PC</button>
       </div>
     </div>
 
@@ -4432,7 +4449,8 @@ function initAulaController(){
   const trigger=document.getElementById('aulaTrigger');
   const options=document.getElementById('aulaLanguageOptions');
   const buttons=[...document.querySelectorAll('.aula-language-btn')];
-  if(!trigger||!options||!buttons.length)return;
+  const deviceButtons=[...document.querySelectorAll('.aula-device-btn')];
+  if(!trigger||!options||!buttons.length||!deviceButtons.length)return;
   if(trigger.dataset.aulaController==='1')return;
   trigger.dataset.aulaController='1';
 
@@ -4452,12 +4470,17 @@ function initAulaController(){
     en:''
   };
 
-  function resolveAulaVideoUrl(language){
+  function resolveAulaVideoUrl(language,deviceKey){
     if(language!=='pt') return '';
     const selectedBotName=(document.getElementById('selectedBotName')?.textContent||'').trim().toLowerCase();
     const botKey=selectedBotName.includes('octa')?'octawin':'proparity';
-    const deviceKey=window.matchMedia('(max-width:899px)').matches?'mobile':'pc';
     return AULA_VIDEO_URLS.pt[botKey][deviceKey]||'';
+  }
+
+  function showDeviceChoices(show){
+    deviceButtons.forEach(btn=>{btn.hidden=!show;});
+    buttons.forEach(btn=>{btn.hidden=show;});
+    options.setAttribute('aria-label',show?'Versão do vídeo':'Idioma da aula');
   }
 
   let saved='pt';
@@ -4469,6 +4492,7 @@ function initAulaController(){
     ev.stopPropagation();
     const open=options.hidden;
     options.hidden=!open;
+    if(open) showDeviceChoices(false);
     trigger.setAttribute('aria-expanded',String(open));
   });
 
@@ -4479,11 +4503,31 @@ function initAulaController(){
       const lang=btn.dataset.aulaLang==='en'?'en':'pt';
       buttons.forEach(x=>x.classList.toggle('active',x===btn));
       try{localStorage.setItem('izitrader_aula_language',lang)}catch{}
+      if(lang==='pt'){
+        showDeviceChoices(true);
+        return;
+      }
+      showDeviceChoices(false);
       options.hidden=true;
       trigger.setAttribute('aria-expanded','false');
-      const url=resolveAulaVideoUrl(lang);
       window.dispatchEvent(new CustomEvent('izitrader:aula-language-change',{
-        detail:{language:lang,url:url||''}
+        detail:{language:lang,url:''}
+      }));
+    });
+  });
+
+  deviceButtons.forEach(btn=>{
+    btn.addEventListener('click',function(ev){
+      ev.preventDefault();
+      ev.stopPropagation();
+      const device=btn.dataset.aulaDevice==='pc'?'pc':'mobile';
+      const url=resolveAulaVideoUrl('pt',device);
+      try{localStorage.setItem('izitrader_aula_device',device)}catch{}
+      options.hidden=true;
+      trigger.setAttribute('aria-expanded','false');
+      showDeviceChoices(false);
+      window.dispatchEvent(new CustomEvent('izitrader:aula-language-change',{
+        detail:{language:'pt',device,url:url||''}
       }));
       if(url) window.location.href=url;
     });

@@ -174,23 +174,23 @@ function buyProposal(p){
 function onMessage(raw){
  let m;try{m=JSON.parse(raw)}catch{return}
  if(m.error){
-  const msg=String(m.error.message||m.error.code||'Erro Deriv');
+  const apiCode=String(m.error.code||'APIError');
+  const msg=String(m.error.message||apiCode||'Erro Deriv');
   const reqId=Number(m.req_id),echo=m.echo_req||{};
   const isProposalError=!!(echo.proposal||(proposal?.pending&&Number.isFinite(reqId)&&reqId===Number(proposal.req_id)));
   const isBuyError=!!((Object.prototype.hasOwnProperty.call(echo,'buy'))||(buyReqId!==null&&Number.isFinite(reqId)&&reqId===Number(buyReqId)));
   if(isProposalError){
    clearProposalWatchdog();proposal=null;proposalRetryAfter=Date.now()+1500;
-   status(uiText('proposalRetry'),false);
-   emit('izitrader:proposal-error',{message:msg,req_id:m.req_id,symbol,contract_type:echo.contract_type||null});
-   console.warn('[Izidro/Deriv] Proposal rejected; cleared pending state for retry.',{message:msg,req_id:m.req_id,echo_req:echo});
+   status('Deriv '+apiCode+': '+msg,false);
+   emit('izitrader:proposal-error',{code:apiCode,message:msg,req_id:m.req_id,symbol,contract_type:echo.contract_type||null,echo_req:echo});
+   console.error('[Izidro/Deriv] Proposal rejected; exact API error captured.',{code:apiCode,message:msg,req_id:m.req_id,echo_req:echo});
    return;
   }
   if(isBuyError){
    clearBuyWatchdog();buyReqId=null;buying=false;proposal=null;proposalRetryAfter=Date.now()+1500;
-   emit('izitrader:buy-error',{message:msg,req_id:m.req_id,symbol});
-   console.warn('[Izidro/Deriv] Buy request rejected; cleared stuck state.',{message:msg,req_id:m.req_id,echo_req:echo});
-   if(/unknown contract proposal|proposal.*expired|invalid proposal/i.test(msg))status(uiText('proposalRetry'),false);
-   else showError(msg);
+   emit('izitrader:buy-error',{code:apiCode,message:msg,req_id:m.req_id,symbol,echo_req:echo});
+   console.error('[Izidro/Deriv] Buy request rejected; exact API error captured.',{code:apiCode,message:msg,req_id:m.req_id,echo_req:echo});
+   status('Compra rejeitada pela Deriv ('+apiCode+'): '+msg,false);
    return;
   }
   showError(msg);console.warn('[Izidro/Deriv] API error response',{message:msg,req_id:m.req_id,echo_req:echo});return;

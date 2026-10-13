@@ -33,7 +33,7 @@ function uiText(key){const map={
   proposalRetry:{pt:'Proposta rejeitada/expirada; a tentar novamente.',en:'Proposal rejected/expired; retrying.',es:'Propuesta rechazada/caducada; reintentando.'},
   buyTimeout:{pt:'Sem confirmação da compra. Robô pausado por segurança; verifique as posições na Deriv antes de reiniciar.',en:'No buy confirmation received. Robot paused for safety; check Deriv positions before restarting.',es:'No se recibió confirmación de compra. Robot pausado por seguridad; revise las posiciones en Deriv antes de reiniciar.'}
 };return map[key]?.[currentLang()]||map[key]?.pt||key}
-function send(o){try{return !!(ws&&ws.readyState===NativeWS.OPEN&&ws.send(JSON.stringify(o)))}catch{return false}}
+function send(o){try{if(!ws||ws.readyState!==NativeWS.OPEN)return false;ws.send(JSON.stringify(o));return true}catch(e){console.warn('[Izidro/Deriv] WebSocket send failed:',e);return false}}
 function nextRequestId(){nextRequestIdValue=(nextRequestIdValue+1)%2147483000;if(!nextRequestIdValue)nextRequestIdValue=1;return nextRequestIdValue}
 function clearProposalWatchdog(){if(proposalTimer){clearTimeout(proposalTimer);proposalTimer=null}}
 function clearBuyWatchdog(){if(buyAckTimer){clearTimeout(buyAckTimer);buyAckTimer=null}}

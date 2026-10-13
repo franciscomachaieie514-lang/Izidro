@@ -215,6 +215,7 @@ function onMessage(raw){
   if(Number.isFinite(req)&&req!==Number(proposal.req_id)){console.warn('[Izidro/Deriv] Ignored mismatched proposal response.',{expected:proposal.req_id,received:req});return}
   clearProposalWatchdog();
   const accepted=m.proposal;
+  if(active)status(uiText('active'),true);
   emit('izitrader:proposal-received',{req_id:m.req_id,symbol,contract_type:proposal.contractType,proposal_id:accepted.id||accepted.proposal_id});
   proposal={...accepted,pending:false,proposalReqId:req,createdAt:Date.now()};
   if(active&&!buying)buyProposal(accepted);else proposal=null;
@@ -222,6 +223,7 @@ function onMessage(raw){
  }
  if(m.msg_type==='buy'&&m.buy){
   clearBuyWatchdog();buyReqId=null;buying=false;proposal=null;contractId=Number(m.buy.contract_id)||null;
+  if(active)status(uiText('active'),true);
   positionState('open');
   emit('izitrader:buy',{...m.buy,accountType,stake,martingaleLevel});
   if(contractId)watch();

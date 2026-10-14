@@ -4188,7 +4188,7 @@ window.addEventListener('izitrader:contract-closed',e=>{
   if(!id)return;
   let item=[...hist.children].find(x=>x.dataset.contractId===id);
   const result=String(c.result||((Number(c.profit_loss??c.profit)<0)?'LOST':'WON')).toUpperCase();
-  const wasClosed=item?.dataset.closed==='1';
+  const alreadyCounted=item?.dataset.dashboardCounted==='1';
     if(!item){
     item=document.createElement('div');
     item.dataset.contractId=id;
@@ -4201,7 +4201,8 @@ window.addEventListener('izitrader:contract-closed',e=>{
   hist.prepend(item);
   hist.scrollLeft=0;
 
-  if(!wasClosed)operationCount++;
+  if(!alreadyCounted)operationCount++;
+  item.dataset.dashboardCounted='1';
   updateOps();
 
   /* Keep up to 20 closed trades; only the oldest are removed if necessary. */
@@ -4242,7 +4243,7 @@ $('#iziAccountSelect').value=localStorage.getItem('izitrader_account_type')||'re
   applyStageLanguage();
   window.addEventListener('izitrader:language-change',applyStageLanguage);
   const stopBtn=$('#stageStopBtn');
-  if(stopBtn)stopBtn.onclick=()=>{window.IziDerivWS?.stop?.();setStage(0)};
+  if(stopBtn)stopBtn.onclick=()=>{window.IziDerivWS?.pause?.();setStage(0)};
 })();
 </script>
 <script>

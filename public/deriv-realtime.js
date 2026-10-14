@@ -271,7 +271,7 @@ function onMessage(raw){
   return;
  }
  if(m.msg_type==='proposal'&&m.proposal){
-  const req=Number(m.req_id);
+  const req=Number(m.req_id??m.echo_req?.req_id);
   if(!proposal?.pending){console.warn('[Izidro/Deriv] Ignored unsolicited/late proposal response.',{req_id:m.req_id});return}
   if(!Number.isFinite(req)||req!==Number(proposal.req_id)){console.warn('[Izidro/Deriv] Ignored mismatched proposal response.',{expected:proposal.req_id,received:m.req_id});return}
   clearProposalWatchdog();
@@ -283,7 +283,7 @@ function onMessage(raw){
   return;
  }
  if(m.msg_type==='buy'&&m.buy){
-  const req=Number(m.req_id);
+  const req=Number(m.req_id??m.echo_req?.req_id);
   if(buyReqId===null||!Number.isFinite(req)||req!==Number(buyReqId)){
    console.warn('[Izidro/Deriv] Ignored buy acknowledgement not matching pending request.',{expected:buyReqId,received:m.req_id,contract_id:m.buy.contract_id});
    return;
@@ -303,7 +303,7 @@ function onMessage(raw){
   const sold=c.is_sold===true||c.is_sold===1||String(c.is_sold)==='1'||String(c.is_sold).toLowerCase()==='true',st=String(c.status||'').toLowerCase(),closed=sold||['sold','won','lost','expired','closed'].includes(st);
   if(closed){
    const p=Number(c.profit??c.profit_loss);
-   if(Number.isFinite(p)){sessionPnl+=p;set('#pnl',(sessionPnl>=0?'+':'-')+'$'+Math.abs(sessionPnl).toFixed(2));addClosed(c,p);if(p>0)celebrateWin();applyMartingale(p);freshBalance();updatePnlColor();checkTargets()}
+   if(Number.isFinite(p)){sessionPnl+=p;set('#pnl',(sessionPnl>=0?'+':'-')+'$'+Math.abs(sessionPnl).toFixed(2));addClosed(c,p);if(p>0)celebrateWin();freshBalance();updatePnlColor();const targetReached=checkTargets();if(!targetReached)applyMartingale(p)}
    positionState('closed');contractId=null;proposal=null;buying=false;emit('izitrader:contract-state',{contract:c,closed:true});
   }
  }
@@ -321,12 +321,14 @@ async function connect(){
  status('A ligar à conta '+(accountType==='real'?'Real':'Demo')+'…',false);
  try{
   const accountResponse=await getJson('/api/deriv/accounts');
+  if(stopped||generation!==connectGeneration)return;
   const list=Array.isArray(accountResponse.accounts)?accountResponse.accounts:[];
   const account=accountType==='real'?list.find(isReal):list.find(isDemo);
   if(!account)throw new Error('Conta '+(accountType==='real'?'Real':'Demo')+' não encontrada');
   const accountId=idOf(account);
   const currency=String(account.currency||'USD').trim().toUpperCase()||'USD';
   const response=await getJson('/api/deriv/ws-url?account_id='+encodeURIComponent(accountId));
+  if(stopped||generation!==connectGeneration)return;
   const url=response?.data?.url||response?.wsUrl||response?.url;
   if(!url)throw new Error('URL WebSocket autenticada não recebida');
   if(stopped||generation!==connectGeneration)return;

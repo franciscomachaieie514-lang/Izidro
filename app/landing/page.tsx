@@ -53,8 +53,8 @@ export default function LandingPage() {
         <nav className="izi-navlinks" aria-label="Navegação principal">
           <a href="#funcionalidades">Funcionalidades</a>
           <a href="#como-comecar">Como começar</a>
-          <span className="izi-btn izi-secondary" aria-disabled="true">Entrar</span>
-          <span className="izi-btn izi-primary" aria-disabled="true">Começar agora <span>→</span></span>
+          <Link href="/?mode=login" className="izi-btn izi-secondary">Entrar</Link>
+          <Link href="/register" className="izi-btn izi-primary">Começar agora <span>→</span></Link>
         </nav>
       </header>
 
@@ -64,7 +64,7 @@ export default function LandingPage() {
           <h1>Explore o mercado.<br /><em>Decida com clareza.</em></h1>
           <p className="izi-lead">Conheça a Izitrader: ferramentas de análise, acompanhamento de operações e estratégias reunidas numa experiência simples, moderna e adaptada ao seu dispositivo.</p>
           <div className="izi-actions">
-            <span className="izi-btn izi-primary" aria-disabled="true">Criar conta grátis <span>→</span></span>
+            <Link href="/register" className="izi-btn izi-primary">Criar conta grátis <span>→</span></Link>
             <a href="#funcionalidades" className="izi-btn izi-secondary">Explorar funcionalidades</a>
           </div>
           <p className="izi-note">Interface para computador e telemóvel · Português e inglês</p>
@@ -96,9 +96,9 @@ export default function LandingPage() {
         </div>
       </section>
 
-      <section className="izi-wrap izi-cta"><div className="izi-cta-box"><h2>Pronto para conhecer a Izitrader?</h2><p>Entre na plataforma e descubra uma interface criada para reunir as suas ferramentas de análise e acompanhamento.</p><span className="izi-btn izi-primary" aria-disabled="true">Começar agora <span>→</span></span></div></section>
+      <section className="izi-wrap izi-cta"><div className="izi-cta-box"><h2>Pronto para conhecer a Izitrader?</h2><p>Entre na plataforma e descubra uma interface criada para reunir as suas ferramentas de análise e acompanhamento.</p><Link href="/register" className="izi-btn izi-primary">Começar agora <span>→</span></Link></div></section>
 
-      <footer className="izi-wrap izi-footer"><div>© {new Date().getFullYear()} Izitrader. Todos os direitos reservados.</div><div className="izi-footerlinks"><a href="#funcionalidades">Funcionalidades</a><span>Entrar</span><span>Criar conta</span></div><div>Negociar envolve risco de perda financeira. Ferramentas de análise não garantem resultados.</div></footer>
+      <footer className="izi-wrap izi-footer"><div>© {new Date().getFullYear()} Izitrader. Todos os direitos reservados.</div><div className="izi-footerlinks"><a href="#funcionalidades">Funcionalidades</a><Link href="/?mode=login">Entrar</Link><Link href="/register">Criar conta</Link></div><div>Negociar envolve risco de perda financeira. Ferramentas de análise não garantem resultados.</div></footer>
     </main>
   );
 }

@@ -66,7 +66,6 @@ export default function LandingPage() {
           <p className="izi-lead">Conheça a Izitrader: ferramentas de análise, acompanhamento de operações e estratégias reunidas numa experiência simples, moderna e adaptada ao seu dispositivo.</p>
           <div className="izi-actions">
             <Link href="/register" className="izi-btn izi-primary">Criar conta grátis <span>→</span></Link>
-            <Link href="/?mode=deriv" className="izi-btn izi-secondary">Entrar com a sua conta Deriv</Link>
             <a href="#funcionalidades" className="izi-btn izi-secondary">Explorar funcionalidades</a>
           </div>
           <p className="izi-note">Interface para computador e telemóvel · Português e inglês</p>

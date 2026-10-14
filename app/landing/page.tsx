@@ -42,7 +42,7 @@ export default function LandingPage() {
         .izi-cta{padding:60px 0}.izi-cta-box{border-radius:22px;padding:48px 30px;text-align:center;background:linear-gradient(120deg,#171d2b,#252d40);color:#fff}.izi-cta-box h2{font-size:clamp(28px,4vw,42px);letter-spacing:-1.4px;margin:0 0 13px}.izi-cta-box p{color:#c0c6d2;line-height:1.7;margin:0 auto 25px;max-width:620px;font-size:14px}
         .izi-footer{border-top:1px solid #eceef3;padding:25px 0;display:flex;justify-content:space-between;align-items:center;gap:20px;color:#858b99;font-size:12px}.izi-footerlinks{display:flex;gap:18px;flex-wrap:wrap}.izi-footer a{color:#687083;text-decoration:none}
         @media(max-width:900px){.izi-hero{grid-template-columns:1fr;gap:40px;padding:56px 0}.izi-hero-copy{max-width:700px}.izi-preview{max-width:650px;width:100%;margin:0 auto}.izi-features{grid-template-columns:repeat(2,minmax(0,1fr))}.izi-navlinks{gap:16px}}
-        @media(max-width:600px){.izi-wrap{width:min(100% - 30px,1160px)}.izi-nav{height:70px}.izi-brand{font-size:22px}.izi-mark{width:34px;height:34px}.izi-tag{font-size:7px}.izi-navlinks>a:not(.izi-btn){display:none}.izi-navlinks{gap:0}.izi-navlinks .izi-btn{padding:10px 12px;font-size:12px}.izi-hero{padding:43px 0 50px;gap:34px}.izi-hero h1{font-size:43px;letter-spacing:-1.8px}.izi-lead{font-size:15px}.izi-actions .izi-btn{flex:1}.izi-preview{padding:12px;border-radius:18px}.izi-dashboard{padding:13px}.izi-metric{padding:10px}.izi-metric strong{font-size:17px}.izi-float{right:4px;bottom:10px}.izi-section{padding:58px 0}.izi-features{gap:10px}.izi-card{padding:17px 14px;min-height:0}.izi-card h3{font-size:14px}.izi-card p{font-size:12px}.izi-icon{width:38px;height:38px;margin-bottom:14px}.izi-steps{grid-template-columns:1fr;gap:12px}.izi-cta{padding:40px 0}.izi-cta-box{padding:35px 20px}.izi-footer{align-items:flex-start;flex-direction:column}.izi-footerlinks{gap:13px}}
+        @media(max-width:600px){.izi-wrap{width:min(100% - 30px,1160px)}.izi-nav{height:70px}.izi-brand{font-size:22px}.izi-mark{width:34px;height:34px}.izi-tag{font-size:7px}.izi-navlinks>a:not(.izi-btn){display:none}.izi-navlinks{gap:0}.izi-navlinks .izi-btn{padding:10px 12px;font-size:12px}.izi-navlinks .izi-deriv{display:none}.izi-hero{padding:43px 0 50px;gap:34px}.izi-hero h1{font-size:43px;letter-spacing:-1.8px}.izi-lead{font-size:15px}.izi-actions .izi-btn{flex:1}.izi-preview{padding:12px;border-radius:18px}.izi-dashboard{padding:13px}.izi-metric{padding:10px}.izi-metric strong{font-size:17px}.izi-float{right:4px;bottom:10px}.izi-section{padding:58px 0}.izi-features{gap:10px}.izi-card{padding:17px 14px;min-height:0}.izi-card h3{font-size:14px}.izi-card p{font-size:12px}.izi-icon{width:38px;height:38px;margin-bottom:14px}.izi-steps{grid-template-columns:1fr;gap:12px}.izi-cta{padding:40px 0}.izi-cta-box{padding:35px 20px}.izi-footer{align-items:flex-start;flex-direction:column}.izi-footerlinks{gap:13px}}
       `}</style>
 
       <header className="izi-wrap izi-nav">
@@ -54,6 +54,7 @@ export default function LandingPage() {
           <a href="#funcionalidades">Funcionalidades</a>
           <a href="#como-comecar">Como começar</a>
           <Link href="/?mode=login" className="izi-btn izi-secondary">Entrar</Link>
+          <Link href="/?mode=deriv" className="izi-btn izi-secondary izi-deriv">Entrar com Deriv</Link>
           <Link href="/register" className="izi-btn izi-primary">Começar agora <span>→</span></Link>
         </nav>
       </header>
@@ -65,6 +66,7 @@ export default function LandingPage() {
           <p className="izi-lead">Conheça a Izitrader: ferramentas de análise, acompanhamento de operações e estratégias reunidas numa experiência simples, moderna e adaptada ao seu dispositivo.</p>
           <div className="izi-actions">
             <Link href="/register" className="izi-btn izi-primary">Criar conta grátis <span>→</span></Link>
+            <Link href="/?mode=deriv" className="izi-btn izi-secondary">Entrar com a sua conta Deriv</Link>
             <a href="#funcionalidades" className="izi-btn izi-secondary">Explorar funcionalidades</a>
           </div>
           <p className="izi-note">Interface para computador e telemóvel · Português e inglês</p>
@@ -96,7 +98,7 @@ export default function LandingPage() {
         </div>
       </section>
 
-      <section className="izi-wrap izi-cta"><div className="izi-cta-box"><h2>Pronto para conhecer a Izitrader?</h2><p>Entre na plataforma e descubra uma interface criada para reunir as suas ferramentas de análise e acompanhamento.</p><Link href="/register" className="izi-btn izi-primary">Começar agora <span>→</span></Link></div></section>
+      <section className="izi-wrap izi-cta"><div className="izi-cta-box"><h2>Pronto para conhecer a Izitrader?</h2><p>Entre na plataforma e descubra uma interface criada para reunir as suas ferramentas de análise e acompanhamento.</p><div className="izi-actions" style={{justifyContent:"center"}}><Link href="/register" className="izi-btn izi-primary">Começar agora <span>→</span></Link><Link href="/?mode=deriv" className="izi-btn izi-secondary">Entrar com Deriv</Link></div></div></section>
 
       <footer className="izi-wrap izi-footer"><div>© {new Date().getFullYear()} Izitrader. Todos os direitos reservados.</div><div className="izi-footerlinks"><a href="#funcionalidades">Funcionalidades</a><Link href="/?mode=login">Entrar</Link><Link href="/register">Criar conta</Link></div><div>Negociar envolve risco de perda financeira. Ferramentas de análise não garantem resultados.</div></footer>
     </main>

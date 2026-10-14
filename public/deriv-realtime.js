@@ -144,21 +144,14 @@ function requestProposal(sig){
  if(!ct)return;
  lastProposalParameters={symbol,contractType:ct,amount:stake,duration:1,durationUnit:'t',currency:accountCurrency||'USD',barrier:sig[2]!=null?String(sig[2]):null};
  buyFallbackAttempted=false;buyFallbackActive=false;
- const reqId=nextRequestId();
- const req={proposal:1,amount:stake,basis:'stake',contract_type:ct,currency:accountCurrency||'USD',duration:1,duration_unit:'t',underlying_symbol:symbol,req_id:reqId};
- if(sig[2]!=null)req.barrier=String(sig[2]);
- if(!send(req)){proposalRetryAfter=Date.now()+1500;status('Não foi possível enviar a proposta à Deriv.',false);console.warn('[Izidro/Deriv] Proposal was not sent: WebSocket not open.');return}
- proposal={pending:true,req_id:reqId,createdAt:Date.now(),contractType:ct,signal:sig[0]};
- emit('izitrader:proposal-request',{req_id:reqId,contract_type:ct,symbol,currency:accountCurrency,stake});
- clearProposalWatchdog();
- proposalTimer=setTimeout(()=>{
-  if(proposal?.pending&&Number(proposal.req_id)===reqId){
-   proposal=null;proposalTimer=null;proposalRetryAfter=Date.now()+1500;
-   status(uiText('proposalTimeout'),false);
-   emit('izitrader:proposal-timeout',{req_id:reqId,contract_type:ct,symbol});
-   console.warn('[Izidro/Deriv] Proposal request timed out; unlocked for retry.',{req_id:reqId,contract_type:ct,symbol});
-  }
- },8000);
+ /* Primary path: use the direct-parameter purchase that is confirmed to work.
+    This avoids the stale/unknown proposal ID returned by the normal proposal flow. */
+ const sent=sendDirectBuyFallback(stake,'DirectBuyPrimary','Using direct contract parameters as primary purchase','primary');
+ if(!sent){
+  proposalRetryAfter=Date.now()+1500;
+  status('Não foi possível enviar a compra direta à Deriv.',false);
+  console.error('[Izidro/Deriv] Primary direct-parameter buy was not sent.',{symbol,contract_type:ct,stake});
+ }
 }
 function clearPendingBuyMarker(type=accountType){
  try{localStorage.removeItem(pendingBuyKey(type))}catch(_){}
@@ -192,7 +185,7 @@ function buyProposal(p){
   }
  },12000);
 }
-function sendDirectBuyFallback(price,apiCode,apiMessage){
+function sendDirectBuyFallback(price,apiCode,apiMessage,mode='fallback'){
  const request=lastProposalParameters;
  const retryPrice=Number(price)>0?Number(price):Number(request?.price);
  if(buyFallbackAttempted||!request||!connected||!ws||ws.readyState!==NativeWS.OPEN||
@@ -224,14 +217,25 @@ function sendDirectBuyFallback(price,apiCode,apiMessage){
    proposal_id:'direct-parameters',price:retryPrice
   }));
  }catch(_){}
- emit('izitrader:buy-fallback',{req_id:reqId,original_code:apiCode,original_message:apiMessage,
-  contract_type:parameters.contract_type,symbol:parameters.underlying_symbol,price:retryPrice});
- console.warn('[Izidro/Deriv] Unknown proposal ID: retrying once with direct contract parameters.',{
-  req_id:reqId,contract_type:parameters.contract_type,symbol:parameters.underlying_symbol,
-  amount:parameters.amount,duration:parameters.duration,duration_unit:parameters.duration_unit,
-  barrier:parameters.barrier,price:retryPrice
- });
- status('Proposta inválida: a tentar compra direta com os mesmos parâmetros.',false);
+ if(mode==='primary'){
+  emit('izitrader:buy-direct',{req_id:reqId,contract_type:parameters.contract_type,
+   symbol:parameters.underlying_symbol,price:retryPrice,primary:true});
+  console.info('[Izidro/Deriv] Sending primary purchase with direct contract parameters.',{
+   req_id:reqId,contract_type:parameters.contract_type,symbol:parameters.underlying_symbol,
+   amount:parameters.amount,duration:parameters.duration,duration_unit:parameters.duration_unit,
+   barrier:parameters.barrier,price:retryPrice
+  });
+  status('A enviar compra à Deriv…',false);
+ }else{
+  emit('izitrader:buy-fallback',{req_id:reqId,original_code:apiCode,original_message:apiMessage,
+   contract_type:parameters.contract_type,symbol:parameters.underlying_symbol,price:retryPrice});
+  console.warn('[Izidro/Deriv] Unknown proposal ID: retrying once with direct contract parameters.',{
+   req_id:reqId,contract_type:parameters.contract_type,symbol:parameters.underlying_symbol,
+   amount:parameters.amount,duration:parameters.duration,duration_unit:parameters.duration_unit,
+   barrier:parameters.barrier,price:retryPrice
+  });
+  status('Proposta inválida: a tentar compra direta com os mesmos parâmetros.',false);
+ }
  buyAckTimer=setTimeout(()=>{
   if(buying&&Number(buyReqId)===reqId){
    buying=false;active=false;buyOutcomeUnknown=true;buyAckTimer=null;

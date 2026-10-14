@@ -12,10 +12,10 @@ let accountType=localStorage.getItem('izitrader_account_type')||'real',uiSymbol=
 if(botName!=='ProParity'&&botName!=='Octawin'){botName='ProParity';try{localStorage.setItem('izitrader_bot',botName)}catch{}}
 localStorage.setItem('izitrader_symbol',uiSymbol);
 let baseStake=Math.max(.35,Number(localStorage.getItem('izitrader_stake')||.35)),stake=baseStake,martingaleLevel=0;
-const MARTINGALE_MAX_LEVEL=20,MAX_STAKE_BALANCE_RATIO=0.10;
+const MARTINGALE_MAX_LEVEL=20;
 function pendingBuyKey(type=accountType){return 'izitrader_buy_pending_'+type}
 let active=false,buying=false,proposal=null,contractId=null,sessionPnl=0,ticks=[],lastPipSize=2,closedIds=new Set(),accountIdValue=null,connected=false,authorized=false;
-let connecting=false,connectGeneration=0,balanceValue=null,buyOutcomeUnknown=false;
+let connecting=false,connectGeneration=0,balanceValue=null,buyOutcomeUnknown=false,lastProposalParameters=null,buyFallbackAttempted=false,buyFallbackActive=false;
 const $=s=>document.querySelector(s),set=(s,v)=>{const e=$(s);if(e)e.textContent=v},emit=(n,d)=>window.dispatchEvent(new CustomEvent(n,{detail:d}));function positionState(state){emit('izitrader:position-state',{state})}
 function idOf(a){return a&&(a.account_id||a.accountId||a.id||a.loginid)}
 function isReal(a){const t=String(a?.account_type||a?.type||'').toLowerCase(),id=String(idOf(a)||'');return t==='real'||a?.is_virtual===false||/^CR/i.test(id)}
@@ -71,27 +71,17 @@ function updateStake(){const input=$('#stakeInput');if(input&&document.activeEle
 window.addEventListener('izitrader:stake-change',e=>{const n=Number(e?.detail?.stake);if(!Number.isFinite(n)||n<.35)return;baseStake=Number(n.toFixed(2));if(martingaleLevel===0)stake=baseStake;updateStake();});
 function setupStake(){const row=$('.stake-row');if(!row)return;let input=$('#stakeInput');if(!input){const value=row.querySelector('.stake-value');input=document.createElement('input');input.id='stakeInput';input.type='number';input.min='.35';input.step='.01';input.inputMode='decimal';input.value=baseStake.toFixed(2);input.style.cssText='width:110px;background:var(--field);border:1px solid var(--border);border-radius:9px;color:var(--text);font-size:22px;font-weight:800;text-align:right;padding:5px 8px;outline:none';if(value)value.replaceWith(input);else row.appendChild(input)}input.onchange=()=>{let n=Number(input.value);if(!Number.isFinite(n)||n<.35)n=.35;baseStake=Number(n.toFixed(2));localStorage.setItem('izitrader_stake',String(baseStake));if(martingaleLevel===0)stake=baseStake;updateStake()};updateStake()}
 function applyMartingale(p){
- const n=Number(p);if(!Number.isFinite(n))return;
- if(n<0){
-  const nextLevel=Math.min(MARTINGALE_MAX_LEVEL,martingaleLevel+1);
-  const nextStake=Number((baseStake*Math.pow(2,nextLevel)).toFixed(2));
-  const maxStake=Number.isFinite(balanceValue)&&balanceValue>0
-   ?Number((balanceValue*MAX_STAKE_BALANCE_RATIO).toFixed(2))
-   :Infinity;
-  if(nextStake>maxStake){
-   martingaleLevel=0;stake=baseStake;active=false;updateStake();
-   const b=$('.operate-btn');
-   if(b){b.dataset.running='0';b.textContent=uiText('start');b.disabled=!connected}
-   status('Robô pausado por segurança: a próxima aposta Martingale excede 10% do saldo.',false);
-   emit('izitrader:martingale-limit',{requestedStake:nextStake,maxStake,balance:balanceValue});
-   return;
+  const n=Number(p);if(!Number.isFinite(n))return;
+  if(n<0){
+   martingaleLevel=Math.min(MARTINGALE_MAX_LEVEL,martingaleLevel+1);
+   stake=Number((baseStake*Math.pow(2,martingaleLevel)).toFixed(2));
+  }else{
+   martingaleLevel=0;stake=baseStake;
   }
-  martingaleLevel=nextLevel;stake=nextStake;
- }else{martingaleLevel=0;stake=baseStake}
- updateStake();
- emit('izitrader:martingale',{level:martingaleLevel,stake,baseStake,profit:n,maxLevel:MARTINGALE_MAX_LEVEL});
-}
-function updatePnlColor(){const el=$('#pnl');if(!el)return;const raw=String(el.textContent||'').trim().replace(/\s+/g,'').replace(',','.');const m=raw.match(/^([+-]?)\$?(-?\d+(?:\.\d{1,2})?)$/);if(!m)return;const n=Number((m[1]||'')+m[2]);el.style.setProperty('color',n<0?'var(--red)':n>0?'#f5c04a':'var(--text)','important')}
+  updateStake();
+  emit('izitrader:martingale',{level:martingaleLevel,stake,baseStake,profit:n,maxLevel:MARTINGALE_MAX_LEVEL});
+ }
+ function updatePnlColor(){const el=$('#pnl');if(!el)return;const raw=String(el.textContent||'').trim().replace(/\s+/g,'').replace(',','.');const m=raw.match(/^([+-]?)\$?(-?\d+(?:\.\d{1,2})?)$/);if(!m)return;const n=Number((m[1]||'')+m[2]);el.style.setProperty('color',n<0?'var(--red)':n>0?'#f5c04a':'var(--text)','important')}
 function addClosed(c,p){const h=$('#historyRow')||$('#historyScroll'),id=String(c.contract_id||'');if(!h||!id||closedIds.has(id))return false;closedIds.add(id);const win=p>=0,i=document.createElement('div'),digit=getContractLastDigit(c);i.className='chip '+(win?'win':'loss');i.dataset.contractId=id;i.dataset.closed='1';i.innerHTML='<span><span class="chip-amount">'+(win?'+':'-')+'$'+Math.abs(p).toFixed(2)+'</span>'+(digit==null?'':'<span class="chip-digit">NR '+digit+'</span>')+'</span><span class="chip-tag">'+(win?'GANHO':'PERDA')+'</span>';h.prepend(i);while(h.querySelectorAll('.chip').length>700){const last=h.lastElementChild;if(!last)break;last.remove()}const count=$('#opsCount');if(count)count.textContent=String(h.querySelectorAll('.chip[data-closed="1"]').length);emit('izitrader:contract-closed',{...c,lastDigit:digit,profit_loss:p,profit:p,result:p>=0?'WON':'LOST',accountType});updatePnlColor();return true}
 function freshBalance(){send({balance:1,req_id:Date.now()%100000})}
 function watch(){if(contractId)send({proposal_open_contract:1,contract_id:contractId,subscribe:1,req_id:Date.now()%100000})}
@@ -150,20 +140,10 @@ function checkTargets(){
 }
 function requestProposal(sig){
  if(!active||buying||proposal||contractId||Date.now()<proposalRetryAfter)return;
- if(!Number.isFinite(balanceValue)||balanceValue<=0){
-  status('Aguardar confirmação do saldo da conta antes da entrada.',false);
-  return;
- }
- const maxStake=Number((balanceValue*MAX_STAKE_BALANCE_RATIO).toFixed(2));
- if(stake>maxStake+0.000001){
-  active=false;
-  const b=$('.operate-btn');if(b){b.dataset.running='0';b.textContent=uiText('start')}
-  status('Robô pausado por segurança: a aposta excede 10% do saldo disponível.',false);
-  emit('izitrader:risk-limit',{stake,balance:balanceValue,maxStake});
-  return;
- }
  const ct=CONTRACTS[sig[0]];
  if(!ct)return;
+ lastProposalParameters={symbol,contractType:ct,amount:stake,duration:1,durationUnit:'t',currency:accountCurrency||'USD',barrier:sig[2]!=null?String(sig[2]):null};
+ buyFallbackAttempted=false;buyFallbackActive=false;
  const reqId=nextRequestId();
  const req={proposal:1,amount:stake,basis:'stake',contract_type:ct,currency:accountCurrency||'USD',duration:1,duration_unit:'t',underlying_symbol:symbol,req_id:reqId};
  if(sig[2]!=null)req.barrier=String(sig[2]);
@@ -190,8 +170,9 @@ function buyProposal(p){
   proposal=null;buying=false;buyReqId=null;proposalRetryAfter=Date.now()+1500;
   showError('Proposta inválida para BUY');emit('izitrader:proposal-invalid',{symbol,proposal:p});return;
  }
+ lastProposalParameters={...(lastProposalParameters||{}),price,proposalId:String(id)};
  const reqId=nextRequestId();
- proposal=null;buying=true;buyReqId=reqId;
+ proposal=null;buying=true;buyReqId=reqId;buyFallbackActive=false;
  if(!send({buy:String(id),price,req_id:reqId})){
   buying=false;buyReqId=null;proposalRetryAfter=Date.now()+1500;
   showError('Não foi possível enviar a compra à Deriv.');return;
@@ -211,6 +192,60 @@ function buyProposal(p){
   }
  },12000);
 }
+function sendDirectBuyFallback(price,apiCode,apiMessage){
+ const request=lastProposalParameters;
+ const retryPrice=Number(price)>0?Number(price):Number(request?.price);
+ if(buyFallbackAttempted||!request||!connected||!ws||ws.readyState!==NativeWS.OPEN||
+    !request.symbol||!request.contractType||!Number.isFinite(Number(request.amount))||Number(request.amount)<=0||
+    !Number.isFinite(Number(request.duration))||Number(request.duration)<=0||
+    !Number.isFinite(retryPrice)||retryPrice<=0){
+  return false;
+ }
+ const parameters={
+  amount:Number(request.amount),basis:'stake',contract_type:String(request.contractType),
+  currency:String(request.currency||accountCurrency||'USD'),duration:Number(request.duration),
+  duration_unit:String(request.durationUnit||'t'),underlying_symbol:String(request.symbol)
+ };
+ if(request.barrier!==null&&request.barrier!==undefined&&
+    ['DIGITMATCH','DIGITDIFF','DIGITOVER','DIGITUNDER'].includes(parameters.contract_type)){
+  parameters.barrier=String(request.barrier);
+ }
+ const reqId=nextRequestId();
+ buyFallbackAttempted=true;
+ clearBuyWatchdog();
+ if(!send({buy:1,parameters,price:retryPrice,req_id:reqId})){
+  console.error('[Izidro/Deriv] Direct-parameter buy fallback could not be sent.',{apiCode,apiMessage,req_id:reqId});
+  return false;
+ }
+ buyReqId=reqId;buying=true;buyFallbackActive=true;buyOutcomeUnknown=false;
+ try{
+  localStorage.setItem(pendingBuyKey(),JSON.stringify({
+   req_id:reqId,createdAt:Date.now(),symbol:request.symbol,accountType,
+   proposal_id:'direct-parameters',price:retryPrice
+  }));
+ }catch(_){}
+ emit('izitrader:buy-fallback',{req_id:reqId,original_code:apiCode,original_message:apiMessage,
+  contract_type:parameters.contract_type,symbol:parameters.underlying_symbol,price:retryPrice});
+ console.warn('[Izidro/Deriv] Unknown proposal ID: retrying once with direct contract parameters.',{
+  req_id:reqId,contract_type:parameters.contract_type,symbol:parameters.underlying_symbol,
+  amount:parameters.amount,duration:parameters.duration,duration_unit:parameters.duration_unit,
+  barrier:parameters.barrier,price:retryPrice
+ });
+ status('Proposta inválida: a tentar compra direta com os mesmos parâmetros.',false);
+ buyAckTimer=setTimeout(()=>{
+  if(buying&&Number(buyReqId)===reqId){
+   buying=false;active=false;buyOutcomeUnknown=true;buyAckTimer=null;
+   const button=$('.operate-btn');if(button){button.dataset.running='0';button.textContent=uiText('start')}
+   status(uiText('buyTimeout'),false);
+   emit('izitrader:buy-timeout',{req_id:reqId,symbol:request.symbol,accountType,fallback:true});
+   console.error('[Izidro/Deriv] Direct-parameter buy acknowledgement timed out; stopped to prevent duplicate purchases.',{
+    req_id:reqId,symbol:request.symbol,accountType
+   });
+  }
+ },12000);
+ return true;
+}
+
 function onMessage(raw){
  let m;try{m=JSON.parse(raw)}catch{return}
  const echo=m.echo_req||{};
@@ -232,10 +267,15 @@ function onMessage(raw){
    return;
   }
   if(isBuyError){
-   clearBuyWatchdog();buyReqId=null;buying=false;buyOutcomeUnknown=false;clearPendingBuyMarker();
+   const invalidProposal=/InvalidContractProposal/i.test(apiCode)||/unknown contract proposal|proposal.{0,40}(expired|invalid|not found|no longer available)/i.test(msg);
+   console.error('[Izidro/Deriv] Buy request rejected; exact API error captured.',{code:apiCode,message:msg,req_id:m.req_id,req_id_echo:echo.req_id,echo_req:echo,fallbackAttempted:buyFallbackAttempted});
+   if(invalidProposal&&!buyFallbackAttempted){
+    clearBuyWatchdog();buyReqId=null;buying=false;
+    if(sendDirectBuyFallback(Number(echo.price),apiCode,msg))return;
+   }
+   clearBuyWatchdog();buyReqId=null;buying=false;buyOutcomeUnknown=false;buyFallbackActive=false;clearPendingBuyMarker();
    proposal=null;proposalRetryAfter=Date.now()+1500;
-   emit('izitrader:buy-error',{code:apiCode,message:msg,req_id:m.req_id,symbol,echo_req:echo});
-   console.error('[Izidro/Deriv] Buy request rejected; exact API error captured.',{code:apiCode,message:msg,req_id:m.req_id,echo_req:echo});
+   emit('izitrader:buy-error',{code:apiCode,message:msg,req_id:m.req_id,symbol,echo_req:echo,fallbackAttempted:buyFallbackAttempted});
    status('Compra rejeitada pela Deriv ('+apiCode+'): '+msg,false);
    return;
   }
@@ -288,7 +328,7 @@ function onMessage(raw){
    console.warn('[Izidro/Deriv] Ignored buy acknowledgement not matching pending request.',{expected:buyReqId,received:m.req_id,contract_id:m.buy.contract_id});
    return;
   }
-  clearBuyWatchdog();buyReqId=null;buying=false;buyOutcomeUnknown=false;clearPendingBuyMarker();
+  clearBuyWatchdog();buyReqId=null;buying=false;buyOutcomeUnknown=false;buyFallbackActive=false;clearPendingBuyMarker();
   proposal=null;contractId=Number(m.buy.contract_id)||null;
   if(active)status(uiText('active'),true);
   positionState('open');
@@ -422,12 +462,6 @@ function startStop(){
   stopped=false;connect();status(uiText('waiting'),false);return;
  }
  if(!connected||!authorized){status(uiText('waiting'),false);return}
- if(!Number.isFinite(balanceValue)||balanceValue<=0){status('Aguardando confirmação do saldo da conta.',false);return}
- const maxStake=Number((balanceValue*MAX_STAKE_BALANCE_RATIO).toFixed(2));
- if(stake>maxStake+0.000001){
-  status('Aposta acima do limite de segurança de 10% do saldo. Reduza a aposta para iniciar.',false);
-  return;
- }
  active=true;prepareCelebrationAudio();positionState('analysis');sessionPnl=0;ticks=[];
  if(proposal&&!proposal.pending)proposal=null;
  buying=false;martingaleLevel=0;stake=baseStake;updateStake();status(uiText('active'),true);

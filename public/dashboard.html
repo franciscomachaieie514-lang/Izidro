@@ -3912,6 +3912,23 @@ html[data-theme="light"] .history-row .chip{
   margin:0!important;
 }
 </style>
+
+<style id="izi-deriv-api-visual-notice">
+  .balance-row{position:relative}
+  #iziDerivApiNotice{
+    position:absolute;inset:0;z-index:50;display:none;
+    align-items:center;justify-content:center;text-align:center;
+    padding:14px 18px;border-radius:inherit;
+    background:var(--card,#fff);color:var(--text,#111827);
+    border:1px solid var(--border,#d1d5db);
+    font-weight:800;font-size:clamp(13px,2.2vw,17px);line-height:1.4;
+    box-shadow:0 4px 18px rgba(0,0,0,.12);
+    pointer-events:none;
+  }
+  #iziDerivApiNotice.is-visible{display:flex}
+  #iziDerivApiNotice .izi-notice-icon{font-size:1.2em;margin-right:8px}
+</style>
+
 </head>
 <body>
 <div class="auth-page hidden" id="authPage"><div class="auth-card"><img class="auth-logo" src="/favicon.svg" alt="Izitrader"><div class="auth-brand">Izi<span>trader</span></div><div class="auth-title">Bem-vindo ao Izitrader</div><p class="auth-subtitle">Entre ou crie a sua conta Deriv para continuar.</p><a class="auth-btn auth-primary" href="https://track.deriv.com/_PZZnG4RWbBdZl7VyVw174GNd7ZgqdRLk/1/" target="_blank" rel="noopener">Criar conta na Deriv</a><a class="auth-btn auth-secondary" href="/api/auth/login" id="loginLink">Entrar com a Deriv</a></div></div>
@@ -3923,6 +3940,7 @@ html[data-theme="light"] .history-row .chip{
     <section class="dashboard-left">
 
       <div class="card balance-row">
+        <div id="iziDerivApiNotice" role="status" aria-live="polite"><span><span class="izi-notice-icon" aria-hidden="true">⚠️</span>Actualizar para versão recente de Deriv API code.</span></div>
         <div>
           <div class="label">SALDO</div>
           <div class="value" id="balance">A carregar...</div>
@@ -4463,5 +4481,24 @@ if(document.readyState==='loading'){
 }
 })();
 </script>
+
+<script id="izi-deriv-api-visual-notice-script">
+(function(){
+  'use strict';
+  const notice=document.getElementById('iziDerivApiNotice');
+  const startStop=document.getElementById('operateBtn');
+  const stageStop=document.getElementById('stageStopBtn');
+  if(!notice||!startStop)return;
+  const show=()=>notice.classList.add('is-visible');
+  const hide=()=>notice.classList.remove('is-visible');
+  // Presentation only: do not prevent, cancel, or replace the existing robot handlers.
+  startStop.addEventListener('click',function(){
+    if(startStop.dataset.running==='1') hide();
+    else show();
+  },true);
+  if(stageStop)stageStop.addEventListener('click',hide,true);
+})();
+</script>
+
 </body>
 </html>

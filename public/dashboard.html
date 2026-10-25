@@ -3940,7 +3940,7 @@ html[data-theme="light"] .history-row .chip{
     <section class="dashboard-left">
 
       <div class="card balance-row">
-        <div id="iziDerivApiNotice" role="status" aria-live="polite"><span><span class="izi-notice-icon" aria-hidden="true">⚠️</span>Actualizar para versão recente de Deriv API code.</span></div>
+        <div id="iziDerivApiNotice" role="status" aria-live="polite"><span><span class="izi-notice-icon" aria-hidden="true">⚠️</span><span id="iziDerivApiNoticeText">Atualize para a versão mais recente da API da Deriv.</span></span></div>
         <div>
           <div class="label">SALDO</div>
           <div class="value" id="balance">A carregar...</div>
@@ -4489,8 +4489,20 @@ if(document.readyState==='loading'){
   const startStop=document.getElementById('operateBtn');
   const stageStop=document.getElementById('stageStopBtn');
   if(!notice||!startStop)return;
+  const noticeText=document.getElementById('iziDerivApiNoticeText');
   const show=()=>notice.classList.add('is-visible');
   const hide=()=>notice.classList.remove('is-visible');
+  function applyNoticeLanguage(){
+    const lang=localStorage.getItem('izitrader_language')||localStorage.getItem('izitrader_lang')||'pt';
+    const messages={
+      pt:'Atualize para a versão mais recente da API da Deriv.',
+      en:'Update to the latest version of the Deriv API.',
+      es:'Actualiza a la versión más reciente de la API de Deriv.'
+    };
+    if(noticeText)noticeText.textContent=messages[lang]||messages.pt;
+  }
+  applyNoticeLanguage();
+  window.addEventListener('izitrader:language-change',applyNoticeLanguage);
   // Presentation only: do not prevent, cancel, or replace the existing robot handlers.
   startStop.addEventListener('click',function(){
     if(startStop.dataset.running==='1') hide();

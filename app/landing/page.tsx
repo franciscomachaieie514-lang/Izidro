@@ -49,10 +49,10 @@ export default function LandingPage() {
         .izi-telegram{background:#229ed9;color:#fff;border:1px solid #229ed9;padding:12px 14px;box-shadow:0 6px 16px #229ed923}
         .izi-telegram:hover{box-shadow:0 9px 20px #229ed933}
         .izi-telegram svg{width:18px;height:18px;flex:0 0 18px}
-        .izi-whatsapp-support{position:fixed;right:22px;bottom:22px;z-index:10000;width:56px;height:56px;padding:0;display:flex;align-items:center;justify-content:center;border-radius:50%;background:#25D366;color:#fff;text-decoration:none;box-shadow:0 8px 20px rgba(16,24,40,.16);transition:filter .18s}
-        .izi-whatsapp-support:hover,.izi-whatsapp-support:focus-visible{filter:brightness(.96)}
-        .izi-whatsapp-support svg{width:29px;height:29px;flex:0 0 29px;display:block}
-        @media(max-width:600px){.izi-whatsapp-support{right:22px;bottom:22px;width:56px;height:56px;padding:0}}
+        .izi-whatsapp-support{position:fixed;right:20px;bottom:20px;z-index:10000;width:56px;height:56px;background:#25D366;color:#fff;border-radius:50%;display:flex;align-items:center;justify-content:center;text-decoration:none;box-shadow:0 4px 12px rgba(0,0,0,.25);transition:background .2s,transform .2s}
+        .izi-whatsapp-support:hover{background:#128C7E;transform:scale(1.06)}
+        .izi-whatsapp-support svg{width:32px;height:32px;display:block;flex:0 0 32px}
+        @media(max-width:600px){.izi-whatsapp-support{right:20px;bottom:20px;width:56px;height:56px}}
 
         @media(max-width:900px){.izi-hero{grid-template-columns:1fr;gap:40px;padding:56px 0}.izi-hero-copy{max-width:700px}.izi-preview{max-width:650px;width:100%;margin:0 auto}.izi-features{grid-template-columns:repeat(2,minmax(0,1fr))}.izi-navlinks{gap:16px}}
         @media(max-width:900px){.izi-community-panel{grid-template-columns:1fr;gap:22px}.izi-community-actions{justify-content:flex-start}}
@@ -140,10 +140,9 @@ export default function LandingPage() {
 
       <footer className="izi-wrap izi-footer"><div>© {new Date().getFullYear()} Izitrader. Todos os direitos reservados.</div><div className="izi-footerlinks"><a href="#funcionalidades">Funcionalidades</a><a href="#telegram">Telegram</a><Link href="/?mode=login">Entrar</Link><Link href="/register">Criar conta</Link></div><div>Negociar envolve risco de perda financeira. Ferramentas de análise não garantem resultados.</div></footer>
 
-      <a className="izi-whatsapp-support" href="https://wa.me/message/24C6LXTACVVWP1" target="_blank" rel="noopener noreferrer" aria-label="Suporte WhatsApp">
-        <svg viewBox="0 0 24 24" aria-hidden="true">
-          <path fill="currentColor" d="M20.52 3.48A11.76 11.76 0 0 0 12.17 0C5.67 0 .38 5.28.38 11.78c0 2.08.54 4.11 1.58 5.9L.27 24l6.49-1.7a11.8 11.8 0 0 0 5.41 1.3h.01c6.5 0 11.78-5.28 11.78-11.78 0-3.15-1.23-6.11-3.44-8.34z"/>
-          <path fill="#25D366" d="M17.65 14.4c-.3-.15-1.77-.87-2.05-.97-.27-.1-.47-.15-.67.15-.2.3-.77.97-.95 1.17-.17.2-.35.22-.64.07-.3-.15-1.26-.46-2.4-1.48-.88-.79-1.48-1.76-1.65-2.06-.17-.3-.02-.46.13-.61.13-.13.3-.35.44-.52.15-.17.2-.3.3-.5.1-.2.05-.37-.03-.52-.07-.15-.67-1.62-.92-2.22-.24-.58-.48-.5-.67-.51l-.57-.01c-.2 0-.52.07-.8.37-.27.3-1.05 1.02-1.05 2.49s1.08 2.9 1.23 3.1c.15.2 2.13 3.25 5.16 4.56.72.31 1.28.5 1.72.64.72.23 1.37.2 1.88.12.58-.09 1.77-.73 2.02-1.44.25-.72.25-1.33.17-1.46-.08-.13-.27-.2-.57-.35z"/>
+      <a className="izi-whatsapp-support" href="https://wa.me/message/24C6LXTACVVWP1" target="_blank" rel="noopener noreferrer" aria-label="Falar no WhatsApp">
+        <svg viewBox="0 0 448 512" width="32" height="32" fill="currentColor" aria-hidden="true">
+          <path d="M380.9 97.1C339 55.1 283.2 32 223.9 32c-122.4 0-222 99.6-222 222 0 39.1 10.2 77.3 29.6 111L0 480l117.7-30.9c32.4 17.7 68.9 27 106.1 27h.1c122.3 0 224.1-99.6 224.1-222 0-59.3-25.2-115-67.1-157zm-157 341.6c-33.2 0-65.7-8.9-94-25.7l-6.7-4-69.8 18.3L72 359.2l-4.4-7c-18.5-29.4-28.2-63.3-28.2-98.2 0-101.7 82.8-184.5 184.6-184.5 49.3 0 95.6 19.2 130.4 54.1 34.8 34.9 56.2 81.2 56.1 130.5 0 101.8-84.9 184.6-186.6 184.6zm101.2-138.2c-5.5-2.8-32.8-16.2-37.9-18-5.1-1.9-8.8-2.8-12.5 2.8-3.7 5.6-14.3 18-17.6 21.8-3.2 3.7-6.5 4.2-12 1.4-32.6-16.3-54-29.1-75.5-66-5.7-9.8 5.7-9.1 16.3-30.3 1.8-3.7.9-6.9-.5-9.7-1.4-2.8-12.5-30.1-17.1-41.2-4.5-10.8-9.1-9.3-12.5-9.5-3.2-.2-6.9-.2-10.6-.2-3.7 0-9.7 1.4-14.8 6.9-5.1 5.6-19.4 19-19.4 46.3 0 27.3 19.9 53.7 22.6 57.4 2.8 3.7 39.1 59.7 94.8 83.8 35.2 15.2 49 16.5 66.6 13.9 10.7-1.6 32.8-13.4 37.4-26.4 4.6-13 4.6-24.1 3.2-26.4-1.3-2.5-5-3.9-10.5-6.6z"/>
         </svg>
       </a>
     </main>

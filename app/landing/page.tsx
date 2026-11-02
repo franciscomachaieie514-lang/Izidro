@@ -11,7 +11,7 @@ export default function LandingPage() {
   return (
     <main className="izi-landing">
       <style>{`
-        .izi-landing{--red:#e24b4a;--ink:#151a26;--muted:#687083;--line:#e8eaf0;--soft:#f7f8fb;background:#fff;color:var(--ink);font-family:Arial,Helvetica,sans-serif;overflow:hidden}
+        .izi-landing{--red:#e24b4a;--ink:#151a26;--muted:#687083;--line:#e8eaf0;--soft:#f7f8fb;background:#fff;color:var(--ink);font-family:Arial,Helvetica,sans-serif;overflow-x:clip}
         .izi-landing *{box-sizing:border-box}.izi-wrap{width:min(1160px,calc(100% - 40px));margin:0 auto}
         .izi-nav{height:82px;display:flex;align-items:center;justify-content:space-between;border-bottom:1px solid #f0f1f5}
         .izi-brand{display:flex;align-items:center;gap:10px;text-decoration:none;color:var(--ink);font-weight:800;font-size:25px;letter-spacing:-1px}
@@ -49,6 +49,11 @@ export default function LandingPage() {
         .izi-telegram{background:#229ed9;color:#fff;border:1px solid #229ed9;padding:12px 14px;box-shadow:0 6px 16px #229ed923}
         .izi-telegram:hover{box-shadow:0 9px 20px #229ed933}
         .izi-telegram svg{width:18px;height:18px;flex:0 0 18px}
+        .izi-whatsapp-support{position:fixed;right:22px;bottom:22px;z-index:10000;display:inline-flex;align-items:center;gap:10px;padding:13px 17px;border-radius:999px;background:#25D366;color:#fff;text-decoration:none;font-size:13px;font-weight:800;box-shadow:0 9px 24px #0b7a3b45;transition:transform .18s,box-shadow .18s}
+        .izi-whatsapp-support:hover{transform:translateY(-2px);box-shadow:0 12px 28px #0b7a3b55}
+        .izi-whatsapp-support svg{width:24px;height:24px;flex:0 0 24px;display:block}
+        @media(max-width:600px){.izi-whatsapp-support{right:14px;bottom:14px;padding:12px 14px;font-size:12px;gap:8px}}
+
         @media(max-width:900px){.izi-hero{grid-template-columns:1fr;gap:40px;padding:56px 0}.izi-hero-copy{max-width:700px}.izi-preview{max-width:650px;width:100%;margin:0 auto}.izi-features{grid-template-columns:repeat(2,minmax(0,1fr))}.izi-navlinks{gap:16px}}
         @media(max-width:900px){.izi-community-panel{grid-template-columns:1fr;gap:22px}.izi-community-actions{justify-content:flex-start}}
         @media(max-width:600px){.izi-wrap{width:min(100% - 30px,1160px)}.izi-nav{height:70px}.izi-brand{font-size:22px}.izi-mark{width:34px;height:34px}.izi-tag{font-size:7px}.izi-navlinks>a:not(.izi-btn){display:none}.izi-navlinks{gap:0}.izi-navlinks .izi-btn{padding:10px 12px;font-size:12px}.izi-navlinks .izi-deriv{display:none}.izi-hero{padding:43px 0 50px;gap:34px}.izi-hero h1{font-size:43px;letter-spacing:-1.8px}.izi-lead{font-size:15px}.izi-actions .izi-btn{flex:1}.izi-preview{padding:12px;border-radius:18px}.izi-dashboard{padding:13px}.izi-metric{padding:10px}.izi-metric strong{font-size:17px}.izi-float{right:4px;bottom:10px}.izi-section{padding:58px 0}.izi-features{gap:10px}.izi-card{padding:17px 14px;min-height:0}.izi-card h3{font-size:14px}.izi-card p{font-size:12px}.izi-icon{width:38px;height:38px;margin-bottom:14px}.izi-steps{grid-template-columns:1fr;gap:12px}.izi-cta{padding:40px 0}.izi-cta-box{padding:35px 20px}.izi-footer{align-items:flex-start;flex-direction:column}.izi-footerlinks{gap:13px}}
@@ -134,6 +139,14 @@ export default function LandingPage() {
       <section className="izi-wrap izi-cta"><div className="izi-cta-box"><h2>Pronto para conhecer a Izitrader?</h2><p>Entre na plataforma e descubra uma interface criada para reunir as suas ferramentas de análise e acompanhamento.</p><div className="izi-actions" style={{justifyContent:"center"}}><Link href="/register" className="izi-btn izi-primary">Começar agora <span>→</span></Link><Link href="/?mode=deriv" className="izi-btn izi-secondary">Entrar com Deriv</Link></div></div></section>
 
       <footer className="izi-wrap izi-footer"><div>© {new Date().getFullYear()} Izitrader. Todos os direitos reservados.</div><div className="izi-footerlinks"><a href="#funcionalidades">Funcionalidades</a><a href="#telegram">Telegram</a><Link href="/?mode=login">Entrar</Link><Link href="/register">Criar conta</Link></div><div>Negociar envolve risco de perda financeira. Ferramentas de análise não garantem resultados.</div></footer>
+
+      <a className="izi-whatsapp-support" href="https://wa.me/message/24C6LXTACVVWP1" target="_blank" rel="noopener noreferrer" aria-label="Suporte WhatsApp: +258 87 872 2538" title="WhatsApp: +258 87 872 2538">
+        <svg viewBox="0 0 24 24" aria-hidden="true">
+          <path fill="currentColor" d="M20.52 3.48A11.76 11.76 0 0 0 12.17 0C5.67 0 .38 5.28.38 11.78c0 2.08.54 4.11 1.58 5.9L.27 24l6.49-1.7a11.8 11.8 0 0 0 5.41 1.3h.01c6.5 0 11.78-5.28 11.78-11.78 0-3.15-1.23-6.11-3.44-8.34z"/>
+          <path fill="#25D366" d="M17.65 14.4c-.3-.15-1.77-.87-2.05-.97-.27-.1-.47-.15-.67.15-.2.3-.77.97-.95 1.17-.17.2-.35.22-.64.07-.3-.15-1.26-.46-2.4-1.48-.88-.79-1.48-1.76-1.65-2.06-.17-.3-.02-.46.13-.61.13-.13.3-.35.44-.52.15-.17.2-.3.3-.5.1-.2.05-.37-.03-.52-.07-.15-.67-1.62-.92-2.22-.24-.58-.48-.5-.67-.51l-.57-.01c-.2 0-.52.07-.8.37-.27.3-1.05 1.02-1.05 2.49s1.08 2.9 1.23 3.1c.15.2 2.13 3.25 5.16 4.56.72.31 1.28.5 1.72.64.72.23 1.37.2 1.88.12.58-.09 1.77-.73 2.02-1.44.25-.72.25-1.33.17-1.46-.08-.13-.27-.2-.57-.35z"/>
+        </svg>
+        <span>+258 87 872 2538</span>
+      </a>
     </main>
   );
 }

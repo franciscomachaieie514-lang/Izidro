@@ -49,10 +49,10 @@ export default function LandingPage() {
         .izi-telegram{background:#229ed9;color:#fff;border:1px solid #229ed9;padding:12px 14px;box-shadow:0 6px 16px #229ed923}
         .izi-telegram:hover{box-shadow:0 9px 20px #229ed933}
         .izi-telegram svg{width:18px;height:18px;flex:0 0 18px}
-        .izi-whatsapp-support{position:fixed;right:22px;bottom:22px;z-index:10000;width:56px;height:56px;padding:0;display:flex;align-items:center;justify-content:center;border-radius:50%;background:#25D366;color:#fff;text-decoration:none;box-shadow:0 9px 24px #0b7a3b45;transition:transform .18s,box-shadow .18s}
-        .izi-whatsapp-support:hover{transform:translateY(-2px);box-shadow:0 12px 28px #0b7a3b55}
-        .izi-whatsapp-support svg{width:24px;height:24px;flex:0 0 24px;display:block}
-        @media(max-width:600px){.izi-whatsapp-support{right:14px;bottom:14px;width:56px;height:56px;padding:0}}
+        .izi-whatsapp-support{position:fixed;right:22px;bottom:22px;z-index:10000;width:56px;height:56px;padding:0;display:flex;align-items:center;justify-content:center;border-radius:50%;background:#25D366;color:#fff;text-decoration:none;box-shadow:0 8px 20px rgba(16,24,40,.16);transition:filter .18s}
+        .izi-whatsapp-support:hover,.izi-whatsapp-support:focus-visible{filter:brightness(.96)}
+        .izi-whatsapp-support svg{width:29px;height:29px;flex:0 0 29px;display:block}
+        @media(max-width:600px){.izi-whatsapp-support{right:22px;bottom:22px;width:56px;height:56px;padding:0}}
 
         @media(max-width:900px){.izi-hero{grid-template-columns:1fr;gap:40px;padding:56px 0}.izi-hero-copy{max-width:700px}.izi-preview{max-width:650px;width:100%;margin:0 auto}.izi-features{grid-template-columns:repeat(2,minmax(0,1fr))}.izi-navlinks{gap:16px}}
         @media(max-width:900px){.izi-community-panel{grid-template-columns:1fr;gap:22px}.izi-community-actions{justify-content:flex-start}}

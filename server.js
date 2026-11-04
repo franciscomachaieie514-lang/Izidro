@@ -187,6 +187,8 @@ class TradingWorker {
     this.requestId = Math.floor(Date.now() % 1000000000);
     this.tickSubscriptionId = null;
     this.lastContractId = null;
+    this.buyOpenedAt = null;
+    this.openTradeBot = null;
     this.pingTimer = null;
     this.buyTimer = null;
     this.brokerReconnectTimer = null;
@@ -269,6 +271,11 @@ class TradingWorker {
     this.pnl = Number(row.session_pnl || 0);
     this.openContractId = row.open_contract_id ? Number(row.open_contract_id) : null;
     this.pendingBuy = row.pending_buy === true;
+    if(this.openContractId || this.pendingBuy) {
+      const savedSymbol=String(row.symbol||'');
+      const savedUi=Object.keys(SYMBOLS).find(key=>SYMBOLS[key]===savedSymbol);
+      if(savedUi){this.config.symbol=savedSymbol;this.config.uiSymbol=savedUi;}
+    }
     this.pendingBuyAt = row.pending_buy_at || null;
     // Never resume new entries after a process restart without an explicit user action.
     this.active = false;
@@ -347,6 +354,7 @@ class TradingWorker {
   }
 
   async start(data={}) {
+    if (!this.ready || !this.deriv || this.deriv.readyState !== WebSocket.OPEN) throw new Error('A ligação à Deriv ainda não está pronta.');
     if (this.status === 'reconcile_required' || this.pendingBuy) {
       throw new Error('É necessário resolver a compra sem confirmação antes de iniciar.');
     }
@@ -390,7 +398,7 @@ class TradingWorker {
   async changeConfig(data) {
     if (this.pendingBuy || this.openContractId) throw new Error('Termine a operação actual antes de alterar a configuração.');
     if (data.bot && BOTS.includes(data.bot)) this.config.bot = data.bot;
-    if (data.symbol && SYMBOLS[data.uiSymbol]) {
+    if (data.uiSymbol && SYMBOLS[data.uiSymbol]) {
       this.config.uiSymbol = data.uiSymbol;
       this.config.symbol = SYMBOLS[data.uiSymbol];
       this.ticks = [];
@@ -426,6 +434,8 @@ class TradingWorker {
     if (!contractType) return;
     this.pendingBuy = true;
     this.pendingBuyAt = new Date();
+    this.buyOpenedAt = this.pendingBuyAt;
+    this.openTradeBot = this.config.bot;
     this.buyStake = this.stake;
     this.buyReqId = this.id();
     this.status = 'buy_pending';
@@ -598,7 +608,7 @@ class TradingWorker {
         (owner_key,account_id,contract_id,bot,symbol,stake,profit_loss,result,last_digit,opened_at,closed_at)
        VALUES ($1,$2,$3,$4,$5,$6,$7,$8,$9,$10,NOW())
        ON CONFLICT (owner_key,account_id,contract_id) DO NOTHING`,
-      [this.identity.ownerKey,this.config.accountId,contractId,this.config.bot,this.config.symbol,stake,profit,profit>=0?'WON':'LOST',lastDigit,this.pendingBuyAt],
+      [this.identity.ownerKey,this.config.accountId,contractId,this.openTradeBot || this.config.bot,this.config.symbol,stake,profit,profit>=0?'WON':'LOST',lastDigit,this.buyOpenedAt],
     ).catch(error=>console.error('Izitrader history persistence error:',error.message));
 
     this.pnl=Number((this.pnl+profit).toFixed(2));
@@ -612,6 +622,8 @@ class TradingWorker {
     this.pendingBuy=false;
     this.pendingBuyAt=null;
     this.buyStake=null;
+    this.buyOpenedAt=null;
+    this.openTradeBot=null;
     if(this.stopRequested || targetProfit || targetLoss || maxStake) {
       this.active=false;
       this.status='stopped';
@@ -627,7 +639,7 @@ class TradingWorker {
       result:profit>=0?'WON':'LOST',
       lastDigit,
       exit_tick_display_value:digitDisplay,
-      bot_name:this.config.bot,
+      bot_name:this.openTradeBot || this.config.bot,
       symbol:this.config.symbol,
       accountType:this.config.accountType,
     });
@@ -741,9 +753,15 @@ async function configureWorker(client, identity, request) {
       profitTarget,lossLimit,
     });
     activeWorkers.add(worker);
-    await worker.restore();
-    await worker.connectBroker();
-    return worker;
+    try {
+      await worker.restore();
+      await worker.connectBroker();
+      return worker;
+    } catch(error) {
+      activeWorkers.delete(worker);
+      worker.closed=true;
+      throw error;
+    }
   } catch(error) {
     try { await lockClient.query('SELECT pg_advisory_unlock(hashtext($1))',[lockKey]); } catch {}
     lockClient.release();
@@ -803,6 +821,7 @@ app.prepare().then(() => {
         sendClient(client,'error',{message:'Comando não reconhecido.'});
       } catch(error) {
         sendClient(client,'error',{message:error instanceof Error?error.message:'Falha no servidor.'});
+        if(message.type==='configure' && !worker) client.close(1008,'Configuration failed');
       }
     });
     client.on('close',()=>{ if(worker)worker.clientGone().catch(()=>{}); });

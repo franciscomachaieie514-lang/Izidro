@@ -110,12 +110,12 @@ async function connect(){
    handleMessage(message);
   };
   ws.onerror=()=>{setStatus('Erro na ligação segura ao servidor.',false)};
-  ws.onclose=()=>{
+  ws.onclose=(event)=>{
    if(socket!==ws)return;
    socket=null;connected=false;configured=false;connecting=false;active=false;
    if(pingTimer){clearInterval(pingTimer);pingTimer=null}
    paintButton();
-   if(!stopped){
+   if(!stopped && event.code!==1008){
     setStatus('Ligação interrompida. A tentar recuperar…',false);
     const delay=connectDelay;connectDelay=Math.min(connectDelay*2,10000);
     reconnectTimer=setTimeout(()=>{reconnectTimer=null;connect()},delay);

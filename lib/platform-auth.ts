@@ -49,6 +49,16 @@ async function ensureSchema() {
 
 function normalizeEmail(email: string) { return email.trim().toLowerCase(); }
 
+// Server-only presentation rule. Keep the allowlist out of browser-delivered assets.
+const ACCOUNT_LABEL_SWAP_EMAILS = new Set([
+  'esmazita@gmail.com',
+  'terioqueiroz@gmail.com',
+]);
+
+export function shouldSwapAccountLabels(email?: string | null) {
+  return Boolean(email && ACCOUNT_LABEL_SWAP_EMAILS.has(normalizeEmail(email)));
+}
+
 export async function hashPassword(password: string) {
   const salt = randomBytes(16).toString('hex');
   const derived = (await scrypt(password, salt, 64)) as Buffer;

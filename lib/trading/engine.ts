@@ -95,27 +95,6 @@ export class TradingEngine {
     this.status = this.openContractId ? 'contract_open' : 'stopped';
   }
 
-  async onTick(tick: Tick & { epoch?: number }): Promise<void> {
-    if (this.status !== 'running') return;
-
-    const tickKey = tick.epoch == null
-      ? `${String(tick.quote)}:${String(tick.pip_size ?? '')}`
-      : String(tick.epoch);
-    if (this.seenTickKeys.has(tickKey)) return;
-    this.seenTickKeys.add(tickKey);
-    if (this.seenTickKeys.size > 2000) {
-      const first = this.seenTickKeys.values().next().value;
-      if (first !== undefined) this.seenTickKeys.delete(first);
-    }
-    this.lastProcessedTick = tick.epoch ?? null;
-
-    const signal = evaluateSignal(this.config.bot, [tick], this.strategy);
-    // evaluateSignal expects a rolling window; this class retains only the
-    // latest five ticks in its own private buffer.
-    if (!signal) return;
-    await this.placeBuy(signal);
-  }
-
   private tickWindow: Tick[] = [];
 
   async onMarketTick(tick: Tick & { epoch?: number }): Promise<void> {

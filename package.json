@@ -4,8 +4,8 @@
   "private": true,
   "scripts": {
     "dev": "next dev",
-    "build": "next build",
-    "start": "next start"
+    "build": "for f in private/dashboard-assets/*.js; do node --check \"$f\" || exit 1; done && node --check server.js && node --check lib/trading/strategy.cjs && node --test tests/trading-strategy.test.cjs && next build",
+    "start": "node server.js"
   },
   "dependencies": {
     "next": "15.5.24",
@@ -17,6 +17,10 @@
     "@types/react": "19.1.10",
     "@types/react-dom": "19.1.7",
     "@types/pg": "8.15.5",
-    "resend": "^6.5.2"
+    "resend": "^6.5.2",
+    "ws": "8.22.1"
+  },
+  "engines": {
+    "node": ">=20.0.0"
   }
 }

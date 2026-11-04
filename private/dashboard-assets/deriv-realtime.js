@@ -7,7 +7,7 @@
 const NativeWS=window.WebSocket;
 const SYMBOLS={V10:'R_10',V15:'1HZ15V',V25:'R_25',V30:'1HZ30V',V50:'R_50',V75:'R_75',V90:'1HZ90V',V100:'R_100',V150:'1HZ150V',V250:'1HZ250V',V10_1S:'1HZ10V',V25_1S:'1HZ25V',V50_1S:'1HZ50V',V75_1S:'1HZ75V',V100_1S:'1HZ100V'};
 const LABELS={V10:'Volatility 10',V15:'Volatility 15 (1s)',V25:'Volatility 25',V30:'Volatility 30 (1s)',V50:'Volatility 50',V75:'Volatility 75',V90:'Volatility 90 (1s)',V100:'Volatility 100',V150:'Volatility 150 (1s)',V250:'Volatility 250 (1s)',V10_1S:'Volatility 10 (1s)',V25_1S:'Volatility 25 (1s)',V50_1S:'Volatility 50 (1s)',V75_1S:'Volatility 75 (1s)',V100_1S:'Volatility 100 (1s)'};
-let socket=null,reconnectTimer=null,pingTimer=null,connecting=false,stopped=false,active=false,connected=false,configured=false;
+let socket=null,reconnectTimer=null,pingTimer=null,handshakeTimer=null,configurationTimer=null,connecting=false,stopped=false,active=false,connected=false,configured=false;
 let accountType=localStorage.getItem('izitrader_account_type')==='demo'?'demo':'real';
 let uiSymbol=localStorage.getItem('izitrader_symbol')||'V100';
 if(!SYMBOLS[uiSymbol])uiSymbol='V100';
@@ -23,6 +23,11 @@ function text(key){const lang=localStorage.getItem('izitrader_language')||localS
  tradeClosed:{pt:'Trade fechado — à espera de ticks',en:'Trade closed — waiting for ticks',es:'Operación cerrada — esperando ticks'},
  connected:{pt:'Conta ligada',en:'Account connected',es:'Cuenta conectada'},
  waiting:{pt:'Aguardando ligação à Deriv…',en:'Waiting for Deriv connection…',es:'Esperando conexión a Deriv…'},
+ lookup:{pt:'A consultar a sua conta Deriv…',en:'Checking your Deriv account…',es:'Consultando su cuenta Deriv…'},
+ opening:{pt:'Conta encontrada. A abrir ligação segura…',en:'Account found. Opening secure connection…',es:'Cuenta encontrada. Abriendo conexión segura…'},
+ validating:{pt:'Servidor ligado. A validar a sessão Deriv…',en:'Server connected. Validating Deriv session…',es:'Servidor conectado. Validando sesión Deriv…'},
+ connectTimeout:{pt:'A ligação demorou demasiado. A tentar novamente…',en:'Connection timed out. Retrying…',es:'La conexión tardó demasiado. Reintentando…'},
+ configureTimeout:{pt:'A Deriv ainda não confirmou a sessão. A tentar novamente…',en:'Deriv has not confirmed the session yet. Retrying…',es:'Deriv aún no confirmó la sesión. Reintentando…'},
  start:{pt:'▶ Iniciar Robô',en:'▶ Start Robot',es:'▶ Iniciar Robot'},
  stop:{pt:'■ Parar Robô',en:'■ Stop Robot',es:'■ Detener Robot'}
 };return words[key]?.[lang]||words[key]?.pt||key}
@@ -76,8 +81,16 @@ function send(message){
  if(!socket||socket.readyState!==NativeWS.OPEN)return false;
  try{socket.send(JSON.stringify(message));return true}catch{return false}
 }
-async function getAccountId(){
- const response=await fetch('/api/deriv/accounts',{credentials:'same-origin',cache:'no-store'});
+async function getAccount(){
+ const controller=new AbortController();
+ const timeout=setTimeout(()=>controller.abort(),15000);
+ let response;
+ try{
+  response=await fetch('/api/deriv/accounts',{credentials:'same-origin',cache:'no-store',signal:controller.signal});
+ }catch(error){
+  if(error&&error.name==='AbortError')throw new Error('A consulta à Deriv demorou demasiado. Verifique a ligação e tente novamente.');
+  throw new Error('Não foi possível contactar o servidor do Izitrader.');
+ }finally{clearTimeout(timeout)}
  const data=await response.json().catch(()=>({}));
  if(!response.ok)throw new Error(data.error||'Não foi possível consultar as contas Deriv.');
  const accounts=Array.isArray(data.accounts)?data.accounts:[];
@@ -85,7 +98,7 @@ async function getAccountId(){
  const isDemo=a=>String(a.account_type||'').toLowerCase()==='demo'||a.is_virtual===true||/^VR/i.test(String(a.account_id||''));
  const account=accountType==='real'?accounts.find(isReal):accounts.find(isDemo);
  if(!account)throw new Error('Conta '+(accountType==='real'?'Real':'Demo')+' não encontrada.');
- return String(account.account_id);
+ return account;
 }
 function configPayload(accountId){
  return {type:'configure',accountId,accountType,uiSymbol,symbol:SYMBOLS[uiSymbol],bot,baseStake,
@@ -94,17 +107,39 @@ function configPayload(accountId){
 }
 async function connect(){
  if(stopped||connecting||socket)return;
- connecting=true;setStatus(text('waiting'),false);
+ connecting=true;setStatus(text('lookup'),false);
  try{
-  const accountId=await getAccountId();
+  const account=await getAccount();
   if(stopped)return;
+  const accountId=String(account.account_id||'');
+  const accountBalance=Number(account.balance);
+  if(Number.isFinite(accountBalance))updateBalance(accountBalance,String(account.currency||'USD'));
+  setStatus(text('opening'),false);
   const scheme=location.protocol==='https:'?'wss':'ws';
   const ws=new NativeWS(scheme+'://'+location.host+'/api/trading/ws');
   socket=ws;
+  handshakeTimer=setTimeout(()=>{
+   if(socket===ws&&ws.readyState===NativeWS.CONNECTING){
+    setStatus(text('connectTimeout'),false);
+    try{ws.close(4000,'WebSocket handshake timeout')}catch{}
+   }
+  },15000);
   ws.onopen=()=>{
    if(socket!==ws)return;
+   if(handshakeTimer){clearTimeout(handshakeTimer);handshakeTimer=null}
    connected=true;configured=false;connectDelay=1000;
-   send(configPayload(accountId));
+   setStatus(text('validating'),false);
+   configurationTimer=setTimeout(()=>{
+    if(socket===ws&&!configured){
+     setStatus(text('configureTimeout'),false);
+     try{ws.close(4000,'Deriv configuration timeout')}catch{}
+    }
+   },40000);
+   if(!send(configPayload(accountId))){
+    setStatus('Não foi possível enviar a configuração ao servidor.',false);
+    try{ws.close(4000,'Configuration send failed')}catch{}
+    return;
+   }
    pingTimer=setInterval(()=>send({type:'ping'}),20000);
   };
   ws.onmessage=event=>{
@@ -115,6 +150,8 @@ async function connect(){
   ws.onclose=(event)=>{
    if(socket!==ws)return;
    socket=null;connected=false;configured=false;connecting=false;active=false;
+   if(handshakeTimer){clearTimeout(handshakeTimer);handshakeTimer=null}
+   if(configurationTimer){clearTimeout(configurationTimer);configurationTimer=null}
    if(pingTimer){clearInterval(pingTimer);pingTimer=null}
    paintButton();
    if(!stopped && event.code!==1008){
@@ -133,7 +170,9 @@ async function connect(){
 function handleMessage(message){
  const data=message.state||{};
  if(message.type==='configured'||message.type==='state'){
-  configured=true;connected=true;active=Boolean(data.active);statusValue=String(data.status||'stopped');
+  configured=true;connected=true;
+  if(configurationTimer){clearTimeout(configurationTimer);configurationTimer=null}
+  active=Boolean(data.active);statusValue=String(data.status||'stopped');
   pendingBuy=Boolean(data.pendingBuy);openContractId=data.openContractId||null;reconcileRequired=statusValue==='reconcile_required';
   if(Number.isFinite(Number(data.balance)))updateBalance(data.balance,data.currency);
   if(data.pnl!==undefined)updatePnl(data.pnl);

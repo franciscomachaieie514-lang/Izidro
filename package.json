@@ -4,7 +4,7 @@
   "private": true,
   "scripts": {
     "dev": "next dev",
-    "build": "node --test tests/trading-strategy.test.cjs && next build",
+    "build": "for f in private/dashboard-assets/*.js; do node --check \"$f\" || exit 1; done && node --check server.js && node --check lib/trading/strategy.cjs && node --test tests/trading-strategy.test.cjs && next build",
     "start": "node server.js"
   },
   "dependencies": {

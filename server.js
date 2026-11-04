@@ -659,12 +659,13 @@ class TradingWorker {
     const digitDisplay=contract.exit_tick_display_value ?? contract.exit_spot_display_value ?? contract.sell_spot_display_value;
     const digitMatch=String(digitDisplay??'').match(/(\\d)\\s*$/);
     const lastDigit=digitMatch?Number(digitMatch[1]):null;
-    const client=await pool.connect();
+    let client=null;
     let inserted=false;
     let targetProfit=false;
     let targetLoss=false;
     let maxStake=false;
     try {
+      client=await pool.connect();
       await client.query('BEGIN');
       const history=await client.query(
         `INSERT INTO izitrader_trade_history
@@ -712,7 +713,7 @@ class TradingWorker {
 
       // History insertion and session accounting/state transition commit
       // together. A crash cannot leave one committed without the other.
-      await client.query(
+      const sessionUpdate=await client.query(
         `UPDATE izitrader_trade_sessions
             SET session_pnl=$3,stake=$4,martingale_level=$5,active=$6,status=$7,
                 open_contract_id=NULL,pending_buy=FALSE,pending_buy_at=NULL,
@@ -720,15 +721,16 @@ class TradingWorker {
           WHERE owner_key=$1 AND account_id=$2`,
         [this.identity.ownerKey,this.config.accountId,this.pnl,this.stake,this.level,this.active,this.status],
       );
+      if(sessionUpdate.rowCount!==1) throw new Error('TRADING_SESSION_ROW_MISSING');
       await client.query('COMMIT');
     } catch(error) {
-      await client.query('ROLLBACK').catch(()=>{});
+      if(client) await client.query('ROLLBACK').catch(()=>{});
       this.closingContractId=null;
       console.error('Izitrader atomic contract-close error:',error.message);
       sendClient(this.client,'deriv_error',{message:'Não foi possível guardar o fecho da operação. O estado foi preservado para nova reconciliação.'});
       return;
     } finally {
-      client.release();
+      if(client) client.release();
     }
 
     this.openContractId=null;

@@ -15,7 +15,12 @@ const handle = app.getRequestHandler();
 const pool = new Pool({
   connectionString: process.env.DATABASE_URL,
   ssl: process.env.NODE_ENV === 'production' ? { rejectUnauthorized: false } : undefined,
-  max: 8,
+  // Each connected dashboard worker holds one client for its advisory account lock.
+  // Leave room for 10+ users plus ordinary session/API queries.
+  max: 20,
+  connectionTimeoutMillis: 8000,
+  query_timeout: 15000,
+  statement_timeout: 15000,
   idleTimeoutMillis: 30000,
 });
 const APP_ID = (process.env.DERIV_APP_ID || process.env.DERIV_CLIENT_ID || '').trim();
@@ -108,53 +113,62 @@ function isDemo(account) {
   return type === 'demo' || account?.is_virtual === true || /^VR/i.test(id);
 }
 
+let tradingSchemaPromise = null;
 async function ensureTradingSchema() {
-  await pool.query(`
-    CREATE TABLE IF NOT EXISTS izitrader_trade_sessions (
-      owner_key TEXT NOT NULL,
-      account_id TEXT NOT NULL,
-      account_type TEXT NOT NULL,
-      symbol TEXT NOT NULL,
-      bot TEXT NOT NULL,
-      base_stake NUMERIC(18,2) NOT NULL DEFAULT 0.35,
-      stake NUMERIC(18,2) NOT NULL DEFAULT 0.35,
-      martingale_level INTEGER NOT NULL DEFAULT 0,
-      session_pnl NUMERIC(18,2) NOT NULL DEFAULT 0,
-      profit_target NUMERIC(18,2) NOT NULL DEFAULT 0,
-      loss_limit NUMERIC(18,2) NOT NULL DEFAULT 0,
-      active BOOLEAN NOT NULL DEFAULT FALSE,
-      status TEXT NOT NULL DEFAULT 'stopped',
-      open_contract_id BIGINT,
-      pending_buy BOOLEAN NOT NULL DEFAULT FALSE,
-      pending_buy_at TIMESTAMPTZ,
-      opened_at TIMESTAMPTZ,
-      open_trade_bot TEXT,
-      open_trade_stake NUMERIC(18,2),
-      updated_at TIMESTAMPTZ NOT NULL DEFAULT NOW(),
-      PRIMARY KEY (owner_key, account_id)
-    );
-    CREATE TABLE IF NOT EXISTS izitrader_trade_history (
-      owner_key TEXT NOT NULL,
-      account_id TEXT NOT NULL,
-      contract_id BIGINT NOT NULL,
-      bot TEXT NOT NULL,
-      symbol TEXT NOT NULL,
-      stake NUMERIC(18,2) NOT NULL,
-      profit_loss NUMERIC(18,2) NOT NULL,
-      result TEXT NOT NULL,
-      last_digit INTEGER,
-      opened_at TIMESTAMPTZ,
-      closed_at TIMESTAMPTZ NOT NULL DEFAULT NOW(),
-      PRIMARY KEY (owner_key, account_id, contract_id)
-    );
-    ALTER TABLE izitrader_trade_sessions ADD COLUMN IF NOT EXISTS opened_at TIMESTAMPTZ;
-    ALTER TABLE izitrader_trade_sessions ADD COLUMN IF NOT EXISTS open_trade_bot TEXT;
-    ALTER TABLE izitrader_trade_sessions ADD COLUMN IF NOT EXISTS open_trade_stake NUMERIC(18,2);
-    CREATE INDEX IF NOT EXISTS izitrader_trade_history_closed_idx
-      ON izitrader_trade_history(owner_key, account_id, closed_at DESC);
-  `);
+  if (tradingSchemaPromise) return tradingSchemaPromise;
+  tradingSchemaPromise = (async () => {
+    await pool.query(`
+      CREATE TABLE IF NOT EXISTS izitrader_trade_sessions (
+        owner_key TEXT NOT NULL,
+        account_id TEXT NOT NULL,
+        account_type TEXT NOT NULL,
+        symbol TEXT NOT NULL,
+        bot TEXT NOT NULL,
+        base_stake NUMERIC(18,2) NOT NULL DEFAULT 0.35,
+        stake NUMERIC(18,2) NOT NULL DEFAULT 0.35,
+        martingale_level INTEGER NOT NULL DEFAULT 0,
+        session_pnl NUMERIC(18,2) NOT NULL DEFAULT 0,
+        profit_target NUMERIC(18,2) NOT NULL DEFAULT 0,
+        loss_limit NUMERIC(18,2) NOT NULL DEFAULT 0,
+        active BOOLEAN NOT NULL DEFAULT FALSE,
+        status TEXT NOT NULL DEFAULT 'stopped',
+        open_contract_id BIGINT,
+        pending_buy BOOLEAN NOT NULL DEFAULT FALSE,
+        pending_buy_at TIMESTAMPTZ,
+        opened_at TIMESTAMPTZ,
+        open_trade_bot TEXT,
+        open_trade_stake NUMERIC(18,2),
+        updated_at TIMESTAMPTZ NOT NULL DEFAULT NOW(),
+        PRIMARY KEY (owner_key, account_id)
+      );
+      CREATE TABLE IF NOT EXISTS izitrader_trade_history (
+        owner_key TEXT NOT NULL,
+        account_id TEXT NOT NULL,
+        contract_id BIGINT NOT NULL,
+        bot TEXT NOT NULL,
+        symbol TEXT NOT NULL,
+        stake NUMERIC(18,2) NOT NULL,
+        profit_loss NUMERIC(18,2) NOT NULL,
+        result TEXT NOT NULL,
+        last_digit INTEGER,
+        opened_at TIMESTAMPTZ,
+        closed_at TIMESTAMPTZ NOT NULL DEFAULT NOW(),
+        PRIMARY KEY (owner_key, account_id, contract_id)
+      );
+      ALTER TABLE izitrader_trade_sessions ADD COLUMN IF NOT EXISTS opened_at TIMESTAMPTZ;
+      ALTER TABLE izitrader_trade_sessions ADD COLUMN IF NOT EXISTS open_trade_bot TEXT;
+      ALTER TABLE izitrader_trade_sessions ADD COLUMN IF NOT EXISTS open_trade_stake NUMERIC(18,2);
+      CREATE INDEX IF NOT EXISTS izitrader_trade_history_closed_idx
+        ON izitrader_trade_history(owner_key, account_id, closed_at DESC);
+    `);
+  })();
+  try {
+    await tradingSchemaPromise;
+  } catch (error) {
+    tradingSchemaPromise = null;
+    throw error;
+  }
 }
-
 function sendClient(client, type, payload={}) {
   if (client && client.readyState === WebSocket.OPEN) {
     try { client.send(JSON.stringify({ type, ...payload })); } catch {}
@@ -315,17 +329,26 @@ class TradingWorker {
   async connectBroker() {
     if (this.brokerConnecting || this.closed) return;
     this.brokerConnecting = true;
+    const brokerStartedAt = Date.now();
+    const progress = message => sendClient(this.client, 'status', {
+      message, ok:false, state:{ status:'connecting' },
+    });
     try {
+    progress('A validar a conta na Deriv…');
+    console.info('[Izi WS] Deriv account validation started.');
     const headers = { Authorization: 'Bearer ' + this.identity.accessToken };
     if (APP_ID) headers['Deriv-App-ID'] = APP_ID;
     const accountsPayload = await fetchJson('https://api.derivws.com/trading/v1/options/accounts', { headers });
     const accounts = Array.isArray(accountsPayload.data) ? accountsPayload.data : (accountsPayload.data ? [accountsPayload.data] : []);
+    console.info('[Izi WS] Deriv accounts response received:',accounts.length,'account(s).');
     const account = accounts.find(item => String(item.account_id) === this.config.accountId);
     if (!account) throw new Error('A conta seleccionada não pertence à sessão Deriv autenticada.');
     if (this.config.accountType === 'real' && !isReal(account)) throw new Error('A conta escolhida não é uma conta Real.');
     if (this.config.accountType === 'demo' && !isDemo(account)) throw new Error('A conta escolhida não é uma conta Demo.');
     this.currency = String(account.currency || 'USD').toUpperCase();
 
+    progress('Conta validada. A solicitar sessão segura à Deriv…');
+    console.info('[Izi WS] Selected Deriv account validated.');
     const otpHeaders = { ...headers, 'Content-Type': 'application/json' };
     const otp = await fetchJson(
       'https://api.derivws.com/trading/v1/options/accounts/' + encodeURIComponent(this.config.accountId) + '/otp',
@@ -336,6 +359,8 @@ class TradingWorker {
       throw new Error('A Deriv não devolveu uma sessão WebSocket autenticada válida.');
     }
 
+    progress('Sessão recebida. A abrir ligação segura à Deriv…');
+    console.info('[Izi WS] Deriv secure WebSocket handshake started.');
     await new Promise((resolve,reject) => {
       const socket = new WebSocket(socketUrl, { handshakeTimeout: 12000, maxPayload: 1024 * 1024 });
       this.deriv = socket;
@@ -345,7 +370,9 @@ class TradingWorker {
       }, 15000);
       socket.once('open', () => {
         if (settled) return;
-        settled=true; clearTimeout(timer); resolve();
+        settled=true; clearTimeout(timer);
+        console.info('[Izi WS] Deriv secure WebSocket opened in',Date.now()-brokerStartedAt,'ms.');
+        resolve();
       });
       socket.once('error', error => {
         if (settled) return;
@@ -356,6 +383,7 @@ class TradingWorker {
     });
 
     this.ready = true;
+    console.info('[Izi WS] Deriv broker connection ready in',Date.now()-brokerStartedAt,'ms.');
     sendDeriv(this.deriv, { balance:1, subscribe:1, req_id:this.id() });
     if (this.status === 'recovery' && this.openContractId) {
       sendDeriv(this.deriv, { proposal_open_contract:1, contract_id:this.openContractId, subscribe:1, req_id:this.id() });
@@ -840,6 +868,8 @@ class TradingWorker {
 }
 
 async function configureWorker(client, identity, request) {
+  const configStartedAt=Date.now();
+  console.info('[Izi WS] Preparing worker: database schema check.');
   const accountId=String(request.accountId||'');
   const accountType=request.accountType==='demo'?'demo':'real';
   const uiSymbol=String(request.uiSymbol||'V100');
@@ -853,11 +883,13 @@ async function configureWorker(client, identity, request) {
   if(!Number.isFinite(baseStake)||baseStake<0.35||baseStake>10000)throw new Error('A aposta base deve estar entre $0.35 e $10,000.');
 
   await ensureTradingSchema();
+  console.info('[Izi WS] Database schema ready in',Date.now()-configStartedAt,'ms; requesting account lock.');
   const lockClient=await pool.connect();
   const lockKey=identity.ownerKey+':'+accountId;
   try {
     const lock=await lockClient.query('SELECT pg_try_advisory_lock(hashtext($1)) AS locked',[lockKey]);
     if(lock.rows[0]?.locked!==true)throw new Error('Esta conta já tem uma sessão Izitrader activa noutra janela.');
+    console.info('[Izi WS] Account lock acquired in',Date.now()-configStartedAt,'ms; restoring worker state.');
     const worker=new TradingWorker(client,identity,lockClient,{
       accountId,accountType,uiSymbol,symbol,bot,baseStake,
       profitTarget,lossLimit,
@@ -865,7 +897,9 @@ async function configureWorker(client, identity, request) {
     activeWorkers.add(worker);
     try {
       await worker.restore();
+      console.info('[Izi WS] Worker state restored in',Date.now()-configStartedAt,'ms; connecting broker.');
       await worker.connectBroker();
+      console.info('[Izi WS] Worker fully prepared in',Date.now()-configStartedAt,'ms.');
       return worker;
     } catch(error) {
       activeWorkers.delete(worker);

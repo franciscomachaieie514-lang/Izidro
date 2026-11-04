@@ -649,30 +649,88 @@ class TradingWorker {
   async closeContract(contract,profit) {
     const contractId=Number(this.openContractId);
     if (!Number.isSafeInteger(contractId) || contractId <= 0) return;
-    // Deriv can emit multiple final contract updates for the same subscription.
-    // Lock synchronously before the first await so P/L and Martingale are applied once.
+    // Prevent duplicate final updates in this process; the database transaction
+    // below is the durable idempotency boundary across retries and restarts.
     if (this.closingContractId === contractId) return;
     this.closingContractId = contractId;
+
     const stake=Number(this.buyStake ?? this.stake);
     const tradeBot=this.openTradeBot || this.config.bot;
     const digitDisplay=contract.exit_tick_display_value ?? contract.exit_spot_display_value ?? contract.sell_spot_display_value;
-    const digitMatch=String(digitDisplay??'').match(/(\d)\s*$/);
+    const digitMatch=String(digitDisplay??'').match(/(\\d)\\s*$/);
     const lastDigit=digitMatch?Number(digitMatch[1]):null;
-    await pool.query(
-      `INSERT INTO izitrader_trade_history
-        (owner_key,account_id,contract_id,bot,symbol,stake,profit_loss,result,last_digit,opened_at,closed_at)
-       VALUES ($1,$2,$3,$4,$5,$6,$7,$8,$9,$10,NOW())
-       ON CONFLICT (owner_key,account_id,contract_id) DO NOTHING`,
-      [this.identity.ownerKey,this.config.accountId,contractId,tradeBot,this.config.symbol,stake,profit,profit>=0?'WON':'LOST',lastDigit,this.buyOpenedAt],
-    ).catch(error=>console.error('Izitrader history persistence error:',error.message));
+    const client=await pool.connect();
+    let inserted=false;
+    let targetProfit=false;
+    let targetLoss=false;
+    let maxStake=false;
+    try {
+      await client.query('BEGIN');
+      const history=await client.query(
+        `INSERT INTO izitrader_trade_history
+          (owner_key,account_id,contract_id,bot,symbol,stake,profit_loss,result,last_digit,opened_at,closed_at)
+         VALUES ($1,$2,$3,$4,$5,$6,$7,$8,$9,$10,NOW())
+         ON CONFLICT (owner_key,account_id,contract_id) DO NOTHING
+         RETURNING contract_id`,
+        [this.identity.ownerKey,this.config.accountId,contractId,tradeBot,this.config.symbol,stake,profit,profit>=0?'WON':'LOST',lastDigit,this.buyOpenedAt],
+      );
+      inserted=history.rowCount===1;
 
-    this.pnl=Number((this.pnl+profit).toFixed(2));
-    const next=updateMartingale(this.baseStake,this.level,profit);
-    this.level=next.level;
-    this.stake=next.stake;
-    const targetProfit=this.config.profitTarget>0 && this.pnl>=this.config.profitTarget;
-    const targetLoss=this.config.lossLimit>0 && this.pnl<=-this.config.lossLimit;
-    const maxStake=this.stake>10000;
+      if (inserted) {
+        this.pnl=Number((this.pnl+profit).toFixed(2));
+        const next=updateMartingale(this.baseStake,this.level,profit);
+        this.level=next.level;
+        this.stake=next.stake;
+        targetProfit=this.config.profitTarget>0 && this.pnl>=this.config.profitTarget;
+        targetLoss=this.config.lossLimit>0 && this.pnl<=-this.config.lossLimit;
+        maxStake=this.stake>10000;
+        if(this.stopRequested || targetProfit || targetLoss || maxStake) {
+          this.active=false;
+          this.status='stopped';
+          this.stopRequested=false;
+        } else {
+          this.status=this.active?'running':'stopped';
+        }
+      } else {
+        // A previously committed history row must never change P/L or
+        // Martingale again. Re-read the durable session state instead.
+        const saved=await client.query(
+          `SELECT session_pnl,stake,martingale_level,active,status
+             FROM izitrader_trade_sessions
+            WHERE owner_key=$1 AND account_id=$2 FOR UPDATE`,
+          [this.identity.ownerKey,this.config.accountId],
+        );
+        if(saved.rows[0]) {
+          this.pnl=Number(saved.rows[0].session_pnl||0);
+          this.stake=Number(saved.rows[0].stake||this.baseStake);
+          this.level=Number(saved.rows[0].martingale_level||0);
+        }
+        this.active=false;
+        this.status='stopped';
+        this.stopRequested=false;
+      }
+
+      // History insertion and session accounting/state transition commit
+      // together. A crash cannot leave one committed without the other.
+      await client.query(
+        `UPDATE izitrader_trade_sessions
+            SET session_pnl=$3,stake=$4,martingale_level=$5,active=$6,status=$7,
+                open_contract_id=NULL,pending_buy=FALSE,pending_buy_at=NULL,
+                opened_at=NULL,open_trade_bot=NULL,open_trade_stake=NULL,updated_at=NOW()
+          WHERE owner_key=$1 AND account_id=$2`,
+        [this.identity.ownerKey,this.config.accountId,this.pnl,this.stake,this.level,this.active,this.status],
+      );
+      await client.query('COMMIT');
+    } catch(error) {
+      await client.query('ROLLBACK').catch(()=>{});
+      this.closingContractId=null;
+      console.error('Izitrader atomic contract-close error:',error.message);
+      sendClient(this.client,'deriv_error',{message:'Não foi possível guardar o fecho da operação. O estado foi preservado para nova reconciliação.'});
+      return;
+    } finally {
+      client.release();
+    }
+
     this.openContractId=null;
     this.closingContractId=null;
     this.pendingBuy=false;
@@ -680,14 +738,6 @@ class TradingWorker {
     this.buyStake=null;
     this.buyOpenedAt=null;
     this.openTradeBot=null;
-    if(this.stopRequested || targetProfit || targetLoss || maxStake) {
-      this.active=false;
-      this.status='stopped';
-      this.stopRequested=false;
-    } else {
-      this.status=this.active?'running':'stopped';
-    }
-    await this.persist();
     sendClient(this.client,'contract_closed',{
       contract_id:contractId,
       profit_loss:profit,
@@ -698,8 +748,9 @@ class TradingWorker {
       bot_name:tradeBot,
       symbol:this.config.symbol,
       accountType:this.config.accountType,
+      duplicate:!inserted,
     });
-    sendClient(this.client,'martingale',{level:this.level,stake:this.stake,baseStake:this.baseStake,profit,maxLevel:20});
+    sendClient(this.client,'martingale',{level:this.level,stake:this.stake,baseStake:this.baseStake,profit:inserted?profit:0,maxLevel:20});
     sendClient(this.client,'contract_state',{closed:true,contract_id:contractId});
     sendClient(this.client,'pnl',{pnl:this.pnl});
     if(targetProfit) this.emitStatus('Meta de lucro atingida — robô parado.',true);

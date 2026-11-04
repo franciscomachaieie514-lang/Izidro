@@ -1,0 +1,4476 @@
+<!DOCTYPE html>
+<html lang="pt">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<script>
+(function(){
+  try{
+    var KEY='izitrader_theme',MIG='izitrader_theme_default_light_v5';
+    if(localStorage.getItem(MIG)!=='1'){
+      localStorage.removeItem(KEY);
+      localStorage.setItem(KEY,'light');
+      localStorage.setItem(MIG,'1');
+    }else if(localStorage.getItem(KEY)!=='dark'){
+      localStorage.setItem(KEY,'light');
+    }
+    document.documentElement.dataset.theme=localStorage.getItem(KEY)==='dark'?'dark':'light';
+  }catch(e){
+    document.documentElement.dataset.theme='light';
+  }
+})();
+</script>
+<link rel="icon" type="image/svg+xml" href="/favicon.svg">
+<title>Izitrader</title>
+<style>
+*{box-sizing:border-box}:root{--bg:#0a0f1c;--card:#111a2e;--field:#131b2e;--text:#fff;--muted:#7c88a3;--border:#22304a;--accent:#e24b4a;--green:#35d492;--red:#e24b4a}body{margin:0;background:var(--bg);font-family:-apple-system,"Segoe UI",Roboto,sans-serif;color:var(--text);display:flex;justify-content:center;padding:24px 12px 80px}.hidden{display:none!important}.app,.auth-page{width:100%;max-width:420px}.auth-page{min-height:calc(100vh - 48px);display:flex;align-items:center;justify-content:center}.auth-card,.card{background:var(--card);border:1px solid var(--border);border-radius:16px}.auth-card{width:100%;padding:28px 22px;text-align:center;box-shadow:0 16px 45px rgba(0,0,0,.2)}.auth-logo,.logo{object-fit:cover}.auth-logo{width:58px;height:58px;border-radius:16px;margin:0 auto 14px}.auth-brand{font-size:28px;font-weight:800}.auth-brand span,.brand span{color:#ef4444}.auth-title{font-size:22px;font-weight:800;margin:22px 0 8px}.auth-subtitle{font-size:13px;line-height:1.5;color:var(--muted);margin:0 auto 22px}.auth-btn{display:flex;width:100%;align-items:center;justify-content:center;text-decoration:none;padding:14px;border-radius:12px;font-weight:800;font-size:15px;margin-top:10px;cursor:pointer}.auth-primary{background:var(--accent);color:#fff}.auth-secondary{background:var(--field);border:1px solid var(--border);color:var(--text)}.header{display:flex;align-items:center;gap:10px;margin-bottom:20px}.logo{width:40px;height:40px;border-radius:10px;flex-shrink:0}.brand{font-size:20px;font-weight:700;margin-right:auto}.header-actions{display:flex;gap:8px;position:relative}.icon-btn,.sair-btn{height:38px;border-radius:10px;background:var(--field);border:1px solid var(--border);color:var(--text);font-weight:700;cursor:pointer}.icon-btn{width:38px}.sair-btn{padding:0 16px;font-size:13px}.menu{position:absolute;top:46px;right:92px;background:var(--card);border:1px solid var(--border);border-radius:12px;overflow:hidden;z-index:999999;min-width:180px;display:none}.menu.open{display:block!important}.menu-item,.language-item{padding:10px 14px;font-size:13px;cursor:pointer}.language-options{border-top:1px solid var(--border);display:none}.language-options.open{display:block}.card{padding:16px;margin-bottom:16px}.balance-row{display:flex;align-items:stretch}.balance-row>div:not(.divider){flex:1}.label,.field-label{font-size:11px;letter-spacing:.06em;color:var(--muted);margin-bottom:6px}.pnl-label-wrap{display:flex;align-items:center;gap:2px;position:relative}.pnl-refresh-icon{display:inline-flex;flex:0 0 12px;width:12px;height:12px;border:0;background:transparent;padding:0;margin:-6px 0 0 2px;cursor:pointer;appearance:none;-webkit-appearance:none;color:var(--muted);align-items:center;justify-content:center}.pnl-refresh-icon svg{width:12px;height:12px;display:block}.value{font-size:22px;font-weight:700}.profit{color:var(--green)}.divider{width:1px;background:var(--border);margin:0 16px}.row3{display:grid;grid-template-columns:1fr 1.4fr .8fr;gap:10px;margin-bottom:16px}.pill,.account-select{width:100%;border-radius:12px;padding:12px;font-weight:700;text-align:center}.pill-aula{background:#d33;color:#fff}.account-select{background:var(--field);border:1px solid var(--border);color:var(--text);outline:0}.dropdown{position:relative}.dropdown-btn{width:100%;background:var(--field);border:none;border-radius:12px;padding:12px 14px;color:var(--text);font-weight:700;font-size:14px;display:flex;justify-content:space-between;cursor:pointer}.dropdown-menu,.symbol-menu,.analysis-menu,.target-menu{position:absolute;background:var(--field);border:1px solid var(--border);border-radius:12px;z-index:10;display:none;box-shadow:0 8px 20px rgba(0,0,0,.25)}.dropdown-menu.open,.symbol-menu.open,.analysis-menu.open,.target-menu.open{display:block}.dropdown-menu{top:calc(100% + 6px);left:0;right:0;overflow:hidden}.dropdown-item,.symbol-item,.analysis-item{padding:10px 14px;cursor:pointer}.dropdown-item .name,.symbol-name{font-weight:700}.dropdown-item .desc,.symbol-desc{font-size:11px;color:var(--muted)}.status{text-align:center;font-size:12px;color:var(--muted);margin:6px 0 14px}.status .dot{display:inline-block;width:7px;height:7px;border-radius:50%;background:#e24b4a;margin-right:6px}.profit-ops{margin-top:3px;font-size:9px;font-weight:800;letter-spacing:.03em;color:var(--muted)}.profit-ops b{font-size:10px;color:var(--text);font-family:ui-monospace,SFMono-Regular,Menlo,monospace}.history-stage{display:flex;align-items:center;gap:8px;border-top:1px solid var(--border);margin-top:8px;padding-top:9px}.history-stage .stage-stop-btn{flex-shrink:0;width:30px;height:30px;border-radius:8px}.history-stage .stage-stop-btn span{width:10px;height:10px}.history-stage .stage-steps{flex:1;min-width:0}.history-stage .stage-dot{width:7px;height:7px}.history-stage .stage-line{height:2px;margin:0 3px}.history-stage .stage-labels{margin-top:4px}.history-stage .stage-labels span{font-size:8px}.history-stage .stage-dots{width:100%}.stage-tracker{display:flex;align-items:center;gap:12px;background:var(--field);border:1px solid var(--border);border-radius:12px;padding:10px 14px;margin:0 0 14px}.stage-stop-btn{flex-shrink:0;width:36px;height:36px;border-radius:9px;background:var(--accent);border:0;display:flex;align-items:center;justify-content:center;cursor:pointer}.stage-stop-btn span{width:12px;height:12px;background:#fff;border-radius:2px;display:block}.stage-steps{flex:1}.stage-dots{display:flex;align-items:center}.stage-dot{width:8px;height:8px;border-radius:50%;background:var(--field);border:2px solid var(--border)}.stage-dot.active{background:#3b82f6;border:0}.stage-line{flex:1;height:2px;background:var(--border);margin:0 4px}.stage-line.active{background:#3b82f6}.stage-labels{display:flex;justify-content:space-between;margin-top:6px}.stage-labels span{font-size:9px;font-weight:800;text-transform:uppercase;letter-spacing:.03em;color:var(--muted)}.stage-labels span.active{color:var(--text)}.wheel-wrap{display:flex;justify-content:center;margin:20px 0;position:relative;padding-top:10px}.wheel{width:260px;height:260px;border-radius:50%;background:var(--field);position:relative;border:1px solid var(--accent)}.digit-node{position:absolute;width:44px;height:44px;border-radius:50%;background:var(--bg);display:flex;flex-direction:column;align-items:center;justify-content:center;font-weight:700;font-size:15px}.digit-node .pct{font-size:9px;color:var(--muted);font-weight:400}.digit-node.active{background:#3b82f6;color:#fff}.center{position:absolute;top:50%;left:50%;transform:translate(-50%,-50%);text-align:center}.center .digit{font-size:40px;font-weight:800;color:var(--accent)}.center .caption{font-size:10px;color:var(--muted)}.wheel .digit-node{z-index:2}.wheel .center{z-index:3}.analysis-wrap,.target-wrap{position:absolute;top:0;z-index:10}.analysis-wrap{left:0}.target-wrap{right:0}.analysis-btn,.target-btn{background:none;border:0;color:var(--text);font-size:10px;font-weight:800;cursor:pointer;padding:6px 0}.analysis-menu{top:32px;left:0;min-width:130px}.analysis-item.active{font-weight:800;color:var(--accent)}.target-menu{top:32px;right:0;width:220px;padding:14px}.target-title{font-size:14px;font-weight:800;margin-bottom:12px}.target-field{margin-bottom:10px}.target-field label{display:block;font-size:11px;color:var(--muted);margin-bottom:5px}.target-field input{width:100%;padding:9px 10px;border-radius:9px;background:var(--field);border:1px solid var(--border);color:var(--text)}.target-save{width:100%;padding:10px;border:0;border-radius:9px;background:var(--accent);font-weight:800}.target-status{font-size:10px;color:var(--muted);margin-top:8px;text-align:center}.stake-row{display:flex;justify-content:space-between;align-items:center}.stake-value{font-size:26px;font-weight:800}.operate-btn{width:100%;margin-top:14px;padding:14px;border:0;border-radius:12px;background:var(--accent);color:#fff;font-weight:800;font-size:15px;cursor:pointer}.operate-btn:disabled{opacity:.5;cursor:default}.note{font-size:11px;color:var(--muted);text-align:center;margin-top:10px}.symbol-card{margin-top:0}.symbol-dropdown{position:relative}.symbol-menu{top:calc(100% + 6px);left:0;right:0;overflow-y:auto;overflow-x:hidden;max-height:260px;min-width:220px;z-index:1000}.symbol-menu.open{display:block!important}.symbol-item{min-height:48px;display:flex!important;align-items:center;gap:10px;background:var(--field);color:var(--text)}.symbol-item:hover{background:var(--card)}.symbol-item{display:flex;justify-content:space-between}
+/* history */
+.history-card{background:var(--panel,var(--card));border:1px solid var(--border);border-radius:16px;padding:18px 20px 16px;margin-bottom:18px}.history-head{display:flex;justify-content:space-between;align-items:center;margin-bottom:14px}.history-title{font-size:12px;color:var(--muted);letter-spacing:.04em}.history-hint{font-size:12px;color:var(--muted)}.history-row{display:flex;gap:5px;padding-bottom:14px;margin-bottom:12px;overflow-x:auto;overflow-y:hidden;scrollbar-width:none;-webkit-overflow-scrolling:touch}.history-row::-webkit-scrollbar{display:none}.chip{flex:0 0 82px;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:2px;background:var(--field);border:1px solid var(--border);border-radius:10px;padding:9px 2px;font-family:ui-monospace,SFMono-Regular,Menlo,monospace;font-size:11px;font-weight:700;white-space:nowrap}.chip.win,.chip.loss{color:var(--text)}.chip-tag{font-family:ui-monospace,SFMono-Regular,Menlo,monospace;font-size:11px;font-weight:700;letter-spacing:.01em}.chip.win .chip-tag{color:#3b82f6}.chip.loss .chip-tag{color:var(--red)}.history-foot{display:flex;justify-content:center;gap:8px;padding-top:12px;border-top:1px solid var(--border);font-size:13px;color:var(--muted);letter-spacing:.04em}.history-foot b{color:var(--text);font-family:ui-monospace,SFMono-Regular,Menlo,monospace;font-size:15px}
+.whatsapp-btn{position:fixed;bottom:22px;right:22px;width:56px;height:56px;border-radius:50%;background:#25D366;display:flex;align-items:center;justify-content:center;z-index:30;text-decoration:none}
+.whatsapp-btn svg{width:29px;height:29px;display:block;flex:0 0 29px}
+.whatsapp-btn:hover,.whatsapp-btn:focus-visible{filter:brightness(.96)}
+@media(max-width:599px){.history-card{padding:18px 16px 16px}.history-hint{font-size:11px}.chip{flex-basis:78px}}
+
+.chip .chip-digit{display:block!important;margin-top:1px!important;font-family:ui-monospace,SFMono-Regular,Menlo,monospace;font-size:8px!important;line-height:9px!important;font-weight:700!important;letter-spacing:0!important;color:var(--muted)!important;opacity:.9!important}\n\n/* ===== Professional responsive dashboard / Light mode default ===== */
+:root{
+  --bg:#eef1f5;
+  --card:#ffffff;
+  --field:#f7f8fa;
+  --text:#17202a;
+  --muted:#697586;
+  --border:#dfe4ea;
+  --accent:#e24b4a;
+  --green:#1f9d55;
+  --red:#e24b4a;
+  --shadow:0 8px 24px rgba(16,24,40,.06);
+}
+body{
+  min-height:100vh;
+  background:var(--bg);
+  color:var(--text);
+  padding:24px 28px 70px;
+  align-items:flex-start;
+}
+.app{width:100%;max-width:1180px}
+.header{min-height:48px;margin-bottom:18px;padding:4px 0}
+.brand{font-size:21px}
+.header-actions{gap:8px}
+.icon-btn,.sair-btn{background:#fff;border-color:var(--border);box-shadow:0 2px 8px rgba(16,24,40,.04)}
+.card,.history-card{
+  background:var(--card);
+  border-color:var(--border);
+  box-shadow:var(--shadow);
+}
+.balance-row{min-height:92px}
+.value{font-size:25px}
+.row3{grid-template-columns:minmax(160px,1fr) minmax(220px,1.4fr) minmax(110px,.7fr);gap:12px}
+.account-select,.dropdown-btn,.pill{min-height:44px}
+.history-card{padding:18px 20px 16px}
+.history-row{gap:8px}
+.chip{flex-basis:100px;min-height:58px;font-size:15px}
+.status{padding:0 4px}
+.dashboard-layout{
+  display:grid;
+  grid-template-columns:minmax(0,1.18fr) minmax(360px,.82fr);
+  gap:18px;
+  align-items:start;
+}
+.dashboard-left,.dashboard-right{min-width:0}
+.dashboard-right{
+  display:flex;
+  flex-direction:column;
+  min-height:100%;
+}
+.dashboard-right .wheel-wrap{margin:10px 0 18px}
+.wheel-wrap{padding-top:6px}
+.wheel{width:320px;height:320px}
+.stake-value{font-size:28px}
+.dashboard-right .card{margin-bottom:14px}
+.symbol-card{margin-top:0}
+.whatsapp-btn{box-shadow:0 8px 20px rgba(16,24,40,.16)}
+body.dark{
+  --bg:#0a0f1c;
+  --card:#111a2e;
+  --field:#131b2e;
+  --text:#fff;
+  --muted:#7c88a3;
+  --border:#22304a;
+  --shadow:0 16px 40px rgba(0,0,0,.22);
+}
+body.dark .icon-btn,body.dark .sair-btn{background:var(--field);color:var(--text)}
+@media (max-width: 899px){
+  body{padding:18px 14px 64px}
+  .app{max-width:760px}
+  .dashboard-layout{grid-template-columns:1fr;gap:0}
+  .dashboard-right .wheel-wrap{margin:18px 0}
+  .wheel{width:280px;height:280px}
+}
+@media (max-width: 599px){
+  body{padding:12px 10px 60px}
+  .app{max-width:420px}
+  .header{margin-bottom:14px}
+  .row3{grid-template-columns:1fr 1.2fr .8fr;gap:8px}
+  .dashboard-layout{display:block}
+  .dashboard-right .wheel-wrap{margin:14px 0}
+  .wheel{width:260px;height:260px}
+  .history-card{padding:16px 14px 14px}
+  .chip{flex-basis:82px;font-size:15px}
+}
+
+/* ===== Final desktop dashboard: true full-width professional workspace ===== */
+@media (min-width:900px){
+  html,body{width:100%;min-width:0}
+  body{padding:18px 28px 56px;align-items:stretch}
+  .app{width:100%!important;max-width:none!important;margin:0}
+  .header{width:100%;max-width:none;margin-bottom:14px}
+  .dashboard-layout{
+    width:100%;
+    max-width:none;
+    display:grid;
+    grid-template-columns:minmax(260px,300px) minmax(420px,1fr) minmax(280px,320px);
+    grid-template-rows:auto auto 1fr auto;
+    gap:16px 20px;
+    align-items:start;
+  }
+  .dashboard-left{
+    grid-column:1;
+    grid-row:1 / 5;
+    min-width:0;
+  }
+  .dashboard-left .card,
+  .dashboard-left .row3,
+  .dashboard-left .history-card{width:100%}
+  .dashboard-right{display:contents}
+  .dashboard-right .status{
+    grid-column:2;
+    grid-row:1;
+    justify-self:center;
+    width:100%;
+    min-height:34px;
+    display:flex;
+    align-items:center;
+    justify-content:center;
+  }
+  .dashboard-right .wheel-wrap{
+    grid-column:2;
+    grid-row:2 / 5;
+    width:100%;
+    min-height:460px;
+    margin:0!important;
+    display:flex;
+    align-items:center;
+    justify-content:center;
+    position:relative;
+  }
+  .dashboard-right .wheel{
+    width:min(430px,34vw)!important;
+    height:min(430px,34vw)!important;
+    min-width:360px;
+    min-height:360px;
+    max-width:430px;
+    max-height:430px;
+  }
+  .dashboard-right .card:not(.symbol-card){
+    grid-column:3;
+    grid-row:2;
+    width:100%;
+    margin:0!important;
+  }
+  .dashboard-right .symbol-card{
+    grid-column:3;
+    grid-row:3;
+    width:100%;
+    margin:0!important;
+  }
+  .dashboard-right .note{font-size:11px;line-height:1.45}
+  .dashboard-right .operate-btn{width:100%;min-height:48px}
+}
+@media (min-width:1400px){
+  body{padding-left:42px;padding-right:42px}
+  .dashboard-layout{grid-template-columns:minmax(280px,340px) minmax(520px,1fr) minmax(300px,360px);gap:18px 28px}
+  .dashboard-right .wheel{width:min(470px,34vw)!important;height:min(470px,34vw)!important;max-width:470px;max-height:470px}
+  .dashboard-right .wheel-wrap{min-height:500px}
+}
+
+
+
+
+
+
+/* ===== Approved responsive dashboard layout ===== */
+.dashboard-layout{
+  width:100%;
+  max-width:none;
+  margin:0;
+  display:grid;
+  grid-template-columns:minmax(270px,20vw) minmax(360px,1fr) minmax(280px,22vw);
+  gap:20px;
+  align-items:start;
+}
+
+.dashboard-left,
+.dashboard-center,
+.dashboard-right{
+  min-width:0;
+  width:100%;
+}
+
+.dashboard-center{
+  display:flex;
+  flex-direction:column;
+  align-items:center;
+}
+
+.dashboard-center .status{
+  width:100%;
+  min-height:34px;
+  display:flex;
+  align-items:center;
+  justify-content:center;
+  margin:0 0 8px;
+}
+
+.dashboard-right{
+  display:flex;
+  flex-direction:column;
+  gap:16px;
+}
+
+.dashboard-right .card{
+  width:100%;
+  margin:0;
+}
+
+.wheel-area{
+  position:relative;
+  width:min(100%,520px);
+  aspect-ratio:1;
+  display:flex;
+  align-items:center;
+  justify-content:center;
+  margin:0 auto;
+}
+
+.wheel{
+  width:100%!important;
+  height:100%!important;
+  max-width:none!important;
+  max-height:none!important;
+  min-width:0!important;
+  min-height:0!important;
+  margin:0;
+}
+
+.wheel-area .analysis-wrap{
+  left:0;
+  top:0;
+  z-index:10;
+}
+
+.wheel-area .target-wrap{
+  right:0;
+  top:0;
+  z-index:10;
+}
+
+.wheel-area .analysis-btn,
+.wheel-area .target-btn{
+  padding:6px 0;
+}
+
+@media (min-width:1500px){
+  .dashboard-layout{
+    grid-template-columns:minmax(300px,21vw) minmax(500px,1fr) minmax(320px,23vw);
+    gap:28px;
+  }
+
+  .wheel-area{
+    width:min(100%,560px);
+  }
+}
+
+@media (max-width:1199px){
+  .dashboard-layout{
+    grid-template-columns:minmax(240px,1fr) minmax(300px,1.1fr);
+    gap:16px;
+  }
+
+  .dashboard-left{
+    grid-column:1;
+  }
+
+  .dashboard-center{
+    grid-column:2;
+  }
+
+  .dashboard-right{
+    grid-column:1 / -1;
+    display:grid;
+    grid-template-columns:1fr 1fr;
+    gap:16px;
+  }
+}
+
+@media (max-width:899px){
+  body{
+    padding:18px 14px 64px;
+  }
+
+  .dashboard-layout{
+    display:grid;
+    grid-template-columns:1fr;
+    gap:14px;
+  }
+
+  .dashboard-left,
+  .dashboard-center,
+  .dashboard-right{
+    grid-column:auto;
+    width:100%;
+  }
+
+  .dashboard-right{
+    display:flex;
+    flex-direction:column;
+    gap:14px;
+  }
+
+  .wheel-area{
+    width:min(100%,430px);
+  }
+}
+
+@media (max-width:599px){
+  body{
+    padding:12px 10px 60px;
+  }
+
+  .dashboard-layout{
+    gap:12px;
+  }
+
+  .wheel-area{
+    width:min(100%,300px);
+  }
+
+  .row3{
+    grid-template-columns:1fr 1.2fr .8fr;
+    gap:8px;
+  }
+}
+
+
+/* ===== Desktop viewport utilization ===== */
+@media (min-width:1200px){
+  body{padding:18px 28px 24px;min-height:100vh;box-sizing:border-box}
+  .app{width:100%;max-width:none;min-height:calc(100vh - 42px)}
+  .header{width:100%;margin-bottom:14px}
+  .dashboard-layout{
+    width:100%;
+    min-height:calc(100vh - 92px);
+    grid-template-columns:minmax(300px,24%) minmax(480px,52%) minmax(300px,24%);
+    gap:18px;
+    align-items:stretch;
+  }
+  .dashboard-left,.dashboard-center,.dashboard-right{height:100%}
+  .dashboard-left{display:flex;flex-direction:column}
+  .dashboard-left .history-card{flex:1;margin-bottom:0}
+  .dashboard-center{justify-content:flex-start}
+  .dashboard-center .status{flex:0 0 34px}
+  .wheel-area{
+    width:min(100%,650px,calc(100vh - 150px));
+    flex:1;
+    aspect-ratio:auto;
+    min-height:500px;
+    margin:auto;
+  }
+  .dashboard-right{display:flex;flex-direction:column}
+  .dashboard-right .card{flex:0 0 auto}
+  .dashboard-right .symbol-card{flex:1}
+}
+@media (min-width:1600px){
+  body{padding-left:40px;padding-right:40px}
+  .dashboard-layout{grid-template-columns:minmax(330px,25%) minmax(600px,50%) minmax(330px,25%);gap:24px}
+  .wheel-area{width:min(100%,700px,calc(100vh - 140px));min-height:540px}
+}
+@media (min-width:1200px) and (max-height:800px){
+  body{padding-top:10px;padding-bottom:14px}
+  .header{margin-bottom:8px}
+  .dashboard-layout{min-height:calc(100vh - 68px);gap:14px}
+  .wheel-area{width:min(100%,calc(100vh - 125px));min-height:420px}
+}
+
+/* ===== Align wheel below account/bot controls ===== */
+@media (min-width:1200px){
+  .dashboard-center{
+    padding-top:126px;
+    box-sizing:border-box;
+  }
+
+  .dashboard-center .status{
+    margin-bottom:10px;
+  }
+
+  .wheel-area{
+    width:min(100%,600px,calc(100vh - 260px));
+    min-height:0;
+  }
+}
+
+@media (min-width:1600px){
+  .dashboard-center{
+    padding-top:132px;
+  }
+
+  .wheel-area{
+    width:min(100%,640px,calc(100vh - 250px));
+  }
+}
+
+@media (min-width:1200px) and (max-height:800px){
+  .dashboard-center{
+    padding-top:105px;
+  }
+
+  .wheel-area{
+    width:min(100%,520px,calc(100vh - 215px));
+  }
+}
+
+/* ===== Reference-style dashboard layout — final override ===== */
+@media (min-width:900px){
+  html,body{width:100%;min-height:100%;overflow-x:hidden}
+  body{
+    display:block!important;
+    padding:14px 24px 24px!important;
+    background:var(--bg);
+  }
+  .app{
+    width:100%!important;
+    max-width:none!important;
+    min-height:calc(100vh - 38px);
+    margin:0!important;
+  }
+  .header{
+    width:100%;
+    margin:0 0 14px!important;
+    min-height:48px;
+  }
+
+  .dashboard-layout{
+    width:100%!important;
+    max-width:none!important;
+    min-height:calc(100vh - 100px);
+    display:grid!important;
+    grid-template-columns:minmax(300px,30%) minmax(430px,1fr) minmax(300px,25%)!important;
+    grid-template-rows:auto 1fr!important;
+    gap:16px 24px!important;
+    align-items:start!important;
+  }
+
+  .dashboard-left{
+    grid-column:1!important;
+    grid-row:1 / 3!important;
+    width:100%!important;
+    min-width:0!important;
+    display:flex!important;
+    flex-direction:column!important;
+  }
+
+  .dashboard-left .balance-row{
+    margin-bottom:14px!important;
+  }
+
+  .dashboard-left .row3{
+    margin-bottom:14px!important;
+  }
+
+  .dashboard-left .history-card{
+    flex:1 1 auto!important;
+    min-height:280px;
+    margin-bottom:0!important;
+  }
+
+  .dashboard-center{
+    grid-column:2!important;
+    grid-row:1 / 3!important;
+    width:100%!important;
+    min-width:0!important;
+    padding:0!important;
+    display:flex!important;
+    flex-direction:column!important;
+    align-items:center!important;
+  }
+
+  .dashboard-center .status{
+    order:0;
+    width:100%!important;
+    min-height:32px!important;
+    margin:0 0 4px!important;
+    display:flex!important;
+    justify-content:center!important;
+    align-items:center!important;
+  }
+
+  .wheel-area{
+    order:1;
+    position:relative!important;
+    width:min(100%,540px)!important;
+    height:min(100%,540px)!important;
+    min-height:540px!important;
+    max-height:540px!important;
+    aspect-ratio:1 / 1!important;
+    flex:0 0 auto!important;
+    margin:8px auto 0!important;
+    display:flex!important;
+    align-items:center!important;
+    justify-content:center!important;
+  }
+
+  .wheel-area .wheel{
+    position:relative!important;
+    width:420px!important;
+    height:420px!important;
+    min-width:420px!important;
+    min-height:420px!important;
+    max-width:420px!important;
+    max-height:420px!important;
+    flex:0 0 420px!important;
+    aspect-ratio:1 / 1!important;
+    margin:0!important;
+    border-radius:50%!important;
+  }
+
+  .wheel-area .analysis-wrap{
+    left:50%!important;
+    top:6px!important;
+    transform:translateX(-100%)!important;
+    margin-left:-8px!important;
+  }
+
+  .wheel-area .target-wrap{
+    right:50%!important;
+    top:6px!important;
+    transform:translateX(100%)!important;
+    margin-right:-8px!important;
+  }
+
+  .dashboard-right{
+    grid-column:3!important;
+    grid-row:1 / 3!important;
+    width:100%!important;
+    min-width:0!important;
+    display:flex!important;
+    flex-direction:column!important;
+    gap:16px!important;
+  }
+
+  .dashboard-right .card{
+    width:100%!important;
+    margin:0!important;
+  }
+
+  .dashboard-right .symbol-card{
+    flex:1 1 auto!important;
+  }
+}
+
+@media (min-width:1200px) and (max-height:850px){
+  body{padding-top:10px!important;padding-bottom:14px!important}
+  .dashboard-layout{min-height:calc(100vh - 76px)!important}
+  .wheel-area{
+    width:min(100%,500px)!important;
+    height:500px!important;
+    min-height:500px!important;
+    max-height:500px!important;
+  }
+  .wheel-area .wheel{
+    width:390px!important;
+    height:390px!important;
+    min-width:390px!important;
+    min-height:390px!important;
+    max-width:390px!important;
+    max-height:390px!important;
+    flex-basis:390px!important;
+  }
+}
+
+@media (min-width:1600px){
+  .dashboard-layout{
+    grid-template-columns:minmax(340px,29%) minmax(520px,1fr) minmax(330px,25%)!important;
+    gap:18px 30px!important;
+  }
+  .wheel-area{width:min(100%,600px)!important;height:600px!important;min-height:600px!important;max-height:600px!important}
+  .wheel-area .wheel{
+    width:470px!important;height:470px!important;
+    min-width:470px!important;min-height:470px!important;
+    max-width:470px!important;max-height:470px!important;
+    flex-basis:470px!important;
+  }
+}
+
+@media (max-width:899px){
+  .dashboard-layout{
+    display:flex!important;
+    flex-direction:column!important;
+    gap:14px!important;
+  }
+  .dashboard-left,.dashboard-center,.dashboard-right{
+    width:100%!important;
+    padding:0!important;
+  }
+  .wheel-area{
+    width:min(100%,430px)!important;
+    height:min(100vw - 28px,430px)!important;
+    min-height:0!important;
+    max-height:none!important;
+    aspect-ratio:1!important;
+  }
+  .wheel-area .wheel{
+    width:min(82vw,360px)!important;
+    height:min(82vw,360px)!important;
+    min-width:0!important;min-height:0!important;
+    max-width:360px!important;max-height:360px!important;
+  }
+}
+
+/* ===== Refined desktop spacing: move center/right content outward ===== */
+@media (min-width:1200px){
+  .dashboard-layout{
+    grid-template-columns:minmax(300px,27%) minmax(500px,1fr) minmax(330px,28%)!important;
+    gap:14px 34px!important;
+  }
+
+  .dashboard-center{
+    transform:translateX(34px);
+    width:calc(100% - 34px)!important;
+  }
+
+  .dashboard-right{
+    transform:translateX(22px);
+    width:calc(100% - 22px)!important;
+  }
+
+  .wheel-area{
+    width:min(100%,560px)!important;
+  }
+}
+
+@media (min-width:1600px){
+  .dashboard-layout{
+    grid-template-columns:minmax(340px,25%) minmax(560px,1fr) minmax(360px,30%)!important;
+    gap:18px 42px!important;
+  }
+
+  .dashboard-center{
+    transform:translateX(42px);
+    width:calc(100% - 42px)!important;
+  }
+
+  .dashboard-right{
+    transform:translateX(34px);
+    width:calc(100% - 34px)!important;
+  }
+
+  .wheel-area{
+    width:min(100%,610px)!important;
+  }
+}
+
+@media (min-width:1200px) and (max-height:850px){
+  .dashboard-center{
+    transform:translateX(26px);
+    width:calc(100% - 26px)!important;
+  }
+
+  .dashboard-right{
+    transform:translateX(16px);
+    width:calc(100% - 16px)!important;
+  }
+}
+
+/* ===== Align wheel vertically with history and symbol cards ===== */
+@media (min-width:1200px){
+  .dashboard-center{
+    padding-top:205px!important;
+  }
+
+  .dashboard-center .status{
+    margin-bottom:4px!important;
+  }
+
+  .wheel-area{
+    margin-top:0!important;
+  }
+}
+
+@media (min-width:1600px){
+  .dashboard-center{
+    padding-top:214px!important;
+  }
+}
+
+@media (min-width:1200px) and (max-height:850px){
+  .dashboard-center{
+    padding-top:170px!important;
+  }
+}
+
+/* ===== Final alignment: top controls + wheel aligned with history/symbol ===== */
+@media (min-width:1200px){
+  .dashboard-layout{
+    position:relative!important;
+  }
+
+  /* Account status stays on the top KPI line, above the wheel. */
+  .dashboard-center{
+    position:relative!important;
+  }
+
+  .dashboard-center .status{
+    position:absolute!important;
+    top:0!important;
+    left:0!important;
+    width:100%!important;
+    min-height:32px!important;
+    margin:0!important;
+    z-index:20!important;
+  }
+
+  /* The wheel starts exactly where History/Symbol cards start. */
+  .dashboard-center{
+    padding-top:205px!important;
+  }
+
+  /* 25 TICKS sits beside Profit/Loss; METAS sits beside the Bet card. */
+  .wheel-area .analysis-wrap{
+    top:-205px!important;
+    left:50%!important;
+    transform:translateX(-100%)!important;
+    margin-left:-8px!important;
+  }
+
+  .wheel-area .target-wrap{
+    top:-205px!important;
+    right:50%!important;
+    transform:translateX(100%)!important;
+    margin-right:-8px!important;
+  }
+
+  .wheel-area{
+    margin-top:0!important;
+  }
+}
+
+@media (min-width:1600px){
+  .dashboard-center{
+    padding-top:214px!important;
+  }
+
+  .wheel-area .analysis-wrap{
+    top:-214px!important;
+  }
+
+  .wheel-area .target-wrap{
+    top:-214px!important;
+  }
+}
+
+@media (min-width:1200px) and (max-height:850px){
+  .dashboard-center{
+    padding-top:170px!important;
+  }
+
+  .wheel-area .analysis-wrap{
+    top:-170px!important;
+  }
+
+  .wheel-area .target-wrap{
+    top:-170px!important;
+  }
+}
+
+/* ===== Fine positioning: wheel up, 25 TICKS after P&L, METAS at bet start ===== */
+@media (min-width:1200px){
+  .dashboard-right .wheel{
+    transform:translateY(-22px)!important;
+  }
+
+  /* 25 TICKS: immediately after the end of the Balance / P&L block. */
+  .wheel-area .analysis-wrap{
+    left:0!important;
+    transform:none!important;
+    margin-left:0!important;
+  }
+
+  /* METAS: immediately at the beginning of the Bet block. */
+  .wheel-area .target-wrap{
+    right:-34px!important;
+    transform:none!important;
+    margin-right:0!important;
+  }
+}
+
+@media (min-width:1600px){
+  .wheel-area .target-wrap{
+    right:-42px!important;
+  }
+}
+
+@media (min-width:1200px) and (max-height:850px){
+  .wheel-area .target-wrap{
+    right:-34px!important;
+  }
+}
+
+
+/* ===== Fine tuning: ticks, bot width and vertical dated history ===== */
+@media (min-width:1200px){
+  .wheel-area .analysis-wrap{
+    left:-18px!important;
+  }
+
+  .dashboard-left .row3{
+    grid-template-columns:minmax(125px,.82fr) minmax(175px,1.05fr) minmax(85px,.65fr)!important;
+    max-width:100%!important;
+  }
+
+  .dashboard-left .row3 > div:nth-child(2){
+    min-width:0!important;
+    max-width:100%!important;
+  }
+
+  .dashboard-left .row3 .dropdown-btn{
+    min-width:0!important;
+    overflow:hidden;
+  }
+
+  .dashboard-left .row3 .dropdown-btn #selectedBotName{
+    overflow:hidden;
+    text-overflow:ellipsis;
+    white-space:nowrap;
+  }
+
+  .history-row{
+    flex-direction:column!important;
+    overflow-x:hidden!important;
+    overflow-y:auto!important;
+    max-height:300px!important;
+    gap:6px!important;
+  }
+
+  .history-row .chip{
+    flex:0 0 auto!important;
+    width:100%!important;
+    min-height:48px!important;
+    display:grid!important;
+    grid-template-columns:1fr auto!important;
+    grid-template-rows:auto auto!important;
+    align-items:center!important;
+    text-align:left!important;
+    padding:7px 12px!important;
+  }
+
+  .history-row .chip > span:first-child{
+    grid-column:1;
+    grid-row:1;
+  }
+
+  .history-row .chip .chip-tag{
+    grid-column:2;
+    grid-row:1;
+    text-align:right;
+  }
+
+  .history-row .chip::after{
+    content:attr(data-date);
+    grid-column:1 / -1;
+    grid-row:2;
+    font-size:9px;
+    color:var(--muted);
+    font-family:ui-monospace,SFMono-Regular,Menlo,monospace;
+  }
+}
+
+@media (min-width:1600px){
+  .wheel-area .analysis-wrap{
+    left:-24px!important;
+  }
+}
+
+@media (max-width:1199px){
+  .history-row{
+    flex-direction:column!important;
+    overflow-x:hidden!important;
+    overflow-y:auto!important;
+    gap:6px!important;
+  }
+
+  .history-row .chip{
+    flex:0 0 auto!important;
+    width:100%!important;
+    min-height:48px!important;
+    display:grid!important;
+    grid-template-columns:1fr auto!important;
+    grid-template-rows:auto auto!important;
+    align-items:center!important;
+    text-align:left!important;
+  }
+
+  .history-row .chip::after{
+    content:attr(data-date);
+    grid-column:1 / -1;
+    grid-row:2;
+    font-size:9px;
+    color:var(--muted);
+    font-family:ui-monospace,SFMono-Regular,Menlo,monospace;
+  }
+}
+
+/* ===== Final top alignment: mirror METAS, tighten BOT, raise AULA ===== */
+@media (min-width:1200px){
+  /* 25 TICKS mirrors METAS: same distance from the wheel area edge. */
+  .wheel-area .analysis-wrap{
+    left:-34px!important;
+    transform:none!important;
+    margin-left:0!important;
+  }
+
+  /* Keep the Bot card comfortably inside the History card width. */
+  .dashboard-left .row3{
+    grid-template-columns:minmax(115px,.72fr) minmax(150px,.88fr) minmax(78px,.52fr)!important;
+    gap:8px!important;
+  }
+
+  .dashboard-left .row3 > div:nth-child(2){
+    max-width:170px!important;
+  }
+
+  /* Raise Aula and let its block extend vertically through the upper dashboard area,
+     from the Profit/Loss level toward the Bet block. */
+  .dashboard-left .row3{
+    position:relative!important;
+  }
+
+  .dashboard-left .row3 > div:nth-child(3){
+    position:relative!important;
+    margin-top:-92px!important;
+    padding-top:0!important;
+    align-self:start!important;
+    min-height:140px!important;
+  }
+
+  .dashboard-left .row3 > div:nth-child(3) .pill-aula{
+    min-height:140px!important;
+    display:flex!important;
+    align-items:center!important;
+    justify-content:center!important;
+  }
+}
+
+@media (min-width:1600px){
+  .dashboard-left .row3 > div:nth-child(2){
+    max-width:165px!important;
+  }
+
+  .dashboard-left .row3 > div:nth-child(3){
+    margin-top:-98px!important;
+    min-height:148px!important;
+  }
+
+  .dashboard-left .row3 > div:nth-child(3) .pill-aula{
+    min-height:148px!important;
+  }
+}
+
+/* ===== Correct AULA and BOT sizing from desktop reference ===== */
+@media (min-width:1200px){
+  .dashboard-layout{
+    position:relative!important;
+  }
+
+  /* AULA is a horizontal block spanning from the 25 TICKS side to METAS. */
+  .dashboard-left .row3 > div:nth-child(3){
+    position:absolute!important;
+    z-index:6!important;
+    top:38px!important;
+    left:calc(27% + 34px)!important;
+    right:calc(28% + 34px)!important;
+    width:auto!important;
+    max-width:none!important;
+    margin:0!important;
+    min-height:0!important;
+  }
+
+  .dashboard-left .row3 > div:nth-child(3) .field-label{
+    margin:0 0 6px 0!important;
+    height:14px!important;
+  }
+
+  .dashboard-left .row3 > div:nth-child(3) .pill-aula{
+    width:100%!important;
+    height:48px!important;
+    min-height:48px!important;
+    padding:12px!important;
+    border-radius:12px!important;
+  }
+
+  /* BOT stays compact and never grows beyond the History card width. */
+  .dashboard-left .row3{
+    grid-template-columns:minmax(105px,.68fr) minmax(135px,.82fr) minmax(72px,.48fr)!important;
+    gap:8px!important;
+  }
+
+  .dashboard-left .row3 > div:nth-child(2){
+    width:135px!important;
+    max-width:135px!important;
+    min-width:0!important;
+  }
+
+  .dashboard-left .row3 > div:nth-child(2) .dropdown-btn{
+    width:135px!important;
+    max-width:135px!important;
+  }
+}
+
+@media (min-width:1600px){
+  .dashboard-left .row3 > div:nth-child(3){
+    left:calc(25% + 42px)!important;
+    right:calc(30% + 42px)!important;
+  }
+
+  .dashboard-left .row3 > div:nth-child(2),
+  .dashboard-left .row3 > div:nth-child(2) .dropdown-btn{
+    width:140px!important;
+    max-width:140px!important;
+  }
+}
+
+/* ===== Correct AULA placement: horizontal strip between 25 TICKS and METAS ===== */
+@media (min-width:1200px){
+  /* The AULA element must be positioned against the dashboard, not the row3 grid. */
+  .dashboard-left .row3{
+    position:static!important;
+  }
+
+  .dashboard-left .row3 > div:nth-child(3){
+    position:absolute!important;
+    z-index:25!important;
+    top:38px!important;
+    left:calc(27% + 34px)!important;
+    right:calc(28% + 34px)!important;
+    width:auto!important;
+    max-width:none!important;
+    min-width:0!important;
+    height:48px!important;
+    min-height:48px!important;
+    margin:0!important;
+    padding:0!important;
+  }
+
+  .dashboard-left .row3 > div:nth-child(3) .field-label{
+    position:absolute!important;
+    left:0!important;
+    top:-17px!important;
+    margin:0!important;
+    height:auto!important;
+    line-height:12px!important;
+    z-index:2!important;
+  }
+
+  .dashboard-left .row3 > div:nth-child(3) .pill-aula{
+    width:100%!important;
+    height:48px!important;
+    min-height:48px!important;
+    display:flex!important;
+    align-items:center!important;
+    justify-content:center!important;
+    padding:0!important;
+    border-radius:12px!important;
+  }
+
+  /* BOT remains compact inside the left column / History width. */
+  .dashboard-left .row3 > div:nth-child(2),
+  .dashboard-left .row3 > div:nth-child(2) .dropdown-btn{
+    width:135px!important;
+    max-width:135px!important;
+    min-width:0!important;
+  }
+}
+
+@media (min-width:1600px){
+  .dashboard-left .row3 > div:nth-child(3){
+    left:calc(25% + 42px)!important;
+    right:calc(30% + 42px)!important;
+  }
+
+  .dashboard-left .row3 > div:nth-child(2),
+  .dashboard-left .row3 > div:nth-child(2) .dropdown-btn{
+    width:140px!important;
+    max-width:140px!important;
+  }
+}
+
+/* ===== Stable AULA strip: independent of row3, from 25 TICKS to METAS ===== */
+.aula-strip{display:none}
+@media (min-width:1200px){
+  .aula-strip{
+    display:block!important;
+    position:absolute!important;
+    z-index:25!important;
+    top:38px!important;
+    left:calc(27% + 85px)!important;
+    right:28%!important;
+    width:auto!important;
+    height:48px!important;
+    min-height:48px!important;
+    margin:0!important;
+    padding:0!important;
+  }
+  .aula-label{
+    position:absolute!important;
+    left:0!important;
+    top:-17px!important;
+    font-size:11px!important;
+    letter-spacing:.06em!important;
+    color:var(--muted)!important;
+    line-height:12px!important;
+  }
+  .aula-strip .pill-aula{
+    width:100%!important;
+    height:48px!important;
+    min-height:48px!important;
+    display:flex!important;
+    align-items:center!important;
+    justify-content:center!important;
+    padding:0!important;
+    border-radius:12px!important;
+  }
+  /* row3 now contains only account type and bot. */
+  .dashboard-left .row3{
+    grid-template-columns:minmax(115px,.72fr) minmax(135px,.82fr)!important;
+  }
+  .dashboard-left .row3 > div:nth-child(2),
+  .dashboard-left .row3 > div:nth-child(2) .dropdown-btn{
+    width:135px!important;
+    max-width:135px!important;
+    min-width:0!important;
+  }
+}
+@media (min-width:1600px){
+  .aula-strip{
+    left:calc(25% + 100px)!important;
+    right:30%!important;
+  }
+  .dashboard-left .row3 > div:nth-child(2),
+  .dashboard-left .row3 > div:nth-child(2) .dropdown-btn{
+    width:140px!important;
+    max-width:140px!important;
+  }
+}
+
+/* ===== Final AULA alignment: exactly inside the 25 TICKS ↔ METAS center area ===== */
+@media (min-width:1200px){
+  .dashboard-center{
+    position:relative!important;
+  }
+
+  .dashboard-center .aula-strip{
+    display:block!important;
+    position:absolute!important;
+    z-index:6!important;
+    top:58px!important;
+    left:0!important;
+    right:0!important;
+    width:auto!important;
+    height:48px!important;
+    min-height:48px!important;
+    margin:0!important;
+    padding:0!important;
+    pointer-events:none!important;
+  }
+
+  .dashboard-center .aula-label{
+    position:absolute!important;
+    left:0!important;
+    top:-17px!important;
+    margin:0!important;
+    font-size:11px!important;
+    line-height:12px!important;
+    letter-spacing:.06em!important;
+    color:var(--muted)!important;
+  }
+
+  .dashboard-center .aula-strip .pill-aula{
+    width:100%!important;
+    height:48px!important;
+    min-height:48px!important;
+    display:flex!important;
+    align-items:center!important;
+    justify-content:center!important;
+    padding:0!important;
+    margin:0!important;
+    border-radius:12px!important;
+  }
+}
+
+@media (min-width:1600px){
+  .dashboard-center .aula-strip{
+    top:58px!important;
+  }
+}
+
+
+/* ===== Operation stage directly below AULA, same width as 25 TICKS ↔ METAS ===== */
+@media (min-width:1200px){
+  .dashboard-center{
+    position:relative!important;
+  }
+  .dashboard-center #stageTracker{
+    display:block!important;
+    position:absolute!important;
+    z-index:7!important;
+    top:112px!important;
+    left:0!important;
+    right:0!important;
+    width:auto!important;
+    margin:0!important;
+    padding:0!important;
+  }
+  .dashboard-center #stageTracker .stage-tracker{
+    width:100%!important;
+    min-height:48px!important;
+    margin:0!important;
+  }
+}
+@media (min-width:1600px){
+  .dashboard-center #stageTracker{top:112px!important}
+}
+
+
+/* =========================================================
+   RESPONSIVE ISOLATION — PC and MOBILE are independent
+   PC: 900px+
+   MOBILE: below 900px
+   ========================================================= */
+
+/* ---------- MOBILE ONLY ---------- */
+@media (max-width:899px){
+  html,body{
+    width:100%;
+    min-width:0;
+    overflow-x:hidden;
+  }
+  body{
+    display:block!important;
+    min-height:100vh;
+    padding:18px 14px 64px!important;
+    align-items:initial!important;
+  }
+  .app{
+    width:100%!important;
+    max-width:760px!important;
+    margin:0 auto!important;
+    min-height:0!important;
+  }
+  .header{
+    width:100%!important;
+    min-height:48px!important;
+    margin-bottom:14px!important;
+    padding:4px 0!important;
+  }
+  .dashboard-layout{
+    width:100%!important;
+    max-width:none!important;
+    min-height:0!important;
+    display:grid!important;
+    grid-template-columns:1fr!important;
+    gap:14px!important;
+    align-items:start!important;
+  }
+  .dashboard-left,
+  .dashboard-center,
+  .dashboard-right{
+    grid-column:auto!important;
+    grid-row:auto!important;
+    width:100%!important;
+    min-width:0!important;
+    height:auto!important;
+  }
+  .dashboard-left{
+    display:block!important;
+  }
+  .dashboard-center{
+    display:flex!important;
+    flex-direction:column!important;
+    align-items:center!important;
+    justify-content:flex-start!important;
+    padding-top:0!important;
+  }
+  .dashboard-center .status{
+    width:100%!important;
+    min-height:34px!important;
+    margin:0 0 8px!important;
+  }
+  .dashboard-right{
+    display:flex!important;
+    flex-direction:column!important;
+    gap:14px!important;
+  }
+
+  /* Desktop-only AULA positioning is completely disabled on mobile. */
+  .aula-strip{
+    position:static!important;
+    display:none!important;
+    width:auto!important;
+    height:auto!important;
+    min-height:0!important;
+    left:auto!important;
+    right:auto!important;
+    top:auto!important;
+    margin:0!important;
+    padding:0!important;
+  }
+
+  /* Keep the mobile stage in normal document flow. */
+  .dashboard-center #stageTracker{
+    position:static!important;
+    display:flex!important;
+    width:100%!important;
+    min-height:0!important;
+    height:auto!important;
+    margin:0 0 14px!important;
+    padding:10px 14px!important;
+  }
+
+  .wheel-area{
+    position:relative!important;
+    width:min(100%,430px)!important;
+    height:auto!important;
+    min-height:0!important;
+    aspect-ratio:1!important;
+    margin:0 auto!important;
+    flex:none!important;
+  }
+  .wheel{
+    width:100%!important;
+    height:100%!important;
+    min-width:0!important;
+    min-height:0!important;
+    max-width:none!important;
+    max-height:none!important;
+  }
+
+  /* Mobile keeps its own history layout; desktop sizing never leaks in. */
+  .history-card{
+    width:100%!important;
+    margin-bottom:18px!important;
+  }
+  .row3{
+    width:100%!important;
+    grid-template-columns:1fr 1.4fr .8fr!important;
+    gap:10px!important;
+  }
+
+  @media (max-width:599px){
+    body{padding:12px 10px 60px!important}
+    .app{max-width:420px!important}
+    .header{margin-bottom:14px!important}
+    .dashboard-layout{gap:12px!important}
+    .row3{grid-template-columns:1fr 1.2fr .8fr!important;gap:8px!important}
+    .wheel-area{width:min(100%,300px)!important}
+    .history-card{padding:16px 14px 14px!important}
+  }
+}
+
+/* ---------- PC ONLY ---------- */
+@media (min-width:900px){
+  html,body{
+    width:100%;
+    min-width:0;
+    overflow-x:hidden;
+  }
+  body{
+    display:block!important;
+    min-height:100vh;
+    align-items:stretch!important;
+  }
+  .app{
+    width:100%!important;
+    max-width:none!important;
+    margin:0!important;
+  }
+  .dashboard-layout{
+    width:100%!important;
+    max-width:none!important;
+  }
+  .dashboard-left,
+  .dashboard-center,
+  .dashboard-right{
+    min-width:0;
+  }
+  .dashboard-center{
+    position:relative!important;
+  }
+  .dashboard-right{
+    display:flex!important;
+  }
+  .aula-strip{
+    display:block!important;
+  }
+  .dashboard-center .aula-strip{
+    position:absolute!important;
+    z-index:6!important;
+    top:58px!important;
+    left:0!important;
+    right:0!important;
+    width:auto!important;
+    height:48px!important;
+    min-height:48px!important;
+    margin:0!important;
+    padding:0!important;
+    pointer-events:none!important;
+  }
+  .dashboard-center .aula-label{
+    position:absolute!important;
+    left:0!important;
+    top:-17px!important;
+    margin:0!important;
+  }
+  .dashboard-center .aula-strip .pill-aula{
+    width:100%!important;
+    height:48px!important;
+    min-height:48px!important;
+    display:flex!important;
+    align-items:center!important;
+    justify-content:center!important;
+    margin:0!important;
+  }
+  .dashboard-center #stageTracker{
+    position:absolute!important;
+    z-index:7!important;
+    top:112px!important;
+    left:0!important;
+    right:0!important;
+    width:auto!important;
+    margin:0!important;
+  }
+}
+
+/* Prevent the mobile stylesheet from inheriting desktop history geometry. */
+@media (max-width:899px){
+  #historyScroll{
+    max-height:none!important;
+    height:auto!important;
+  }
+  .history-row .chip{
+    box-sizing:border-box!important;
+  }
+}
+
+
+
+/* ===== FINAL FIX v3: mobile reference positioning ===== */
+@media(max-width:899px){
+  /* AULA is the third block of the Account/Bot row. */
+  .row3{
+    display:grid!important;
+    grid-template-columns:minmax(0,1fr) minmax(0,1.2fr) minmax(0,.8fr)!important;
+    gap:8px!important;
+    align-items:start!important;
+    overflow:visible!important;
+  }
+  .row3 .aula-strip{
+    display:block!important;
+    visibility:visible!important;
+    position:static!important;
+    width:100%!important;
+    height:70px!important;
+    min-height:70px!important;
+    margin:0!important;
+    padding:0!important;
+  }
+  .row3 .aula-label{
+    display:block!important;
+    visibility:visible!important;
+    height:18px!important;
+    margin:0 0 5px!important;
+    font-size:11px!important;
+    line-height:18px!important;
+    color:var(--muted)!important;
+  }
+  .row3 .aula-strip .pill-aula{
+    display:flex!important;
+    visibility:visible!important;
+    width:100%!important;
+    height:44px!important;
+    min-height:44px!important;
+    margin:0!important;
+    padding:0!important;
+    align-items:center!important;
+    justify-content:center!important;
+  }
+
+  /* The wheel controls sit ABOVE the circle, one on each side. */
+  .wheel-area{
+    position:relative!important;
+    width:min(100%,300px)!important;
+    height:300px!important;
+    min-height:300px!important;
+    max-width:300px!important;
+    margin:0 auto!important;
+    overflow:visible!important;
+  }
+  .wheel-area .analysis-wrap{
+    position:absolute!important;
+    top:-30px!important;
+    left:0!important;
+    right:auto!important;
+    transform:none!important;
+    margin:0!important;
+    z-index:100!important;
+  }
+  .wheel-area .target-wrap{
+    position:absolute!important;
+    top:-30px!important;
+    right:0!important;
+    left:auto!important;
+    transform:none!important;
+    margin:0!important;
+    z-index:100!important;
+  }
+  .wheel-area .analysis-btn,
+  .wheel-area .target-btn{
+    display:block!important;
+    padding:0!important;
+    margin:0!important;
+    font-size:13px!important;
+    line-height:18px!important;
+    white-space:nowrap!important;
+  }
+  #wheel{
+    position:absolute!important;
+    left:0!important;
+    top:0!important;
+    width:300px!important;
+    height:300px!important;
+    min-width:300px!important;
+    min-height:300px!important;
+    max-width:300px!important;
+    max-height:300px!important;
+    margin:0!important;
+  }
+}
+
+/* PC keeps the controls above the wheel without affecting mobile. */
+@media(min-width:900px){
+  .wheel-area .analysis-wrap{
+    position:absolute!important;
+  }
+  .wheel-area .target-wrap{
+    position:absolute!important;
+  }
+}
+
+
+/* ===== FINAL MOBILE: stage integrated into Recent History ===== */
+@media(max-width:599px){
+  /* Smaller recent-history chips so more results fit in the card. */
+  .history-card .history-row{
+    gap:4px!important;
+    padding-bottom:5px!important;
+    margin-bottom:0!important;
+  }
+  .history-card .history-row .chip{
+    flex:0 0 64px!important;
+    width:64px!important;
+    min-width:64px!important;
+    min-height:56px!important;
+    height:56px!important;
+    padding:6px 1px!important;
+    border-radius:9px!important;
+    font-size:10px!important;
+  }
+  .history-card .history-row .chip-tag{
+    font-size:7px!important;
+  }
+
+  /* Stage is part of the Recent History card, not a separate card. */
+  .history-card #stageTracker{
+    display:flex!important;
+    position:static!important;
+    width:100%!important;
+    min-height:44px!important;
+    height:44px!important;
+    margin:8px 0 0!important;
+    padding:7px 2px 2px!important;
+    background:transparent!important;
+    border:0!important;
+    border-top:1px solid var(--border)!important;
+    border-radius:0!important;
+    gap:7px!important;
+  }
+  .history-card #stageTracker .stage-stop-btn{
+    width:28px!important;
+    height:28px!important;
+    min-width:28px!important;
+    border-radius:7px!important;
+  }
+  .history-card #stageTracker .stage-stop-btn span{
+    width:9px!important;
+    height:9px!important;
+  }
+  .history-card #stageTracker .stage-steps{
+    min-width:0!important;
+    flex:1!important;
+  }
+  .history-card #stageTracker .stage-dot{
+    width:7px!important;
+    height:7px!important;
+    flex:0 0 7px!important;
+  }
+  .history-card #stageTracker .stage-line{
+    height:2px!important;
+    margin:0 3px!important;
+  }
+  .history-card #stageTracker .stage-labels{
+    margin-top:3px!important;
+  }
+  .history-card #stageTracker .stage-labels span{
+    font-size:7px!important;
+    line-height:9px!important;
+    white-space:nowrap!important;
+  }
+}
+
+/* ===== FINAL AULA RESTORE ===== */
+@media(max-width:899px){
+  .row3 .aula-strip{
+    display:block!important;
+    visibility:visible!important;
+    position:static!important;
+    width:100%!important;
+    height:70px!important;
+    min-height:70px!important;
+    margin:0!important;
+    padding:0!important;
+  }
+  .row3 .aula-label{
+    display:block!important;
+    visibility:visible!important;
+    position:static!important;
+    width:100%!important;
+    height:18px!important;
+    margin:0 0 5px!important;
+    font-size:11px!important;
+    line-height:18px!important;
+  }
+  .row3 .aula-strip .pill-aula{
+    display:flex!important;
+    visibility:visible!important;
+    width:100%!important;
+    height:44px!important;
+    min-height:44px!important;
+    margin:0!important;
+    padding:0!important;
+    align-items:center!important;
+    justify-content:center!important;
+  }
+}
+
+/* ===== FINAL: ticks/metas corners, visible chevrons, symbol dropdown ===== */
+.wheel-area{overflow:visible!important}
+.wheel-area .analysis-wrap{
+  left:-8px!important;
+  right:auto!important;
+  z-index:1000!important;
+}
+.wheel-area .target-wrap{
+  right:-8px!important;
+  left:auto!important;
+  z-index:1000!important;
+}
+.wheel-area .analysis-btn,
+.wheel-area .target-btn{
+  display:flex!important;
+  align-items:center!important;
+  gap:4px!important;
+  white-space:nowrap!important;
+}
+.dropdown-chevron{
+  display:inline-flex!important;
+  align-items:center!important;
+  justify-content:center!important;
+  font-size:17px!important;
+  line-height:1!important;
+  font-weight:900!important;
+  margin-left:5px!important;
+}
+.symbol-dropdown{position:relative!important;z-index:5000!important}
+#symbolBtn{position:relative!important;z-index:5001!important;cursor:pointer!important;pointer-events:auto!important}
+#symbolMenu{
+  position:absolute!important;
+  z-index:99999!important;
+  pointer-events:auto!important;
+  max-height:280px!important;
+  overflow-y:auto!important;
+}
+#symbolMenu.open{display:block!important;visibility:visible!important;opacity:1!important}
+#symbolMenu .symbol-item{
+  display:flex!important;
+  visibility:visible!important;
+  pointer-events:auto!important;
+  cursor:pointer!important;
+}
+@media(max-width:899px){
+  .wheel-area .analysis-wrap{left:-4px!important}
+  .wheel-area .target-wrap{right:-4px!important}
+}
+
+/* ===== FINAL CONTROL DROPDOWNS: same visual language as BOT ===== */
+.wheel-area .analysis-wrap,
+.wheel-area .target-wrap{
+  position:absolute!important;
+  top:0!important;
+  z-index:10000!important;
+  transform:none!important;
+  margin:0!important;
+}
+.wheel-area .analysis-wrap{left:0!important;right:auto!important}
+.wheel-area .target-wrap{right:0!important;left:auto!important}
+
+.wheel-area .analysis-btn,
+.wheel-area .target-btn{
+  width:148px!important;
+  min-height:44px!important;
+  height:44px!important;
+  padding:12px 14px!important;
+  margin:0!important;
+  background:var(--field)!important;
+  border:1px solid var(--border)!important;
+  border-radius:12px!important;
+  color:var(--text)!important;
+  font-weight:700!important;
+  font-size:14px!important;
+  line-height:20px!important;
+  display:flex!important;
+  align-items:center!important;
+  justify-content:space-between!important;
+  gap:10px!important;
+  cursor:pointer!important;
+  box-shadow:none!important;
+  white-space:nowrap!important;
+}
+.wheel-area .analysis-btn .dropdown-chevron,
+.wheel-area .target-btn .dropdown-chevron{
+  display:inline-flex!important;
+  align-items:center!important;
+  justify-content:center!important;
+  flex:0 0 auto!important;
+  margin-left:auto!important;
+  font-size:15px!important;
+  line-height:1!important;
+  font-weight:900!important;
+}
+.wheel-area .analysis-btn::after,
+.wheel-area .target-btn::after{
+  content:none!important;
+  display:none!important;
+}
+
+/* PC: controls sit at the top of the wheel area, therefore below ANALISANDO/ABERTO/FECHADO. */
+@media(min-width:900px){
+  .wheel-area .analysis-wrap{top:0!important;left:0!important}
+  .wheel-area .target-wrap{top:0!important;right:0!important}
+}
+
+/* Mobile: controls stay in the far left/right corners, away from the circle. */
+@media(max-width:899px){
+  .dashboard-center{
+    position:relative!important;
+  }
+  .wheel-area{
+    width:100%!important;
+    max-width:none!important;
+    height:340px!important;
+    min-height:340px!important;
+    margin:0 auto!important;
+    position:relative!important;
+    overflow:visible!important;
+  }
+  .wheel-area .analysis-wrap{top:0!important;left:0!important;right:auto!important}
+  .wheel-area .target-wrap{top:0!important;right:0!important;left:auto!important}
+  .wheel-area .analysis-btn,
+  .wheel-area .target-btn{
+    width:auto!important;
+    min-width:84px!important;
+    max-width:118px!important;
+    height:34px!important;
+    min-height:34px!important;
+    padding:7px 9px!important;
+    border-radius:10px!important;
+    font-size:10px!important;
+    line-height:14px!important;
+    gap:5px!important;
+  }
+  .wheel-area .analysis-btn .dropdown-chevron,
+  .wheel-area .target-btn .dropdown-chevron{
+    font-size:12px!important;
+    margin-left:4px!important;
+  }
+  .wheel-area #wheel{
+    position:absolute!important;
+    left:50%!important;
+    top:40px!important;
+    transform:translateX(-50%)!important;
+    width:300px!important;
+    height:300px!important;
+    min-width:300px!important;
+    min-height:300px!important;
+    max-width:300px!important;
+    max-height:300px!important;
+    margin:0!important;
+  }
+}
+@media(max-width:399px){
+  .wheel-area .analysis-btn,
+  .wheel-area .target-btn{
+    min-width:78px!important;
+    padding-left:8px!important;
+    padding-right:8px!important;
+    font-size:9px!important;
+  }
+  .wheel-area #wheel{
+    width:286px!important;
+    height:286px!important;
+    min-width:286px!important;
+    min-height:286px!important;
+    max-width:286px!important;
+    max-height:286px!important;
+  }
+}
+
+
+/* ===== Final center-axis alignment: wheel and METAS ===== */
+@media (min-width:1200px){
+  .dashboard-center{
+    position:relative!important;
+    align-items:center!important;
+  }
+  .dashboard-center .dashboard-control-row{
+    width:min(100%,600px)!important;
+    max-width:600px!important;
+    margin:0 auto 10px!important;
+    align-self:center!important;
+  }
+  .dashboard-center .aula-strip,
+  .dashboard-center #stageTracker{
+    left:50%!important;
+    right:auto!important;
+    width:min(100%,600px)!important;
+    max-width:600px!important;
+    transform:translateX(-50%)!important;
+  }
+  .dashboard-center .wheel-area{
+    width:min(100%,600px,calc(100vh - 260px))!important;
+    max-width:600px!important;
+    margin-left:auto!important;
+    margin-right:auto!important;
+  }
+}
+@media (min-width:1600px){
+  .dashboard-center .dashboard-control-row,
+  .dashboard-center .aula-strip,
+  .dashboard-center #stageTracker,
+  .dashboard-center .wheel-area{
+    width:min(100%,640px)!important;
+    max-width:640px!important;
+  }
+}
+@media (min-width:1200px) and (max-height:800px){
+  .dashboard-center .dashboard-control-row,
+  .dashboard-center .aula-strip,
+  .dashboard-center #stageTracker{
+    width:min(100%,520px)!important;
+    max-width:520px!important;
+  }
+  .dashboard-center .wheel-area{
+    width:min(100%,520px,calc(100vh - 215px))!important;
+    max-width:520px!important;
+  }
+}
+
+@media (min-width:900px){
+  .dashboard-left,.dashboard-right{position:relative}
+  .dashboard-control-row{position:relative;display:flex;justify-content:center}
+  .dashboard-left>.analysis-wrap,
+  .dashboard-right>.target-wrap{position:absolute!important;top:-14px!important;z-index:15}
+  .dashboard-left>.analysis-wrap{left:16px!important;right:auto!important}
+  .dashboard-right>.target-wrap{right:16px!important;left:auto!important}
+  .dashboard-left>.analysis-wrap .analysis-btn,
+  .dashboard-right>.target-wrap .target-btn{padding:7px 12px;background:var(--field);border:1px solid var(--border);border-radius:9px;box-shadow:0 4px 10px rgba(0,0,0,.25)}
+  .dashboard-right>.target-wrap .target-menu{left:auto;right:0}
+  .wheel-area{margin-top:32px!important;width:min(100%,580px)!important}
+}
+/* ===== 25 TICKS — status — METAS as one row; 25 TICKS/METAS no longer float loose ===== */
+.dashboard-control-row{
+  position:relative;
+  display:flex!important;
+  align-items:center;
+  justify-content:space-between;
+  gap:12px;
+  width:100%;
+}
+
+.dashboard-control-row>.analysis-wrap,
+.dashboard-control-row>.target-wrap{
+  position:relative!important;
+  top:auto!important;
+  left:auto!important;
+  right:auto!important;
+  flex:0 0 auto;
+  z-index:5;
+}
+
+.dashboard-control-row>.status{
+  flex:1;
+  min-width:0;
+  margin:0!important;
+}
+
+.dashboard-control-row>.analysis-wrap .analysis-btn,
+.dashboard-control-row>.target-wrap .target-btn{
+  padding:7px 12px;
+  background:var(--field);
+  border:1px solid var(--border);
+  border-radius:9px;
+  white-space:nowrap;
+}
+
+.dashboard-control-row>.target-wrap .target-menu{left:auto;right:0}
+
+.wheel-area{
+  margin-top:56px!important;
+}
+
+@media (min-width:900px){
+  .wheel-area{
+    width:min(100%,580px)!important;
+    margin-top:64px!important;
+  }
+}
+
+/* ===== Final fix: status centered, controls separated, wheel lower ===== */
+.dashboard-control-row{
+  position:relative!important;
+  display:grid!important;
+  grid-template-columns:minmax(90px,1fr) auto minmax(90px,1fr)!important;
+  align-items:center!important;
+  justify-content:initial!important;
+  gap:12px!important;
+  width:100%!important;
+}
+
+.dashboard-control-row>.analysis-wrap{
+  position:relative!important;
+  top:auto!important;
+  left:auto!important;
+  right:auto!important;
+  margin:0!important;
+  justify-self:start!important;
+  z-index:5!important;
+}
+
+.dashboard-control-row>.status{
+  position:relative!important;
+  top:auto!important;
+  left:auto!important;
+  right:auto!important;
+  width:auto!important;
+  min-width:0!important;
+  min-height:34px!important;
+  margin:0!important;
+  padding:0 4px!important;
+  justify-self:center!important;
+  display:flex!important;
+  align-items:center!important;
+  justify-content:center!important;
+  text-align:center!important;
+  z-index:6!important;
+}
+
+.dashboard-control-row>.target-wrap{
+  position:relative!important;
+  top:auto!important;
+  left:auto!important;
+  right:auto!important;
+  margin:0!important;
+  justify-self:end!important;
+  z-index:5!important;
+}
+
+@media (min-width:900px){
+  .dashboard-center .wheel-area{
+    margin-top:96px!important;
+    width:min(100%,580px)!important;
+  }
+}
+
+
+/* =========================================================
+   FINAL REFERENCE LAYOUT — desktop
+   Matches the approved reference image:
+   controls full width, lesson/stage full width,
+   large wheel lower in the center column.
+   ========================================================= */
+@media (min-width:900px){
+  .dashboard-center{
+    position:relative!important;
+    display:flex!important;
+    flex-direction:column!important;
+    align-items:center!important;
+    padding-top:0!important;
+    box-sizing:border-box!important;
+  }
+
+  /* 25 TICKS — Account connected — TARGETS */
+  .dashboard-center .dashboard-control-row{
+    position:relative!important;
+    display:grid!important;
+    grid-template-columns:minmax(120px,1fr) auto minmax(120px,1fr)!important;
+    align-items:center!important;
+    width:100%!important;
+    max-width:none!important;
+    min-height:48px!important;
+    margin:0 0 6px!important;
+    padding:0!important;
+    gap:16px!important;
+  }
+
+  .dashboard-center .dashboard-control-row>.analysis-wrap{
+    position:relative!important;
+    inset:auto!important;
+    justify-self:start!important;
+    margin:0!important;
+  }
+
+  .dashboard-center .dashboard-control-row>.status{
+    position:relative!important;
+    inset:auto!important;
+    width:auto!important;
+    min-width:0!important;
+    min-height:34px!important;
+    margin:0!important;
+    padding:0 6px!important;
+    justify-self:center!important;
+    display:flex!important;
+    align-items:center!important;
+    justify-content:center!important;
+    white-space:nowrap!important;
+  }
+
+  .dashboard-center .dashboard-control-row>.target-wrap{
+    position:relative!important;
+    inset:auto!important;
+    justify-self:end!important;
+    margin:0!important;
+  }
+
+  .dashboard-center .dashboard-control-row .analysis-btn,
+  .dashboard-center .dashboard-control-row .target-btn{
+    min-height:38px!important;
+    padding:8px 14px!important;
+    white-space:nowrap!important;
+  }
+
+  /* LESSON — full width */
+  .dashboard-center .aula-strip{
+    position:relative!important;
+    inset:auto!important;
+    left:auto!important;
+    right:auto!important;
+    top:auto!important;
+    transform:none!important;
+    width:100%!important;
+    max-width:none!important;
+    margin:0 0 8px!important;
+    height:auto!important;
+    min-height:64px!important;
+    flex:0 0 auto!important;
+  }
+
+  /* ANALYZING — OPEN — CLOSED — full width */
+  .dashboard-center #stageTracker{
+    position:relative!important;
+    inset:auto!important;
+    left:auto!important;
+    right:auto!important;
+    top:auto!important;
+    transform:none!important;
+    width:100%!important;
+    max-width:none!important;
+    min-height:48px!important;
+    margin:0!important;
+    flex:0 0 auto!important;
+  }
+
+  /* Large wheel: use the available central space */
+  .dashboard-center .wheel-area{
+    position:relative!important;
+    width:min(100%,620px)!important;
+    max-width:620px!important;
+    height:auto!important;
+    min-height:0!important;
+    aspect-ratio:1 / 1!important;
+    flex:0 0 auto!important;
+    margin:22px auto 0!important;
+    padding:0!important;
+    display:flex!important;
+    align-items:center!important;
+    justify-content:center!important;
+  }
+
+  .dashboard-center .wheel-area>#wheel{
+    width:100%!important;
+    height:100%!important;
+    max-width:none!important;
+    max-height:none!important;
+    min-width:0!important;
+    min-height:0!important;
+    margin:0!important;
+  }
+}
+
+@media (min-width:1400px){
+  .dashboard-center .wheel-area{
+    width:min(100%,660px)!important;
+    max-width:660px!important;
+    margin-top:24px!important;
+  }
+}
+
+@media (min-width:1600px){
+  .dashboard-center .wheel-area{
+    width:min(100%,700px)!important;
+    max-width:700px!important;
+    margin-top:24px!important;
+  }
+}
+
+
+/* =========================================================
+   FINAL DESKTOP WHEEL OVERRIDE — approved reference
+   Force a larger wheel and move it slightly downward into
+   the available central whitespace. Mobile is untouched.
+   ========================================================= */
+@media (min-width:1200px){
+  .dashboard-center{
+    overflow:visible!important;
+  }
+
+  .dashboard-center .wheel-area{
+    position:relative!important;
+    width:620px!important;
+    max-width:none!important;
+    height:620px!important;
+    min-height:620px!important;
+    max-height:none!important;
+    aspect-ratio:1 / 1!important;
+    margin:28px auto 0!important;
+    flex:0 0 620px!important;
+    overflow:visible!important;
+    transform:translateY(18px)!important;
+  }
+
+  .dashboard-center .wheel-area > #wheel,
+  .dashboard-center .wheel-area > .wheel{
+    width:620px!important;
+    height:620px!important;
+    min-width:620px!important;
+    min-height:620px!important;
+    max-width:620px!important;
+    max-height:620px!important;
+    flex:0 0 620px!important;
+    margin:0!important;
+  }
+}
+
+@media (min-width:1600px){
+  .dashboard-center .wheel-area{
+    width:660px!important;
+    height:660px!important;
+    min-height:660px!important;
+    flex-basis:660px!important;
+  }
+
+  .dashboard-center .wheel-area > #wheel,
+  .dashboard-center .wheel-area > .wheel{
+    width:660px!important;
+    height:660px!important;
+    min-width:660px!important;
+    min-height:660px!important;
+    max-width:660px!important;
+    max-height:660px!important;
+    flex-basis:660px!important;
+  }
+}
+
+/* =========================================================
+   FINAL DESKTOP REFERENCE FIX — Izidro
+   1) 25 TICKS / STATUS / METAS occupy the complete center
+      width on one clean row.
+   2) LESSON is in normal flow, so its label never overlaps
+      the ticks row.
+   3) ANALYZING / OPEN / CLOSED use the complete center width.
+   4) Wheel is large, centered, and lower without overflowing
+      horizontally or inheriting old transforms/absolute rules.
+   Mobile is intentionally untouched.
+   ========================================================= */
+@media (min-width:900px){
+  .dashboard-center{
+    position:relative!important;
+    display:flex!important;
+    flex-direction:column!important;
+    align-items:stretch!important;
+    justify-content:flex-start!important;
+    width:100%!important;
+    max-width:none!important;
+    min-width:0!important;
+    padding:0!important;
+    margin:0!important;
+    transform:none!important;
+    overflow:visible!important;
+  }
+
+  /* Full-width top row */
+  .dashboard-center .dashboard-control-row{
+    position:relative!important;
+    display:grid!important;
+    grid-template-columns:minmax(120px,1fr) auto minmax(120px,1fr)!important;
+    align-items:center!important;
+    width:100%!important;
+    max-width:none!important;
+    min-height:42px!important;
+    height:42px!important;
+    margin:0 0 8px!important;
+    padding:0!important;
+    gap:12px!important;
+    transform:none!important;
+  }
+
+  .dashboard-center .dashboard-control-row>.analysis-wrap,
+  .dashboard-center .dashboard-control-row>.target-wrap{
+    position:relative!important;
+    inset:auto!important;
+    top:auto!important;
+    right:auto!important;
+    bottom:auto!important;
+    left:auto!important;
+    transform:none!important;
+    margin:0!important;
+    z-index:10!important;
+  }
+
+  .dashboard-center .dashboard-control-row>.analysis-wrap{justify-self:start!important}
+  .dashboard-center .dashboard-control-row>.target-wrap{justify-self:end!important}
+
+  .dashboard-center .dashboard-control-row>.status{
+    position:relative!important;
+    inset:auto!important;
+    width:auto!important;
+    min-width:0!important;
+    min-height:32px!important;
+    margin:0!important;
+    padding:0 6px!important;
+    justify-self:center!important;
+    display:flex!important;
+    align-items:center!important;
+    justify-content:center!important;
+    white-space:nowrap!important;
+    transform:none!important;
+  }
+
+  .dashboard-center .dashboard-control-row .analysis-btn,
+  .dashboard-center .dashboard-control-row .target-btn{
+    width:auto!important;
+    min-width:118px!important;
+    min-height:38px!important;
+    height:38px!important;
+    margin:0!important;
+    padding:8px 14px!important;
+    display:flex!important;
+    align-items:center!important;
+    justify-content:space-between!important;
+    white-space:nowrap!important;
+  }
+
+  /* LESSON: label above the red lesson bar, in normal flow */
+  .dashboard-center .aula-strip{
+    position:relative!important;
+    inset:auto!important;
+    left:auto!important;
+    right:auto!important;
+    top:auto!important;
+    bottom:auto!important;
+    transform:none!important;
+    display:block!important;
+    width:100%!important;
+    max-width:none!important;
+    height:60px!important;
+    min-height:60px!important;
+    margin:0 0 10px!important;
+    padding:0!important;
+    flex:0 0 60px!important;
+    overflow:visible!important;
+  }
+
+  .dashboard-center .aula-strip .aula-label{
+    position:static!important;
+    display:block!important;
+    width:100%!important;
+    height:16px!important;
+    min-height:16px!important;
+    margin:0 0 4px!important;
+    padding:0!important;
+    line-height:16px!important;
+  }
+
+  .dashboard-center .aula-strip .pill-aula{
+    display:flex!important;
+    position:static!important;
+    width:100%!important;
+    height:40px!important;
+    min-height:40px!important;
+    margin:0!important;
+    padding:0!important;
+    align-items:center!important;
+    justify-content:center!important;
+    border-radius:10px!important;
+  }
+
+  /* Stage: complete central width */
+  .dashboard-center>#stageTracker,
+  .dashboard-center .stage-tracker{
+    position:relative!important;
+    inset:auto!important;
+    left:auto!important;
+    right:auto!important;
+    top:auto!important;
+    bottom:auto!important;
+    transform:none!important;
+    display:flex!important;
+    width:100%!important;
+    max-width:none!important;
+    height:46px!important;
+    min-height:46px!important;
+    margin:0!important;
+    padding:8px 10px!important;
+    flex:0 0 46px!important;
+    box-sizing:border-box!important;
+  }
+
+  /* Wheel: large but constrained to the actual center column */
+  .dashboard-center .wheel-area{
+    position:relative!important;
+    width:min(100%,520px)!important;
+    max-width:520px!important;
+    height:520px!important;
+    min-height:520px!important;
+    max-height:520px!important;
+    aspect-ratio:1 / 1!important;
+    flex:0 0 520px!important;
+    margin:24px auto 0!important;
+    padding:0!important;
+    transform:none!important;
+    overflow:visible!important;
+    display:flex!important;
+    align-items:center!important;
+    justify-content:center!important;
+    box-sizing:border-box!important;
+  }
+
+  .dashboard-center .wheel-area>#wheel,
+  .dashboard-center .wheel-area>.wheel{
+    position:relative!important;
+    left:auto!important;
+    top:auto!important;
+    width:520px!important;
+    height:520px!important;
+    min-width:520px!important;
+    min-height:520px!important;
+    max-width:520px!important;
+    max-height:520px!important;
+    margin:0!important;
+    transform:none!important;
+    flex:0 0 520px!important;
+    box-sizing:border-box!important;
+  }
+
+  /* Never let old wheel controls float over LESSON/STAGE */
+  .dashboard-center .wheel-area>.analysis-wrap,
+  .dashboard-center .wheel-area>.target-wrap{
+    display:none!important;
+  }
+}
+
+@media (min-width:1500px){
+  .dashboard-center .wheel-area{
+    width:540px!important;
+    max-width:540px!important;
+    height:540px!important;
+    min-height:540px!important;
+    max-height:540px!important;
+    flex-basis:540px!important;
+  }
+
+  .dashboard-center .wheel-area>#wheel,
+  .dashboard-center .wheel-area>.wheel{
+    width:540px!important;
+    height:540px!important;
+    min-width:540px!important;
+    min-height:540px!important;
+    max-width:540px!important;
+    max-height:540px!important;
+    flex-basis:540px!important;
+  }
+}
+
+/* =========================================================
+   FINAL IZIDRO DESKTOP GEOMETRY — professional square wheel
+   The wheel gets ONE computed size and uses it for both width
+   and height. This prevents the oval/collapsed wheel seen on
+   short desktop viewports.
+   ========================================================= */
+@media (min-width:900px){
+  .dashboard-layout{
+    width:100%!important;
+    max-width:none!important;
+    display:grid!important;
+    grid-template-columns:minmax(280px,24%) minmax(0,1fr) minmax(280px,24%)!important;
+    gap:18px!important;
+    align-items:start!important;
+  }
+
+  .dashboard-left,
+  .dashboard-center,
+  .dashboard-right{
+    width:100%!important;
+    min-width:0!important;
+    transform:none!important;
+  }
+
+  .dashboard-center{
+    display:flex!important;
+    flex-direction:column!important;
+    align-items:stretch!important;
+    width:100%!important;
+    max-width:none!important;
+    min-width:0!important;
+    padding:0!important;
+    margin:0!important;
+    overflow:visible!important;
+  }
+
+  /* 25 TICKS — Account connected — TARGETS: complete center width */
+  .dashboard-center .dashboard-control-row,
+  .dashboard-center .aula-strip,
+  .dashboard-center #stageTracker{
+    width:100%!important;
+    max-width:none!important;
+    align-self:stretch!important;
+    box-sizing:border-box!important;
+  }
+
+  .dashboard-center .dashboard-control-row{
+    display:grid!important;
+    grid-template-columns:minmax(120px,1fr) auto minmax(120px,1fr)!important;
+    height:42px!important;
+    min-height:42px!important;
+    margin:0 0 8px!important;
+    padding:0!important;
+    gap:12px!important;
+  }
+
+  .dashboard-center .dashboard-control-row>.analysis-wrap{
+    position:relative!important;
+    inset:auto!important;
+    justify-self:start!important;
+    margin:0!important;
+  }
+
+  .dashboard-center .dashboard-control-row>.status{
+    position:relative!important;
+    inset:auto!important;
+    width:auto!important;
+    min-width:0!important;
+    min-height:32px!important;
+    margin:0!important;
+    padding:0 6px!important;
+    justify-self:center!important;
+    display:flex!important;
+    align-items:center!important;
+    justify-content:center!important;
+    white-space:nowrap!important;
+  }
+
+  .dashboard-center .dashboard-control-row>.target-wrap{
+    position:relative!important;
+    inset:auto!important;
+    justify-self:end!important;
+    margin:0!important;
+  }
+
+  .dashboard-center .dashboard-control-row .analysis-btn,
+  .dashboard-center .dashboard-control-row .target-btn{
+    min-height:38px!important;
+    height:38px!important;
+    padding:8px 14px!important;
+    white-space:nowrap!important;
+  }
+
+  /* LESSON — complete center width */
+  .dashboard-center .aula-strip{
+    position:relative!important;
+    inset:auto!important;
+    transform:none!important;
+    display:block!important;
+    height:60px!important;
+    min-height:60px!important;
+    margin:0 0 10px!important;
+    padding:0!important;
+    flex:0 0 60px!important;
+    overflow:visible!important;
+  }
+
+  .dashboard-center .aula-strip .aula-label{
+    position:static!important;
+    display:block!important;
+    width:100%!important;
+    height:16px!important;
+    min-height:16px!important;
+    margin:0 0 4px!important;
+    padding:0!important;
+    line-height:16px!important;
+  }
+
+  .dashboard-center .aula-strip .pill-aula{
+    display:flex!important;
+    position:static!important;
+    width:100%!important;
+    height:40px!important;
+    min-height:40px!important;
+    margin:0!important;
+    padding:0!important;
+    align-items:center!important;
+    justify-content:center!important;
+    border-radius:10px!important;
+  }
+
+  /* ANALYZING — OPEN — CLOSED — complete center width */
+  .dashboard-center>#stageTracker,
+  .dashboard-center .stage-tracker{
+    position:relative!important;
+    inset:auto!important;
+    transform:none!important;
+    display:flex!important;
+    width:100%!important;
+    max-width:none!important;
+    height:46px!important;
+    min-height:46px!important;
+    margin:0!important;
+    padding:8px 10px!important;
+    flex:0 0 46px!important;
+    box-sizing:border-box!important;
+  }
+
+  /* =======================================================
+     WHEEL — ONE SIZE FOR BOTH AXES
+     100vh is used only to determine the available square size.
+     There is deliberately NO separate min-height/max-width
+     combination that could turn the circle into an oval.
+     ======================================================= */
+  .dashboard-center .wheel-area{
+    --wheel-size:min(100%,500px,calc(100vh - 250px));
+    position:relative!important;
+    width:var(--wheel-size)!important;
+    height:var(--wheel-size)!important;
+    min-width:0!important;
+    min-height:0!important;
+    max-width:none!important;
+    max-height:none!important;
+    aspect-ratio:1 / 1!important;
+    flex:0 0 var(--wheel-size)!important;
+    margin:18px auto 18px!important;
+    padding:0!important;
+    transform:none!important;
+    overflow:visible!important;
+    display:flex!important;
+    align-items:center!important;
+    justify-content:center!important;
+    box-sizing:border-box!important;
+  }
+
+  .dashboard-center .wheel-area>#wheel,
+  .dashboard-center .wheel-area>.wheel{
+    position:relative!important;
+    left:auto!important;
+    top:auto!important;
+    width:100%!important;
+    height:100%!important;
+    min-width:0!important;
+    min-height:0!important;
+    max-width:none!important;
+    max-height:none!important;
+    margin:0!important;
+    transform:none!important;
+    flex:0 0 auto!important;
+    aspect-ratio:1 / 1!important;
+    box-sizing:border-box!important;
+  }
+
+  /* Old wheel controls must never cover LESSON/STAGE. */
+  .dashboard-center .wheel-area>.analysis-wrap,
+  .dashboard-center .wheel-area>.target-wrap{
+    display:none!important;
+  }
+}
+
+@media (min-width:1500px){
+  .dashboard-center .wheel-area{
+    --wheel-size:min(100%,540px,calc(100vh - 250px));
+    width:var(--wheel-size)!important;
+    height:var(--wheel-size)!important;
+    flex-basis:var(--wheel-size)!important;
+  }
+
+  .dashboard-center .wheel-area>#wheel,
+  .dashboard-center .wheel-area>.wheel{
+    width:100%!important;
+    height:100%!important;
+    min-width:0!important;
+    min-height:0!important;
+    max-width:none!important;
+    max-height:none!important;
+  }
+}
+
+@media (min-width:1800px){
+  .dashboard-center .wheel-area{
+    --wheel-size:min(100%,580px,calc(100vh - 250px));
+  }
+}
+
+/* ===== FINAL RESPONSIVE HISTORY + MOBILE DASHBOARD ===== */
+
+/* Recent History — shared */
+.history-card{
+  background:var(--card);
+  border:1px solid var(--border);
+  border-radius:16px;
+  box-shadow:var(--shadow);
+}
+.history-card .history-head{
+  display:flex;
+  align-items:center;
+  justify-content:space-between;
+}
+.history-card .history-title{
+  color:var(--muted);
+  letter-spacing:.04em;
+}
+.history-card .history-hint{
+  color:var(--muted);
+}
+.history-card .history-row{
+  display:flex!important;
+  flex-wrap:nowrap!important;
+  align-items:stretch!important;
+  justify-content:flex-start!important;
+  width:100%!important;
+  overflow-x:auto!important;
+  overflow-y:hidden!important;
+  scrollbar-width:none!important;
+  -webkit-overflow-scrolling:touch!important;
+}
+.history-card .history-row::-webkit-scrollbar{display:none!important}
+.history-card .history-row .chip{
+  display:flex!important;
+  flex-direction:column!important;
+  align-items:center!important;
+  justify-content:center!important;
+  text-align:center!important;
+  flex-shrink:0!important;
+  margin:0!important;
+  white-space:nowrap!important;
+}
+.history-card .history-row .chip>span:first-child{
+  display:block!important;
+  white-space:nowrap!important;
+}
+.history-card .history-row .chip .chip-tag{
+  display:block!important;
+  text-align:center!important;
+}
+.history-card .history-row .chip::after{
+  display:none!important;
+  content:none!important;
+}
+body.dark .history-card{
+  background:#111a2e!important;
+  border-color:#2a3854!important;
+  color:#fff!important;
+}
+body.dark .history-card .history-title,
+body.dark .history-card .history-hint{color:#aeb9cc!important;}
+body.dark .history-card .chip{
+  background:#18243a!important;
+  border-color:#34445f!important;
+  color:#fff!important;
+}
+body.dark .history-card .chip.win>span:first-child,
+body.dark .history-card .chip.win .chip-tag{color:#3b82f6!important;}
+body.dark .history-card .chip.loss>span:first-child,
+body.dark .history-card .chip.loss .chip-tag{color:#ff5b5b!important;}
+
+/* PC — vertical six-trade history */
+@media (min-width:900px){
+  .history-card{padding:18px 20px 16px!important;margin-bottom:18px!important;}
+  .history-card .history-head{margin-bottom:14px!important;}
+  .history-card .history-row{
+    flex-direction:column!important;
+    gap:8px!important;
+    max-height:390px!important;
+    padding:4px 4px 10px 2px!important;
+    margin:0 0 8px!important;
+    overflow-x:hidden!important;
+    overflow-y:auto!important;
+    scrollbar-width:thin!important;
+  }
+  .history-card .history-row .chip{
+    width:100%!important;
+    min-width:0!important;
+    max-width:none!important;
+    flex:0 0 58px!important;
+    height:58px!important;
+    min-height:58px!important;
+    max-height:58px!important;
+    flex-direction:row!important;
+    align-items:center!important;
+    justify-content:space-between!important;
+    text-align:left!important;
+    padding:7px 12px!important;
+    border-radius:10px!important;
+  }
+  .history-card .history-row .chip .chip-tag{text-align:right!important;}
+}
+
+/* Mobile — exact vertical order from the reference:
+   Balance → Account/Bot/Lesson → History → controls → wheel → Aposta → Symbol */
+@media (max-width:899px){
+  html,body{
+    width:100%!important;
+    min-width:0!important;
+    overflow-x:hidden!important;
+  }
+  body{
+    display:block!important;
+    padding:8px 10px 48px!important;
+  }
+  .app{
+    width:100%!important;
+    max-width:420px!important;
+    margin:0 auto!important;
+  }
+  .header{
+    width:100%!important;
+    min-height:48px!important;
+    margin:0 0 8px!important;
+    padding:2px 0!important;
+  }
+
+  .dashboard-layout{
+    width:100%!important;
+    display:flex!important;
+    flex-direction:column!important;
+    align-items:stretch!important;
+    gap:4px!important;
+  }
+  .dashboard-left,
+  .dashboard-center,
+  .dashboard-right{
+    width:100%!important;
+    min-width:0!important;
+    height:auto!important;
+    transform:none!important;
+    padding:0!important;
+    margin:0!important;
+  }
+  .dashboard-left{order:1!important;display:block!important;}
+  .dashboard-center{order:2!important;display:flex!important;flex-direction:column!important;align-items:center!important;}
+  .dashboard-right{
+    order:3!important;
+    display:flex!important;
+    flex-direction:column!important;
+    gap:6px!important;
+  }
+
+  /* Top controls */
+  .dashboard-left .balance-row{
+    min-height:86px!important;
+    margin:0 0 5px!important;
+    padding:14px 14px!important;
+    border-radius:14px!important;
+  }
+  .dashboard-left .value{font-size:24px!important;}
+  .dashboard-left .row3{
+    display:grid!important;
+    grid-template-columns:minmax(0,1fr) minmax(0,1.2fr) minmax(0,.8fr)!important;
+    gap:7px!important;
+    align-items:start!important;
+    margin:0 0 5px!important;
+    overflow:visible!important;
+  }
+  .dashboard-left .field-label{
+    font-size:10px!important;
+    margin-bottom:3px!important;
+  }
+  .dashboard-left .account-select,
+  .dashboard-left .dropdown-btn,
+  .dashboard-left .row3 .pill{
+    min-height:42px!important;
+    height:42px!important;
+    padding:8px 9px!important;
+    border-radius:11px!important;
+    font-size:14px!important;
+  }
+
+  /* Lesson is inserted into row3 by the existing placement script. */
+  .dashboard-left .row3 .aula-strip{
+    display:block!important;
+    visibility:visible!important;
+    position:static!important;
+    width:100%!important;
+    height:64px!important;
+    min-height:64px!important;
+    margin:0!important;
+    padding:0!important;
+  }
+  .dashboard-left .row3 .aula-label{
+    display:block!important;
+    height:15px!important;
+    margin:0 0 4px!important;
+    font-size:10px!important;
+    line-height:15px!important;
+  }
+  .dashboard-left .row3 .aula-strip .pill-aula{
+    display:flex!important;
+    width:100%!important;
+    height:42px!important;
+    min-height:42px!important;
+    margin:0!important;
+    padding:0!important;
+    align-items:center!important;
+    justify-content:center!important;
+    border-radius:10px!important;
+  }
+
+  /* Recent History — compact, five trades visible, swipe for older trades. */
+  .dashboard-left .history-card{
+    width:100%!important;
+    padding:10px 8px 8px!important;
+    margin:0!important;
+    border-radius:12px!important;
+  }
+  .dashboard-left .history-card .history-head{
+    margin:0 0 6px!important;
+  }
+  .dashboard-left .history-card .history-title{font-size:10px!important;}
+  .dashboard-left .history-card .history-hint{font-size:9px!important;}
+  .dashboard-left .history-card .history-row{
+    flex-direction:row!important;
+    gap:4px!important;
+    padding:2px 0 5px!important;
+    margin:0!important;
+    max-height:none!important;
+  }
+  .dashboard-left .history-card .history-row .chip{
+    flex:0 0 calc((100% - 16px)/5)!important;
+    width:calc((100% - 16px)/5)!important;
+    min-width:calc((100% - 16px)/5)!important;
+    max-width:calc((100% - 16px)/5)!important;
+    height:54px!important;
+    min-height:54px!important;
+    max-height:54px!important;
+    padding:2px 0!important;
+    border-radius:8px!important;
+    font-size:8px!important;
+  }
+  .dashboard-left .history-card .history-row .chip .chip-tag{font-size:6px!important;}
+
+  /* Mobile stage belongs to Recent History on small phones. */
+  .dashboard-left .history-card #stageTracker{
+    width:100%!important;
+    min-height:44px!important;
+    height:44px!important;
+    margin:7px 0 0!important;
+    padding:7px 2px 2px!important;
+    background:transparent!important;
+    border:0!important;
+    border-top:1px solid var(--border)!important;
+    border-radius:0!important;
+    gap:6px!important;
+  }
+  .dashboard-left .history-card #stageTracker .stage-stop-btn{
+    width:28px!important;
+    height:28px!important;
+    min-width:28px!important;
+    border-radius:7px!important;
+  }
+  .dashboard-left .history-card #stageTracker .stage-stop-btn span{width:9px!important;height:9px!important;}
+  .dashboard-left .history-card #stageTracker .stage-steps{min-width:0!important;flex:1!important;}
+  .dashboard-left .history-card #stageTracker .stage-dot{width:7px!important;height:7px!important;flex:0 0 7px!important;}
+  .dashboard-left .history-card #stageTracker .stage-line{height:2px!important;margin:0 3px!important;}
+  .dashboard-left .history-card #stageTracker .stage-labels{margin-top:3px!important;}
+  .dashboard-left .history-card #stageTracker .stage-labels span{
+    font-size:7px!important;
+    line-height:9px!important;
+    white-space:nowrap!important;
+  }
+
+  /* 25 TICKS — connected status — TARGETS */
+  .dashboard-center .dashboard-control-row{
+    display:grid!important;
+    grid-template-columns:minmax(0,1fr) auto minmax(0,1fr)!important;
+    align-items:center!important;
+    width:100%!important;
+    height:40px!important;
+    min-height:40px!important;
+    margin:0!important;
+    padding:0!important;
+    gap:6px!important;
+  }
+  .dashboard-center .dashboard-control-row>.analysis-wrap,
+  .dashboard-center .dashboard-control-row>.target-wrap{
+    position:relative!important;
+    inset:auto!important;
+    margin:0!important;
+    z-index:10!important;
+  }
+  .dashboard-center .dashboard-control-row>.analysis-wrap{justify-self:start!important;}
+  .dashboard-center .dashboard-control-row>.target-wrap{justify-self:end!important;}
+  .dashboard-center .dashboard-control-row>.status{
+    position:relative!important;
+    inset:auto!important;
+    width:auto!important;
+    min-width:0!important;
+    height:30px!important;
+    min-height:30px!important;
+    margin:0!important;
+    padding:0 3px!important;
+    display:flex!important;
+    align-items:center!important;
+    justify-content:center!important;
+    white-space:nowrap!important;
+    font-size:11px!important;
+  }
+  .dashboard-center .dashboard-control-row .analysis-btn,
+  .dashboard-center .dashboard-control-row .target-btn{
+    width:auto!important;
+    min-width:112px!important;
+    min-height:36px!important;
+    height:36px!important;
+    padding:7px 10px!important;
+    border-radius:9px!important;
+    font-size:11px!important;
+    background:var(--field)!important;
+    border:1px solid var(--border)!important;
+  }
+
+  /* Circle directly under the controls. */
+  .dashboard-center .wheel-area{
+    order:1!important;
+    position:relative!important;
+    width:min(100%,340px)!important;
+    height:340px!important;
+    min-width:0!important;
+    min-height:340px!important;
+    max-width:340px!important;
+    max-height:340px!important;
+    margin:2px auto 4px!important;
+    padding:0!important;
+    transform:none!important;
+    aspect-ratio:1 / 1!important;
+    flex:0 0 340px!important;
+    overflow:visible!important;
+  }
+  .dashboard-center .wheel-area>#wheel,
+  .dashboard-center .wheel-area>.wheel{
+    position:relative!important;
+    left:auto!important;
+    top:auto!important;
+    width:340px!important;
+    height:340px!important;
+    min-width:340px!important;
+    min-height:340px!important;
+    max-width:340px!important;
+    max-height:340px!important;
+    margin:0!important;
+    transform:none!important;
+    flex:0 0 340px!important;
+    aspect-ratio:1 / 1!important;
+  }
+  .dashboard-center .wheel-area>.analysis-wrap,
+  .dashboard-center .wheel-area>.target-wrap{display:none!important;}
+
+  /* APOSTA remains in dashboard-right, directly below the wheel. */
+  .dashboard-right .card{
+    width:100%!important;
+    margin:0!important;
+  }
+  .dashboard-right .card:not(.symbol-card){
+    padding:14px 12px 12px!important;
+    border-radius:14px!important;
+  }
+  .dashboard-right .card:not(.symbol-card) .field-label{
+    font-size:10px!important;
+    margin-bottom:5px!important;
+  }
+  .dashboard-right .card:not(.symbol-card) .stake-row{
+    min-height:38px!important;
+  }
+  .dashboard-right .card:not(.symbol-card) .stake-value{font-size:24px!important;}
+  .dashboard-right .card:not(.symbol-card) .operate-btn{
+    min-height:46px!important;
+    height:46px!important;
+    margin-top:9px!important;
+    padding:10px!important;
+    border-radius:11px!important;
+    font-size:14px!important;
+  }
+  .dashboard-right .card:not(.symbol-card) .note{
+    font-size:10px!important;
+    margin-top:7px!important;
+  }
+  .dashboard-right .symbol-card{margin-top:0!important;}
+
+  .dashboard-right .whatsapp-btn{display:flex!important;}
+}
+
+@media (max-width:380px){
+  .dashboard-center .wheel-area,
+  .dashboard-center .wheel-area>#wheel,
+  .dashboard-center .wheel-area>.wheel{
+    width:320px!important;
+    height:320px!important;
+    min-width:320px!important;
+    min-height:320px!important;
+    max-width:320px!important;
+    max-height:320px!important;
+    flex-basis:320px!important;
+  }
+  .dashboard-center .dashboard-control-row .analysis-btn,
+  .dashboard-center .dashboard-control-row .target-btn{
+    min-width:102px!important;
+    padding-left:8px!important;
+    padding-right:8px!important;
+  }
+}
+
+/* Small desktop/tablet widths keep the PC arrangement. */
+@media (min-width:900px){
+  .history-card .history-row{
+    flex-direction:column!important;
+  }
+}
+
+/* ===== MOBILE FINAL GEOMETRY FIX: lesson, controls, wheel ===== */
+@media (max-width:899px){
+  /* Account / Bot / Lesson: one shared baseline and identical control height. */
+  .dashboard-left .row3{
+    grid-template-columns:minmax(0,1fr) minmax(0,1.2fr) minmax(0,.8fr)!important;
+    gap:7px!important;
+    align-items:start!important;
+  }
+  .dashboard-left .row3 > div{
+    display:flex!important;
+    flex-direction:column!important;
+    align-items:stretch!important;
+    min-width:0!important;
+  }
+  .dashboard-left .row3 .field-label,
+  .dashboard-left .row3 .aula-label{
+    height:15px!important;
+    min-height:15px!important;
+    line-height:15px!important;
+    margin:0 0 3px!important;
+    padding:0!important;
+    font-size:10px!important;
+  }
+  .dashboard-left .row3 .account-select,
+  .dashboard-left .row3 .dropdown-btn,
+  .dashboard-left .row3 .aula-strip .pill-aula{
+    height:42px!important;
+    min-height:42px!important;
+    max-height:42px!important;
+    margin:0!important;
+    padding:8px 9px!important;
+    border-radius:11px!important;
+  }
+  .dashboard-left .row3 .aula-strip{
+    position:static!important;
+    display:flex!important;
+    flex-direction:column!important;
+    width:100%!important;
+    height:60px!important;
+    min-height:60px!important;
+    max-height:60px!important;
+    margin:0!important;
+    padding:0!important;
+    transform:none!important;
+  }
+  .dashboard-left .row3 .aula-strip .pill-aula{
+    display:flex!important;
+    width:100%!important;
+    align-items:center!important;
+    justify-content:center!important;
+    border-radius:11px!important;
+  }
+
+  /* Controls: three separate areas; long robot status can never cover the buttons. */
+  .dashboard-center .dashboard-control-row{
+    grid-template-columns:110px minmax(0,1fr) 110px!important;
+    gap:5px!important;
+    width:100%!important;
+    height:42px!important;
+    min-height:42px!important;
+    margin:0!important;
+    padding:0!important;
+  }
+  .dashboard-center .dashboard-control-row>.analysis-wrap,
+  .dashboard-center .dashboard-control-row>.target-wrap{
+    width:110px!important;
+    min-width:110px!important;
+    max-width:110px!important;
+  }
+  .dashboard-center .dashboard-control-row .analysis-btn,
+  .dashboard-center .dashboard-control-row .target-btn{
+    width:110px!important;
+    min-width:110px!important;
+    max-width:110px!important;
+    height:38px!important;
+    min-height:38px!important;
+    padding:7px 9px!important;
+    font-size:10px!important;
+    border-radius:9px!important;
+    overflow:hidden!important;
+  }
+  .dashboard-center .dashboard-control-row>.status{
+    width:100%!important;
+    min-width:0!important;
+    max-width:100%!important;
+    height:32px!important;
+    min-height:32px!important;
+    margin:0!important;
+    padding:0 2px!important;
+    overflow:hidden!important;
+    text-align:center!important;
+    white-space:nowrap!important;
+    font-size:10px!important;
+  }
+  .dashboard-center .dashboard-control-row>.status #statusText{
+    display:block!important;
+    min-width:0!important;
+    max-width:calc(100% - 12px)!important;
+    overflow:hidden!important;
+    text-overflow:ellipsis!important;
+    white-space:nowrap!important;
+  }
+
+  /* Smaller circle: directly below the three controls. */
+  .dashboard-center .wheel-area{
+    width:300px!important;
+    height:300px!important;
+    min-width:300px!important;
+    min-height:300px!important;
+    max-width:300px!important;
+    max-height:300px!important;
+    flex:0 0 300px!important;
+    margin:2px auto 4px!important;
+    padding:0!important;
+    transform:none!important;
+    aspect-ratio:1 / 1!important;
+  }
+  .dashboard-center .wheel-area>#wheel,
+  .dashboard-center .wheel-area>.wheel{
+    width:300px!important;
+    height:300px!important;
+    min-width:300px!important;
+    min-height:300px!important;
+    max-width:300px!important;
+    max-height:300px!important;
+    flex:0 0 300px!important;
+    margin:0!important;
+    transform:none!important;
+  }
+}
+@media (max-width:380px){
+  .dashboard-center .wheel-area,
+  .dashboard-center .wheel-area>#wheel,
+  .dashboard-center .wheel-area>.wheel{
+    width:280px!important;
+    height:280px!important;
+    min-width:280px!important;
+    min-height:280px!important;
+    max-width:280px!important;
+    max-height:280px!important;
+    flex-basis:280px!important;
+  }
+}
+
+/* ===== MOBILE REFERENCE: compact controls + START ROBOT first ===== */
+@media (max-width:899px){
+  /* 25 TICKS and TARGETS are compact side controls, leaving the center for status. */
+  .dashboard-center .dashboard-control-row{
+    grid-template-columns:92px minmax(0,1fr) 92px!important;
+    gap:4px!important;
+  }
+  .dashboard-center .dashboard-control-row>.analysis-wrap,
+  .dashboard-center .dashboard-control-row>.target-wrap{
+    width:92px!important;
+    min-width:92px!important;
+    max-width:92px!important;
+  }
+  .dashboard-center .dashboard-control-row .analysis-btn,
+  .dashboard-center .dashboard-control-row .target-btn{
+    width:92px!important;
+    min-width:92px!important;
+    max-width:92px!important;
+    padding:7px 6px!important;
+    font-size:9px!important;
+  }
+
+  /* APOSTA card: keep the card below the wheel, but put START ROBOT
+     above the stake details on mobile, as in the reference. */
+  .dashboard-right .card:not(.symbol-card){
+    display:flex!important;
+    flex-direction:column!important;
+    align-items:stretch!important;
+    padding:12px 12px 11px!important;
+  }
+  .dashboard-right .card:not(.symbol-card) .field-label{
+    order:1!important;
+  }
+  .dashboard-right .card:not(.symbol-card) .operate-btn{
+    order:2!important;
+    margin:0 0 9px!important;
+    min-height:46px!important;
+    height:46px!important;
+    padding:10px!important;
+    border-radius:11px!important;
+    font-size:14px!important;
+  }
+  .dashboard-right .card:not(.symbol-card) .stake-row{
+    order:3!important;
+    min-height:38px!important;
+    margin:0!important;
+  }
+  .dashboard-right .card:not(.symbol-card) .note{
+    order:4!important;
+    margin:7px 0 0!important;
+  }
+}
+
+/* ===== MOBILE APOSTA: remove martingale text + compact block ===== */
+#martingaleInfo{display:none!important;}
+@media(max-width:899px){
+  .dashboard-right .card:not(.symbol-card){
+    padding:10px 10px 9px!important;
+    border-radius:12px!important;
+    margin:0!important;
+  }
+  .dashboard-right .card:not(.symbol-card) .field-label{
+    font-size:9px!important;
+    margin-bottom:4px!important;
+    line-height:14px!important;
+  }
+  .dashboard-right .card:not(.symbol-card) .operate-btn{
+    height:40px!important;
+    min-height:40px!important;
+    margin:0 0 7px!important;
+    padding:8px 10px!important;
+    border-radius:10px!important;
+    font-size:13px!important;
+  }
+  .dashboard-right .card:not(.symbol-card) .stake-row{
+    min-height:34px!important;
+    height:34px!important;
+    gap:7px!important;
+  }
+  .dashboard-right .card:not(.symbol-card) .stake-value,
+  .dashboard-right .card:not(.symbol-card) .stake-input{
+    font-size:18px!important;
+  }
+  .dashboard-right .card:not(.symbol-card) .stake-control{
+    width:34px!important;
+    height:34px!important;
+    min-width:34px!important;
+    border-radius:8px!important;
+    font-size:20px!important;
+  }
+  .dashboard-right .card:not(.symbol-card) .note{
+    font-size:9px!important;
+    margin-top:5px!important;
+    line-height:13px!important;
+  }
+}
+
+/* ===== AULA — label aligned with Account Type/Bot ===== */
+.aula-strip{
+  position:relative!important;
+  width:100%!important;
+  margin:0!important;
+  padding:0!important;
+  display:flex!important;
+  flex-direction:column!important;
+  align-items:stretch!important;
+  min-width:0!important;
+}
+.aula-strip .aula-label{
+  display:block!important;
+  width:100%!important;
+  height:15px!important;
+  min-height:15px!important;
+  margin:0 0 3px!important;
+  padding:0!important;
+  line-height:15px!important;
+  font-size:10px!important;
+  letter-spacing:.06em!important;
+  color:var(--muted)!important;
+  text-align:left!important;
+}
+.aula-trigger{
+  width:100%!important;
+  height:42px!important;
+  min-height:42px!important;
+  max-height:42px!important;
+  margin:0!important;
+  padding:0!important;
+  display:flex!important;
+  align-items:center!important;
+  justify-content:center!important;
+  border:1px solid var(--border)!important;
+  outline:none!important;
+  box-shadow:none!important;
+  border-radius:11px!important;
+  cursor:pointer!important;
+  font-size:15px!important;
+  line-height:1!important;
+}
+.aula-trigger:focus,
+.aula-trigger:focus-visible,
+.aula-trigger:active{
+  outline:none!important;
+  box-shadow:none!important;
+  border-color:var(--border)!important;
+}
+.aula-language-options{
+  display:flex!important;
+  align-items:center!important;
+  justify-content:center!important;
+  gap:6px!important;
+  width:100%!important;
+  margin-top:5px!important;
+}
+.aula-language-options[hidden]{display:none!important;}
+.aula-language-btn{
+  flex:1!important;
+  min-width:0!important;
+  height:36px!important;
+  padding:6px 8px!important;
+  border:1px solid var(--border)!important;
+  border-radius:8px!important;
+  background:var(--field)!important;
+  color:var(--text)!important;
+  font:inherit!important;
+  font-size:11px!important;
+  font-weight:800!important;
+  cursor:pointer!important;
+}
+.aula-language-btn.active{
+  background:var(--accent)!important;
+  border-color:var(--accent)!important;
+  color:#fff!important;
+}
+@media(max-width:899px){
+  .dashboard-left .row3{
+    align-items:start!important;
+  }
+  .dashboard-left .row3 .aula-strip{
+    width:100%!important;
+    height:auto!important;
+    min-height:60px!important;
+    max-height:none!important;
+    margin:0!important;
+    padding:0!important;
+  }
+  .dashboard-left .row3 .aula-strip .aula-label{
+    height:15px!important;
+    min-height:15px!important;
+    line-height:15px!important;
+    margin:0 0 3px!important;
+    font-size:10px!important;
+  }
+  .dashboard-left .row3 .aula-trigger{
+    width:100%!important;
+    height:42px!important;
+    min-height:42px!important;
+    max-height:42px!important;
+    padding:0!important;
+    border-radius:11px!important;
+    font-size:15px!important;
+  }
+  .dashboard-left .row3 .aula-language-options{
+    height:36px!important;
+    min-height:36px!important;
+    gap:4px!important;
+    margin-top:4px!important;
+  }
+  .dashboard-left .row3 .aula-language-btn{
+    height:36px!important;
+    min-height:36px!important;
+    padding:5px 3px!important;
+    border-radius:8px!important;
+    font-size:8px!important;
+  }
+}
+@media(min-width:900px){
+  .dashboard-center .aula-strip .aula-label{
+    height:16px!important;
+    min-height:16px!important;
+    line-height:16px!important;
+  }
+}
+/* ===== AULA PC CLICK FIX ===== */
+@media(min-width:900px){
+  .dashboard-center .aula-strip{
+    position:relative!important;
+    z-index:100!important;
+    overflow:visible!important;
+    height:auto!important;
+    min-height:60px!important;
+  }
+  .dashboard-center .aula-language-options{
+    position:absolute!important;
+    left:0!important;
+    right:0!important;
+    top:100%!important;
+    z-index:9999!important;
+    width:100%!important;
+    padding:6px!important;
+    margin:0!important;
+    box-sizing:border-box!important;
+    background:var(--card)!important;
+    border:1px solid var(--border)!important;
+    border-radius:10px!important;
+    box-shadow:var(--shadow)!important;
+  }
+  .dashboard-center .aula-language-btn{position:relative!important;z-index:10000!important;}
+}
+
+/* ===== FINAL MOBILE WHATSAPP + AULA CONTROLLER ===== */
+@media(max-width:899px){
+  .dashboard-center .wheel-area{
+    overflow:visible!important;
+  }
+  .dashboard-center .wheel-area .whatsapp-btn{
+    position:absolute!important;
+    left:4px!important;
+    right:auto!important;
+    bottom:8px!important;
+    width:56px!important;
+    height:56px!important;
+    margin:0!important;
+    z-index:60!important;
+  }
+}
+@media(min-width:900px){
+  .dashboard-center .aula-strip{
+    position:relative!important;
+    z-index:1000!important;
+    overflow:visible!important;
+  }
+  .dashboard-center .aula-language-options{
+    position:absolute!important;
+    top:100%!important;
+    left:0!important;
+    right:0!important;
+    z-index:10001!important;
+    box-sizing:border-box!important;
+    background:var(--card)!important;
+    border:1px solid var(--border)!important;
+    border-radius:10px!important;
+    padding:6px!important;
+    margin:4px 0 0!important;
+    box-shadow:var(--shadow)!important;
+  }
+  .dashboard-center .aula-language-options[hidden]{display:none!important;}
+  .dashboard-center .aula-language-btn{
+    position:relative!important;
+    z-index:10002!important;
+  }
+}
+
+/* ===== FINAL MOBILE WHATSAPP + DESKTOP AULA POINTER FIX ===== */
+@media(max-width:899px){
+  /* WhatsApp sits outside the lower-left edge of the wheel, never on top of it. */
+  .dashboard-center .wheel-area .whatsapp-btn{
+    position:absolute!important;
+    left:-56px!important;
+    right:auto!important;
+    bottom:18px!important;
+    width:56px!important;
+    height:56px!important;
+    margin:0!important;
+    z-index:60!important;
+  }
+  .dashboard-center .wheel-area{
+    margin-bottom:4px!important;
+  }
+}
+@media(max-width:380px){
+  .dashboard-center .wheel-area .whatsapp-btn{
+    left:-40px!important;
+    bottom:14px!important;
+    width:40px!important;
+    height:40px!important;
+  }
+}
+@media(min-width:900px){
+  /* Earlier desktop geometry intentionally disabled pointer input on Aula. */
+  .dashboard-center .aula-strip{
+    pointer-events:auto!important;
+    cursor:default!important;
+  }
+  .dashboard-center .aula-trigger{
+    pointer-events:auto!important;
+    cursor:pointer!important;
+  }
+  .dashboard-center .aula-language-options{
+    pointer-events:auto!important;
+  }
+}
+
+/* ===== FINAL MOBILE WHATSAPP ANCHOR — BLUE MARKER / OUTSIDE WHEEL =====
+   Keep the WhatsApp button outside the circle.
+   The button's right edge is kept just left of the wheel edge,
+   matching the blue reference point on the mobile layout.
+*/
+@media(max-width:899px){
+  .dashboard-center .wheel-area{
+    --izi-mobile-wheel-size:340px;
+    overflow:visible!important;
+  }
+  .dashboard-center .wheel-area .whatsapp-btn{
+    position:absolute!important;
+    left:calc(50% - (var(--izi-mobile-wheel-size) / 2) - 34px)!important;
+    right:auto!important;
+    bottom:0!important;
+    width:56px!important;
+    height:56px!important;
+    margin:0!important;
+    z-index:60!important;
+  }
+}
+@media(max-width:599px){
+  .dashboard-center .wheel-area{
+    --izi-mobile-wheel-size:300px;
+  }
+}
+@media(max-width:380px){
+  .dashboard-center .wheel-area{
+    --izi-mobile-wheel-size:280px;
+  }
+  .dashboard-center .wheel-area .whatsapp-btn{
+    width:40px!important;
+    height:40px!important;
+    left:calc(50% - (var(--izi-mobile-wheel-size) / 2) - 24px)!important;
+    bottom:0!important;
+  }
+}
+/* ===== FINAL MOBILE WHATSAPP POSITION ===== */
+@media(max-width:899px){
+  .dashboard-center .wheel-area .whatsapp-btn{
+    left:28px!important;
+    bottom:14px!important;
+  }
+}
+@media(max-width:380px){
+  .dashboard-center .wheel-area .whatsapp-btn{
+    left:-10px!important;
+  }
+}
+
+/* ===== WHATSAPP LEFT OF CIRCLE LINE ===== */
+@media (max-width:899px){
+  .dashboard-center .wheel-area .whatsapp-btn{
+    left:-32px!important;
+    right:auto!important;
+    bottom:14px!important;
+    width:56px!important;
+    height:56px!important;
+    z-index:100!important;
+  }
+}
+@media (max-width:380px){
+  .dashboard-center .wheel-area .whatsapp-btn{
+    left:-34px!important;
+    bottom:12px!important;
+    width:40px!important;
+    height:40px!important;
+  }
+}
+.telegram-menu-icon{width:20px;height:20px;display:inline-block;vertical-align:-4px;color:#229ED9;flex:0 0 20px}
+/* Keep account connection status out of open dropdowns */
+.dropdown-menu{z-index:10000!important;background:var(--card)!important;opacity:1!important;}
+.dropdown-menu .status{display:none!important;}
+.dashboard-control-row>.status{position:relative!important;z-index:1!important;}
+
+/* 3-point menu must hide the connection status underneath it */
+body.izi-menu-open .dashboard-center .status{visibility:hidden!important;pointer-events:none!important;}
+
+/* Keep full Account connected label visible between the side controls */
+.dashboard-center .dashboard-control-row>.status{
+  z-index:2!important;
+  overflow:visible!important;
+}
+.dashboard-center .dashboard-control-row>.status #statusText{
+  max-width:none!important;
+  overflow:visible!important;
+  text-overflow:clip!important;
+  white-space:nowrap!important;
+}
+@media (min-width:900px){
+  .dashboard-center .dashboard-control-row{
+    grid-template-columns:minmax(150px,1fr) minmax(150px,auto) minmax(150px,1fr)!important;
+    gap:12px!important;
+  }
+}
+
+/* Restore target control position and reserve a wider center for connection status */
+@media (min-width:900px){
+  .dashboard-center .dashboard-control-row{
+    display:grid!important;
+    grid-template-columns:110px minmax(0,1fr) 110px!important;
+    align-items:center!important;
+    width:100%!important;
+    gap:8px!important;
+  }
+  .dashboard-center .dashboard-control-row>.analysis-wrap,
+  .dashboard-center .dashboard-control-row>.target-wrap{
+    position:relative!important;
+    inset:auto!important;
+    width:110px!important;
+    min-width:110px!important;
+    max-width:110px!important;
+    align-self:center!important;
+  }
+  .dashboard-center .dashboard-control-row .analysis-btn,
+  .dashboard-center .dashboard-control-row .target-btn{
+    width:110px!important;
+    min-width:110px!important;
+    max-width:110px!important;
+  }
+  .dashboard-center .dashboard-control-row>.analysis-wrap{justify-self:start!important;}
+  .dashboard-center .dashboard-control-row>.target-wrap{justify-self:end!important;}
+  .dashboard-center .dashboard-control-row>.status{
+    min-width:0!important;
+    width:100%!important;
+    justify-self:stretch!important;
+  }
+}
+
+/* Three-point menu always sits above all dashboard dropdowns */
+.header-actions{z-index:100000!important}
+.header-actions .menu{z-index:999999!important}
+body.izi-menu-open .dropdown-menu,
+body.izi-menu-open .symbol-menu,
+body.izi-menu-open .analysis-menu,
+body.izi-menu-open .target-menu{display:none!important}
+
+/* Keep BOT controls inside the same left-column width as Balance/Recent History */
+@media (min-width:900px){
+  .dashboard-left .row3{
+    grid-template-columns:minmax(0,1fr)!important;
+    width:100%!important;
+  }
+  .dashboard-left .row3>div:nth-child(2){
+    width:100%!important;
+    max-width:100%!important;
+    grid-column:1!important;
+  }
+  .dashboard-left .row3>div:nth-child(1){display:none!important}
+  .dashboard-left .row3 .dropdown-btn{
+    width:100%!important;
+    max-width:100%!important;
+  }
+  .dashboard-left{position:relative!important;z-index:1!important;}
+  .dashboard-center{position:relative!important;z-index:2!important;}
+}
+
+/* Keep BOT inside the left column and prevent the operation stage from crossing over it */
+@media (min-width:900px){
+  .dashboard-left .row3{
+    display:grid!important;
+    grid-template-columns:minmax(0,1fr) minmax(0,1.2fr)!important;
+    width:100%!important;
+    gap:10px!important;
+  }
+  .dashboard-left .row3>div:nth-child(1),
+  .dashboard-left .row3>div:nth-child(2){
+    display:block!important;
+    grid-column:auto!important;
+    width:100%!important;
+    max-width:100%!important;
+  }
+  .dashboard-left .row3 .dropdown-btn,
+  .dashboard-left .row3 .account-select{
+    width:100%!important;
+    max-width:100%!important;
+  }
+  .dashboard-left{position:relative!important;z-index:20!important;}
+  .dashboard-center{position:relative!important;z-index:1!important;}
+  .dashboard-center #stageTracker{z-index:7!important;}
+}
+<style id="iziMobileRecentHistoryOrder">
+/* Mobile: newest recent trades start on the left. */
+@media (max-width:899px){
+  .history-card .history-row{
+    flex-direction:row!important;
+    flex-wrap:nowrap!important;
+    justify-content:flex-start!important;
+    align-items:stretch!important;
+    direction:ltr!important;
+    overflow-x:auto!important;
+    overflow-y:hidden!important;
+    scroll-behavior:auto!important;
+  }
+}
+
+/* ===== FINAL DESKTOP MENU LAYERING ===== */
+@media (min-width:900px){
+  /* Keep the 25 TICKS / METAS controls and their open menus above AULA. */
+  .dashboard-center .dashboard-control-row{
+    position:relative!important;
+    z-index:1100!important;
+  }
+  .dashboard-center .dashboard-control-row .analysis-menu,
+  .dashboard-center .dashboard-control-row .target-menu{
+    z-index:1200!important;
+  }
+  .dashboard-center .aula-strip{
+    z-index:100!important;
+  }
+}
+
+</style>
+</style>
+<style id="iziHistoryStageFinal">
+/* One authoritative size for the recent-history results and operation stages. */
+.history-card .history-row .chip,
+.history-card .history-row .chip > span:first-child,
+.history-card .history-row .chip .chip-tag,
+.dashboard-left .history-card .history-row .chip,
+.dashboard-left .history-card .history-row .chip > span:first-child,
+.dashboard-left .history-card .history-row .chip .chip-tag{
+  font-size:12px!important;
+}
+#stageTracker .stage-labels span,
+.history-card #stageTracker .stage-labels span,
+.dashboard-left .history-card #stageTracker .stage-labels span{
+  font-size:12px!important;
+  line-height:14px!important;
+}
+@media(max-width:599px){
+  .history-card .history-row .chip,
+  .history-card .history-row .chip > span:first-child,
+  .history-card .history-row .chip .chip-tag,
+  .dashboard-left .history-card .history-row .chip,
+  .dashboard-left .history-card .history-row .chip > span:first-child,
+  .dashboard-left .history-card .history-row .chip .chip-tag{
+    font-size:12px!important;
+  }
+  #stageTracker .stage-labels span,
+  .history-card #stageTracker .stage-labels span,
+  .dashboard-left .history-card #stageTracker .stage-labels span{
+    font-size:12px!important;
+    line-height:14px!important;
+  }
+}
+</style>
+<style id="iziHistoryBotName">.history-row .chip .chip-bot{font-size:6px!important;line-height:7px!important;font-weight:700!important;opacity:.9!important;display:block!important;max-width:100%!important;overflow:hidden!important;text-overflow:ellipsis!important;white-space:nowrap!important;letter-spacing:0!important}<style id="iziCommunityMenuStyles">.menu{min-width:280px;max-width:calc(100vw - 24px);right:0!important;max-height:calc(100vh - 90px);overflow-y:auto}.menu-online{padding:11px 14px;font-size:13px;font-weight:800;display:flex;align-items:center;gap:7px}.menu-online b{margin-left:auto;color:#1f9d55;font-family:ui-monospace,SFMono-Regular,Menlo,monospace}.menu-divider{height:1px;background:var(--border);margin:4px 0}.menu-link{width:100%;text-align:left;border:0;background:transparent;color:var(--text)}.menu-link{display:flex;align-items:center;gap:9px;padding:10px 14px;font-size:13px;font-weight:600;cursor:pointer}.menu-link span{white-space:nowrap;overflow:hidden;text-overflow:ellipsis}.menu-link:hover{background:var(--field)}@media(max-width:599px){.menu{min-width:270px;right:0!important}.menu-link{padding:11px 12px;font-size:12px}.menu-online{padding:10px 12px}}</style><style id="iziHistoryChipFinal">
+/* History result chips: no bot names; WIN is blue. */
+.history-row .chip .chip-bot{display:none!important}
+.history-row .chip.win .chip-tag{color:#3b82f6!important}.history-row .chip.win .chip-amount{color:#3b82f6!important}.history-row .chip.loss .chip-amount{color:#e24b4a!important}
+<style id="iziHistoryDesktopHorizontalFinal">
+/* PC — recent trades horizontally, newest on the left. */
+@media (min-width:900px){
+  .history-card .history-row{
+    flex-direction:row!important;
+    flex-wrap:nowrap!important;
+    align-items:stretch!important;
+    justify-content:flex-start!important;
+    gap:8px!important;
+    max-height:none!important;
+    height:auto!important;
+    padding:4px 2px 10px!important;
+    margin:0 0 8px!important;
+    overflow-x:auto!important;
+    overflow-y:hidden!important;
+    scrollbar-width:thin!important;
+    scroll-behavior:auto!important;
+  }
+  .history-card .history-row .chip{
+    flex:0 0 82px!important;
+    width:82px!important;
+    min-width:82px!important;
+    max-width:82px!important;
+    height:58px!important;
+    min-height:58px!important;
+    max-height:58px!important;
+    flex-direction:column!important;
+    align-items:center!important;
+    justify-content:center!important;
+    text-align:center!important;
+    padding:7px 2px!important;
+    border-radius:10px!important;
+  }
+  .history-card .history-row .chip .chip-tag{
+    text-align:center!important;
+  }
+}
+</style>
+</style>
+<style id="iziThemeAuthority">
+/* Theme authority: data-theme is resolved in <head> before first paint. */
+html[data-theme="light"] body{
+  --bg:#eef1f5;
+  --card:#ffffff;
+  --field:#f7f8fa;
+  --text:#17202a;
+  --muted:#697586;
+  --border:#dfe4ea;
+  --accent:#e24b4a;
+  --green:#1f9d55;
+  --red:#e24b4a;
+  --shadow:0 8px 24px rgba(16,24,40,.06);
+  color-scheme:light;
+}
+html[data-theme="dark"] body{
+  --bg:#0a0f1c;
+  --card:#111a2e;
+  --field:#131b2e;
+  --text:#fff;
+  --muted:#7c88a3;
+  --border:#22304a;
+  --accent:#e24b4a;
+  --green:#35d492;
+  --red:#e24b4a;
+  --shadow:0 16px 40px rgba(0,0,0,.22);
+  color-scheme:dark;
+/* Recent history follows the active theme and hides the last-digit badge. */
+html[data-theme="light"] .history-card{
+  background:#fff!important;
+  border-color:#dfe4ea!important;
+  color:#17202a!important;
+}
+html[data-theme="light"] .history-row .chip{
+  background:#fff!important;
+  border-color:#dfe4ea!important;
+  color:#17202a!important;
+}
+.history-row .chip .chip-digit{display:none!important;}
+</style>
+<style id="iziSessionLoadingCenter">
+/* Session/auth loading is always centered against the full viewport. */
+#sessionLoading.auth-page:not(.hidden),
+#authPage.auth-page:not(.hidden){
+  position:fixed!important;
+  inset:0!important;
+  z-index:2147483647!important;
+  width:100vw!important;
+  max-width:none!important;
+  height:100vh!important;
+  min-height:100vh!important;
+  margin:0!important;
+  padding:24px!important;
+  display:flex!important;
+  align-items:center!important;
+  justify-content:center!important;
+  overflow:hidden!important;
+}
+#sessionLoading .auth-card,
+#authPage .auth-card{
+  width:min(420px,100%)!important;
+  margin:0!important;
+}
+</style>
+
+</head>
+<body>
+<div class="auth-page hidden" id="authPage"><div class="auth-card"><img class="auth-logo" src="/favicon.svg" alt="Izitrader"><div class="auth-brand">Izi<span>trader</span></div><div class="auth-title">Bem-vindo ao Izitrader</div><p class="auth-subtitle">Entre ou crie a sua conta Deriv para continuar.</p><a class="auth-btn auth-primary" href="https://track.deriv.com/_PZZnG4RWbBdZl7VyVw174GNd7ZgqdRLk/1/" target="_blank" rel="noopener">Criar conta na Deriv</a><a class="auth-btn auth-secondary" href="/api/auth/login" id="loginLink">Entrar com a Deriv</a></div></div>
+<div class="auth-page" id="sessionLoading"><div class="auth-card"><img class="auth-logo" src="/favicon.svg" alt="Izitrader"><div class="auth-brand">Izi<span>trader</span></div><div class="auth-title">A verificar a sessão...</div><p class="auth-subtitle">Aguarde enquanto ligamos à sua conta.</p></div></div>
+<div class="app hidden" id="appPage">
+  <div class="header"><img class="logo" src="/favicon.svg" alt="Izitrader"><div class="brand">Izi<span>trader</span></div><div class="header-actions"><button class="icon-btn" id="themeBtn" aria-label="Dark mode" title="Dark mode">🌙</button><button class="icon-btn" id="menuBtn">•••</button><button class="sair-btn" id="sairBtn">Sair</button><div class="menu" id="menu"><div class="menu-online" id="menuOnline">🌐 <span id="onlineLabel">ONLINE</span> <b id="onlineCount">125</b></div><div class="menu-divider"></div><button type="button" class="menu-item menu-link" id="menuSheet">📊 <span>PLANILHA DE GERENCIAMENTO</span></button><button type="button" class="menu-item menu-link" id="menuTelegramSupport"><svg class="telegram-menu-icon" viewBox="0 0 24 24" aria-hidden="true"><path fill="currentColor" d="M21.7 3.3 18.4 20c-.3 1.2-1 1.5-2 .9l-5.4-4-2.6 2.5c-.3.3-.5.5-1 .5l.4-5.5 10-9c.4-.4-.1-.6-.6-.2L5.1 13.1.1 11.5c-1.1-.3-1.1-1.1.2-1.6L20 3.9c.9-.3 1.7-.1 1.7-.6Z"/></svg> <span>SUPORTE TELEGRAM</span></button><button type="button" class="menu-item menu-link" id="menuTelegramEn"><svg class="telegram-menu-icon" viewBox="0 0 24 24" aria-hidden="true"><path fill="currentColor" d="M21.7 3.3 18.4 20c-.3 1.2-1 1.5-2 .9l-5.4-4-2.6 2.5c-.3.3-.5.5-1 .5l.4-5.5 10-9c.4-.4-.1-.6-.6-.2L5.1 13.1.1 11.5c-1.1-.3-1.1-1.1.2-1.6L20 3.9c.9-.3 1.7-.1 1.7-.6Z"/></svg> <span>TELEGRAM GROUP ENGLISH</span></button><button type="button" class="menu-item menu-link" id="menuTelegramPt"><svg class="telegram-menu-icon" viewBox="0 0 24 24" aria-hidden="true"><path fill="currentColor" d="M21.7 3.3 18.4 20c-.3 1.2-1 1.5-2 .9l-5.4-4-2.6 2.5c-.3.3-.5.5-1 .5l.4-5.5 10-9c.4-.4-.1-.6-.6-.2L5.1 13.1.1 11.5c-1.1-.3-1.1-1.1.2-1.6L20 3.9c.9-.3 1.7-.1 1.7-.6Z"/></svg> <span>GRUPO DO TELEGRAM PORTUGUÊS</span></button><button type="button" class="menu-item menu-link" id="menuTerms">📜 <span>TERMOS E CONDIÇÕES</span></button><div class="menu-divider"></div><div class="menu-item" id="menuSettings">Definições</div><div class="menu-item" id="menuLang">Idioma ▸</div><div class="language-options" id="languageOptions"><div class="language-item" data-lang="en">🇬🇧 English</div><div class="language-item" data-lang="pt">🇵🇹 Português</div><div class="language-item" data-lang="es">🇪🇸 Español</div></div><div class="menu-item" id="menuHelp">Ajuda</div></div></div></div>
+  <main class="dashboard-layout">
+
+    <section class="dashboard-left">
+
+      <div class="card balance-row">
+        <div>
+          <div class="label">SALDO</div>
+          <div class="value" id="balance">A carregar...</div>
+        </div>
+
+        <div class="divider"></div>
+
+        <div>
+          <div class="pnl-label-wrap"><span class="label"><span id="pnlLabel">LUCRO/PERDA</span></span><button type="button" class="pnl-refresh-icon" id="pnlDropdownBtn" aria-label="Abrir histórico diário" aria-expanded="false" aria-controls="pnlHistoryMenu"><svg viewBox="0 0 24 24" fill="none" aria-hidden="true"><path d="M20 11a8.2 8.2 0 0 0-14.1-5.7L4 7.2" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"/><path d="M4 3.5v3.7h3.7" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"/><path d="M12 8.1v4.1l2.8 1.9" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"/><path d="M4 13a8.2 8.2 0 0 0 14.1 5.7L20 16.8" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"/></svg></button></div>
+          <div class="value profit" id="pnl">+$0.00</div>
+
+          <div class="profit-ops">
+            <span id="opsLabel">OPERAÇÕES</span>
+            <b id="opsCount">0</b>
+          </div>
+        </div>
+      </div>
+
+      <div class="row3">
+        <div>
+          <div class="field-label">TIPO DE CONTA</div>
+          <select class="account-select" id="iziAccountSelect">
+            <option value="real">Real</option>
+            <option value="demo">Demo</option>
+          </select>
+        </div>
+
+        <div>
+          <div class="field-label">BOT</div>
+          <div class="dropdown">
+            <button class="dropdown-btn" id="dropdownBtn">
+              <span id="selectedBotName">ProParity</span>
+              <span>▾</span>
+            </button>
+            <div class="dropdown-menu" id="dropdownMenu"></div>
+          </div>
+        </div>
+
+      </div>
+
+      <section class="history-card">
+        <div class="history-head">
+          <div class="history-title">HISTÓRICO RECENTE</div>
+          <div class="history-hint">deslize para ver mais →</div>
+        </div>
+
+        <div class="history-row" id="historyScroll"></div>
+
+    </section>
+
+    </section>
+
+    <section class="dashboard-center">
+
+      <div class="dashboard-control-row">
+        <div class="analysis-wrap">
+          <button class="dropdown-btn analysis-btn" id="analysisBtn"><span id="analysisLabel">25 TICKS</span><span class="dropdown-chevron" aria-hidden="true">⌄</span></button>
+
+          <div class="analysis-menu" id="analysisMenu">
+            <div class="analysis-item active" data-window="25">25 ticks</div>
+            <div class="analysis-item" data-window="100">100 ticks</div>
+            <div class="analysis-item" data-window="200">200 ticks</div>
+            <div class="analysis-item" data-window="500">500 ticks</div>
+            <div class="analysis-item" data-window="1000">1000 ticks</div>
+          </div>
+        </div>
+
+        <div class="status">
+        <span class="dot"></span>
+        <span id="statusText">A ligar à Deriv...</span>
+      </div>
+
+        <div class="target-wrap">
+          <button class="dropdown-btn target-btn" id="targetBtn"><span id="targetLabel">METAS</span><span class="dropdown-chevron" aria-hidden="true">⌄</span></button>
+
+          <div class="target-menu" id="targetMenu">
+            <div class="target-title">Setup de metas</div>
+
+            <div class="target-field">
+              <label>Meta de lucros (USD)</label>
+              <input id="profitTarget" type="number" min="0" step="0.01">
+            </div>
+
+            <div class="target-field">
+              <label>Meta de perdas (USD)</label>
+              <input id="lossTarget" type="number" min="0" step="0.01">
+            </div>
+
+            <button class="target-save" id="targetSave">Guardar metas</button>
+            <div class="target-status" id="targetStatus">Nenhuma meta definida</div>
+          </div>
+        </div>
+      </div>
+
+    <div class="aula-strip" aria-label="Aula">
+      <div class="aula-label">AULA</div>
+      <button type="button" class="pill pill-aula aula-trigger" id="aulaTrigger" aria-expanded="false" aria-haspopup="true" aria-label="Abrir aula">
+        <span aria-hidden="true">▶</span>
+      </button>
+      <div class="aula-language-options" id="aulaLanguageOptions" role="group" aria-label="Idioma da aula" hidden></div>
+    </div>
+
+      <div class="history-stage stage-tracker" id="stageTracker">
+        <button
+          class="stage-stop-btn"
+          id="stageStopBtn"
+          type="button"
+          aria-label="Stop Robot"
+          title="Stop Robot"
+        >
+          <span></span>
+        </button>
+
+        <div class="stage-steps">
+          <div class="stage-dots">
+            <span class="stage-dot active" id="stageDot0"></span>
+            <span class="stage-line" id="stageLine0"></span>
+            <span class="stage-dot" id="stageDot1"></span>
+            <span class="stage-line" id="stageLine1"></span>
+            <span class="stage-dot" id="stageDot2"></span>
+          </div>
+
+          <div class="stage-labels">
+            <span class="active" id="stageLabel0">ANALISANDO</span>
+            <span id="stageLabel1">ABERTO</span>
+            <span id="stageLabel2">FECHADO</span>
+          </div>
+        </div>
+      </div>
+  
+
+      <div class="wheel-area">
+
+        <div class="wheel" id="wheel">
+          <div class="digit-node" data-digit="0">0<div class="pct">0.0%</div></div>
+          <div class="digit-node" data-digit="1">1<div class="pct">0.0%</div></div>
+          <div class="digit-node" data-digit="2">2<div class="pct">0.0%</div></div>
+          <div class="digit-node" data-digit="3">3<div class="pct">0.0%</div></div>
+          <div class="digit-node" data-digit="4">4<div class="pct">0.0%</div></div>
+          <div class="digit-node" data-digit="5">5<div class="pct">0.0%</div></div>
+          <div class="digit-node" data-digit="6">6<div class="pct">0.0%</div></div>
+          <div class="digit-node" data-digit="7">7<div class="pct">0.0%</div></div>
+          <div class="digit-node" data-digit="8">8<div class="pct">0.0%</div></div>
+          <div class="digit-node" data-digit="9">9<div class="pct">0.0%</div></div><div class="center">
+            <div class="digit" id="lastDigit">–</div>
+            <div class="caption">ÚLTIMO DÍGITO</div>
+          </div>
+        </div>
+
+        <a class="whatsapp-btn" href="https://wa.me/message/24C6LXTACVVWP1" target="_blank" rel="noopener noreferrer" aria-label="Suporte WhatsApp">
+          <svg viewBox="0 0 24 24" aria-hidden="true">
+            <path fill="#fff" d="M20.52 3.48A11.76 11.76 0 0 0 12.17 0C5.67 0 .38 5.28.38 11.78c0 2.08.54 4.11 1.58 5.9L.27 24l6.49-1.7a11.8 11.8 0 0 0 5.41 1.3h.01c6.5 0 11.78-5.28 11.78-11.78 0-3.15-1.23-6.11-3.44-8.34z"/>
+            <path fill="#25D366" d="M17.65 14.4c-.3-.15-1.77-.87-2.05-.97-.27-.1-.47-.15-.67.15-.2.3-.77.97-.95 1.17-.17.2-.35.22-.64.07-.3-.15-1.26-.46-2.4-1.48-.88-.79-1.48-1.76-1.65-2.06-.17-.3-.02-.46.13-.61.13-.13.3-.35.44-.52.15-.17.2-.3.3-.5.1-.2.05-.37-.03-.52-.07-.15-.67-1.62-.92-2.22-.24-.58-.48-.5-.67-.51l-.57-.01c-.2 0-.52.07-.8.37-.27.3-1.05 1.02-1.05 2.49s1.08 2.9 1.23 3.1c.15.2 2.13 3.25 5.16 4.56.72.31 1.28.5 1.72.64.72.23 1.37.2 1.88.12.58-.09 1.77-.73 2.02-1.44.25-.72.25-1.33.17-1.46-.08-.13-.27-.2-.57-.35z"/>
+          </svg>
+        </a>
+      </div>
+    </section>
+
+    <aside class="dashboard-right">
+
+      <div class="card">
+        <div class="field-label">
+          APOSTA
+          <span style="float:right">mínimo: $0.35 USD</span>
+        </div>
+
+        <div class="stake-row">
+          <span style="color:var(--muted);font-weight:700">USD</span>
+          <span class="stake-value">0.35</span>
+        </div>
+
+        <button class="operate-btn" id="operateBtn">▶ Start Robot</button>
+
+        <div class="note">
+          Ligação segura à Deriv — saldo e ticks em tempo real.
+        </div>
+      </div>
+
+      <div class="card symbol-card">
+        <div class="field-label">SÍMBOLO</div>
+
+        <div class="symbol-dropdown">
+          <button class="dropdown-btn" id="symbolBtn">
+            <span id="selectedSymbol">Volatility 100</span>
+            <span class="dropdown-chevron" aria-hidden="true">⌄</span>
+          </button>
+
+          <div class="symbol-menu" id="symbolMenu"></div>
+        </div>
+      </div>
+
+    </aside>
+
+  </main>
+<script>
+const BOTS=[{id:'proparity',name:'ProParity',desc:'Analisa os últimos 5 ticks<br>Par/Impar',contractType:'DIGITEVEN'},{id:'octawin',name:'Octawin',desc:'Analisa os últimos 5 ticks<br>Over 5/ Under 4',contractType:'DIGITUNDER',barrier:'4'}];
+let selectedBot=BOTS[0],selectedSymbol='V100';
+const $=s=>document.querySelector(s), wheel=$('#wheel');
+function positionWheelNodes(){
+  if(!wheel)return;
+  const size=wheel.clientWidth||260,center=size/2,radius=Math.max(0,size/2-22-14),nodeSize=44;
+  wheel.querySelectorAll(':scope>.digit-node').forEach(n=>{
+    const i=Number(n.dataset.digit);
+    if(!Number.isFinite(i))return;
+    const a=i/10*2*Math.PI-Math.PI/2;
+    n.style.left=(center+radius*Math.cos(a)-nodeSize/2)+'px';
+    n.style.top=(center+radius*Math.sin(a)-nodeSize/2)+'px';
+    n.style.width=nodeSize+'px';
+    n.style.height=nodeSize+'px';
+    n.style.display='flex';
+    n.style.visibility='visible';
+    n.style.opacity='1';
+  });
+}
+positionWheelNodes();window.addEventListener('resize',positionWheelNodes);
+const db=$('#dropdownBtn'),dm=$('#dropdownMenu'),bn=$('#selectedBotName'),ob=$('#operateBtn');
+const savedBot=localStorage.getItem('izitrader_bot')||'ProParity';
+selectedBot=BOTS.find(b=>b.name===savedBot)||BOTS[0];
+try{localStorage.setItem('izitrader_bot',selectedBot.name)}catch{}
+if(bn)bn.textContent=selectedBot.name;
+BOTS.forEach(b=>{
+  const x=document.createElement('div');
+  x.className='dropdown-item';
+  x.innerHTML='<div class="name">'+b.name+'</div><div class="desc">'+b.desc+'</div>';
+  x.onclick=()=>{
+    selectedBot=b;
+    bn.textContent=b.name;
+    dm.classList.remove('open');
+    try{localStorage.setItem('izitrader_bot',b.name)}catch{}
+    window.dispatchEvent(new CustomEvent('izitrader:bot-change',{detail:{id:b.id,name:b.name}}));
+  };
+  dm.appendChild(x);
+});
+db.onclick=e=>{e.stopPropagation();dm.classList.toggle('open')};
+const sb=$('#symbolBtn'),sm=$('#symbolMenu'),ss=$('#selectedSymbol');
+if(sb&&sm){
+  sb.onclick=e=>{e.preventDefault();e.stopPropagation();sm.classList.toggle('open');};
+  sm.addEventListener('click',e=>{
+    const x=e.target.closest('.symbol-item');
+    if(!x)return;
+    e.preventDefault();e.stopPropagation();
+    selectedSymbol=x.dataset.symbol||selectedSymbol;
+    ss.textContent=x.querySelector('.symbol-name')?.textContent||selectedSymbol;
+    try{localStorage.setItem('izitrader_symbol',selectedSymbol)}catch{}
+    sm.classList.remove('open');
+    window.dispatchEvent(new CustomEvent('izitrader:symbol-change',{detail:{symbol:selectedSymbol}}));
+  });
+}
+const tb=$('#themeBtn');if(tb)tb.textContent='🌙';
+const menu=$('#menu'),lo=$('#languageOptions');$('#menuBtn').onclick=e=>{e.stopPropagation();const open=menu.classList.toggle('open');if(open){dm?.classList.remove('open');sm?.classList.remove('open');am?.classList.remove('open');targetMenu?.classList.remove('open')}document.body.classList.toggle('izi-menu-open',open)};$('#menuLang').onclick=e=>{e.stopPropagation();lo.classList.toggle('open')};$('#menuSettings').onclick=()=>alert('Definições');$('#menuHelp').onclick=()=>alert('Central de ajuda');const onlineCount=$('#onlineCount');(function(){const KEY='izitrader_online_display',STAMP='izitrader_online_display_stamp';function next(){return 100+Math.floor(Math.random()*81)}function sync(){let n=Number(localStorage.getItem(KEY)||125),stamp=Number(localStorage.getItem(STAMP)||0);if(!Number.isFinite(n)||n<100||n>180)n=125;if(Date.now()-stamp>=3600000){n=next();stamp=Date.now();localStorage.setItem(KEY,String(n));localStorage.setItem(STAMP,String(stamp))}else if(!stamp){localStorage.setItem(KEY,String(n));localStorage.setItem(STAMP,String(Date.now()))}if(onlineCount)onlineCount.textContent=String(n)}sync();window.setInterval(sync,60000)})();const menuSheet=$('#menuSheet'),menuTelegramSupport=$('#menuTelegramSupport'),menuTelegramPt=$('#menuTelegramPt'),menuTelegramEn=$('#menuTelegramEn'),menuTerms=$('#menuTerms');menuSheet.onclick=()=>{menu.classList.remove('open');window.location.href='/planilha.html'};menuTelegramSupport.onclick=()=>{menu.classList.remove('open');window.open('https://t.me/Ezidro_fx','_blank','noopener,noreferrer')};menuTelegramPt.onclick=()=>{menu.classList.remove('open');window.location.href='https://t.me/izitraderpt'};menuTelegramEn.onclick=()=>{menu.classList.remove('open');window.location.href='https://t.me/izitraderen'};menuTerms.onclick=()=>{menu.classList.remove('open');window.location.href='/terms.html'};
+const ab=$('#analysisBtn'),al=$('#analysisLabel'),am=$('#analysisMenu');let analysisWindow=25;ab.onclick=e=>{e.stopPropagation();am.classList.toggle('open')};document.querySelectorAll('.analysis-item').forEach(x=>x.onclick=()=>{analysisWindow=Number(x.dataset.window);document.querySelectorAll('.analysis-item').forEach(y=>y.classList.remove('active'));x.classList.add('active');if(al)al.textContent=analysisWindow+' TICKS';am.classList.remove('open');window.IziLiveAnalysis?.setWindow?.(analysisWindow)});
+const targetBtn=$('#targetBtn'),targetMenu=$('#targetMenu'),profitTarget=$('#profitTarget'),lossTarget=$('#lossTarget'),targetStatus=$('#targetStatus');let pg=Number(localStorage.getItem('izitrader_profit_goal')||0),lg=Number(localStorage.getItem('izitrader_loss_goal')||0);if(pg)profitTarget.value=pg;if(lg)lossTarget.value=lg;function targetText(){targetStatus.textContent=pg||lg?'Lucro: $'+pg.toFixed(2)+' • Perda: $'+lg.toFixed(2):'Nenhuma meta definida'}targetText();targetBtn.onclick=e=>{e.stopPropagation();targetMenu.classList.toggle('open')};$('#targetSave').onclick=()=>{pg=Math.max(0,Number(profitTarget.value)||0);lg=Math.max(0,Number(lossTarget.value)||0);localStorage.setItem('izitrader_profit_goal',pg);localStorage.setItem('izitrader_loss_goal',lg);targetText();targetMenu.classList.remove('open')};
+document.addEventListener('click',e=>{if(!e.target.closest('.dropdown'))dm.classList.remove('open');if(!e.target.closest('.symbol-dropdown'))sm.classList.remove('open');if(!e.target.closest('.header-actions')){menu.classList.remove('open');lo.classList.remove('open')};if(!e.target.closest('.analysis-wrap'))am.classList.remove('open');if(!e.target.closest('.target-wrap'))targetMenu.classList.remove('open')});
+const hist=$('#historyScroll'),opsCount=$('#opsCount');let operationCount=Number(localStorage.getItem('izitrader_operations')||0);
+opsCount.textContent=operationCount;
+function moneyValue(c){const n=Number(c?.profit??c?.pnl??c?.amount??c?.payout??0);return Number.isFinite(n)?Math.abs(n).toFixed(2):'0.00'}
+function renderChip(item,c,result){
+  const won=result==='WON',lost=result==='LOST';
+  const value=moneyValue(c);
+  const digit=Number.isInteger(Number(c?.lastDigit))?Number(c.lastDigit):null;
+  const prefix=won?String.fromCharCode(43,36):lost?String.fromCharCode(45,36):String.fromCharCode(36);
+  item.className='chip '+(won?'win':lost?'loss':'');
+  item.innerHTML='<span><span class="chip-amount">'+prefix+value+'</span>'+(digit==null?'':'<span class="chip-digit">NR '+digit+'</span>')+'</span><span class="chip-tag">'+(won?'GANHO':lost?'PERDA':'ABERTO')+'</span>';
+}
+function updateOps(){opsCount.textContent=operationCount;localStorage.setItem('izitrader_operations',String(operationCount))}
+window.addEventListener('izitrader:contract-closed',e=>{
+  const c=e.detail||{},id=String(c.contract_id||'');
+  if(!id)return;
+  let item=[...hist.children].find(x=>x.dataset.contractId===id);
+  const result=String(c.result||((Number(c.profit_loss??c.profit)<0)?'LOST':'WON')).toUpperCase();
+  const alreadyCounted=item?.dataset.dashboardCounted==='1';
+    if(!item){
+    item=document.createElement('div');
+    item.dataset.contractId=id;
+  }
+  item.dataset.closed='1';
+  renderChip(item,c,result);
+  delete contractBots[id];
+
+  /* Recent trades stay at the beginning: newest result first, older results follow. */
+  hist.prepend(item);
+  hist.scrollLeft=0;
+
+  if(!alreadyCounted)operationCount++;
+  item.dataset.dashboardCounted='1';
+  updateOps();
+
+  /* Keep up to 20 closed trades; only the oldest are removed if necessary. */
+  while(hist.children.length>20)hist.lastElementChild.remove();
+
+  hist.scrollLeft=0;
+});
+$('#iziAccountSelect').value=localStorage.getItem('izitrader_account_type')||'real';$('#iziAccountSelect').addEventListener('change',e=>{window.IziDerivWS?.setAccountType?.(e.target.value);ob.textContent='▶ Start Robot'});ob.textContent='▶ Start Robot';$('#sairBtn').addEventListener('click',async()=>{try{await fetch('/api/auth/logout',{method:'POST',credentials:'same-origin'})}catch{}window.location.replace('/')});
+
+(function(){
+  const dots=[$('#stageDot0'),$('#stageDot1'),$('#stageDot2')];
+  const lines=[$('#stageLine0'),$('#stageLine1')];
+  const labels=[$('#stageLabel0'),$('#stageLabel1'),$('#stageLabel2')];
+  let resetTimer=null;
+  function setStage(stage){
+    dots.forEach((d,i)=>d&&d.classList.toggle('active',i<=stage));
+    lines.forEach((l,i)=>l&&l.classList.toggle('active',i<stage));
+    labels.forEach((l,i)=>l&&l.classList.toggle('active',i<=stage));
+  }
+  setStage(0);
+  window.addEventListener('izitrader:buy',()=>{
+    if(resetTimer){clearTimeout(resetTimer);resetTimer=null}
+    setStage(1);
+  });
+  window.addEventListener('izitrader:contract-state',e=>{
+    if(e.detail?.closed){
+      setStage(2);
+      resetTimer=setTimeout(()=>setStage(0),3000);
+    }
+  });
+  const stageText={en:{labels:['ANALYZING','OPEN','CLOSED'],stop:'Stop Robot'},pt:{labels:['ANALISANDO','ABERTO','FECHADO'],stop:'Parar Robô'},es:{labels:['ANALIZANDO','ABIERTO','CERRADO'],stop:'Detener Robot'}};
+  function applyStageLanguage(){
+    const lang=localStorage.getItem('izitrader_language')||localStorage.getItem('izitrader_lang')||'pt';
+    const t=stageText[lang]||stageText.pt;
+    labels.forEach((l,i)=>{if(l)l.textContent=t.labels[i]});
+    const stopBtn=$('#stageStopBtn');if(stopBtn){stopBtn.title=t.stop;stopBtn.setAttribute('aria-label',t.stop)}
+  }
+  applyStageLanguage();
+  window.addEventListener('izitrader:language-change',applyStageLanguage);
+  const stopBtn=$('#stageStopBtn');
+  if(stopBtn)stopBtn.onclick=()=>{window.IziDerivWS?.pause?.();setStage(0)};
+})();
+</script>
+<script>
+(function(){
+  'use strict';
+
+  function placeControls(){
+    /* 25 TICKS, Account connected and METAS always live together in the control row,
+       as three items in one line: 25 TICKS (left) — status (middle) — METAS (right). */
+    const analysisWrap=document.querySelector('.analysis-wrap');
+    const targetWrap=document.querySelector('.target-wrap');
+    const controlRow=document.querySelector('.dashboard-control-row');
+    const status=document.querySelector('.dashboard-control-row .status, .dashboard-center>.status');
+    if(!analysisWrap||!targetWrap||!controlRow)return;
+    if(analysisWrap.parentElement!==controlRow||controlRow.firstElementChild!==analysisWrap){
+      controlRow.insertBefore(analysisWrap,controlRow.firstChild);
+    }
+    if(targetWrap.parentElement!==controlRow||controlRow.lastElementChild!==targetWrap){
+      controlRow.appendChild(targetWrap);
+    }
+    if(status&&status.parentElement===controlRow){
+      controlRow.insertBefore(status,targetWrap);
+    }
+  }
+  function placeAula(){
+    const aula=document.querySelector('.aula-strip');
+    const row3=document.querySelector('.row3');
+    const center=document.querySelector('.dashboard-center');
+    if(!aula)return;
+
+    const mobile=window.matchMedia('(max-width:899px)').matches;
+
+    if(mobile){
+      /* Mobile reference: AULA is the third block beside Account Type and BOT. */
+      if(row3 && aula.parentElement!==row3) row3.appendChild(aula);
+      aula.hidden=false;
+      aula.style.removeProperty('display');
+      aula.style.removeProperty('position');
+      aula.style.removeProperty('left');
+      aula.style.removeProperty('right');
+      aula.style.removeProperty('top');
+    }else if(center){
+      /* PC keeps AULA in the center area above the stage/wheel. */
+      if(aula.parentElement!==center) center.insertBefore(aula,center.children[1]||null);
+      aula.hidden=false;
+    }
+  }
+
+  function placeStage(){
+    const stage=document.getElementById('stageTracker');
+    const history=document.getElementById('historyScroll');
+    const card=history?.closest('.history-card');
+    const center=document.querySelector('.dashboard-center');
+    const aula=document.querySelector('.aula-strip');
+    const mobile=window.matchMedia('(max-width:599px)').matches;
+
+    if(!stage)return;
+
+    if(mobile){
+      /* Mobile: stage belongs inside Recent History. */
+      if(card && stage.parentElement!==card) card.appendChild(stage);
+      return;
+    }
+
+    if(center && aula && stage.parentElement!==center){
+      center.appendChild(stage);
+      aula.after(stage);
+    }
+  }
+
+  function positionWheel(){
+    const wheel=document.getElementById('wheel');
+    if(!wheel)return;
+    const nodes=[...wheel.querySelectorAll(':scope>.digit-node')];
+    const center=wheel.querySelector(':scope>.center');
+    const size=Math.min(wheel.clientWidth||300,wheel.clientHeight||300);
+    const cp=size/2,node=44,radius=Math.max(0,size/2-node/2-14);
+
+    nodes.forEach(n=>{
+      const d=Number(n.dataset.digit);
+      if(!Number.isFinite(d))return;
+      const a=d*Math.PI*2/10-Math.PI/2;
+      n.style.left=(cp+radius*Math.cos(a)-node/2)+'px';
+      n.style.top=(cp+radius*Math.sin(a)-node/2)+'px';
+      n.style.width=node+'px';
+      n.style.height=node+'px';
+      n.style.display='flex';
+      n.style.visibility='visible';
+      n.style.opacity='1';
+      n.style.transform='none';
+    });
+
+    if(center){
+      center.style.left='50%';
+      center.style.top='50%';
+      center.style.transform='translate(-50%,-50%)';
+    }
+  }
+
+  function run(){
+    placeControls();
+    placeAula();
+    placeStage();
+    positionWheel();
+    requestAnimationFrame(positionWheel);
+    setTimeout(placeControls,100);
+    setTimeout(placeAula,100);
+    setTimeout(placeStage,100);
+  }
+
+  if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',run,{once:true});
+  else run();
+
+  window.addEventListener('resize',run);
+  window.addEventListener('orientationchange',run);
+})();
+</script>
+<script src="/dashboard-assets/auth.js?v=20261014-r2"></script>
+<script src="/dashboard-assets/language-symbols-fix.js?v=20260930-bots-v5" data-language-symbols-fix="1"></script>
+<script>
+/* ===== Dropdown resilience after language changes =====
+   Rebind only the three dashboard dropdown triggers after the language
+   script updates translated labels. This does not change trading logic. */
+(function(){
+  'use strict';
+  function rebindDashboardDropdowns(){
+    const botBtn=document.getElementById('dropdownBtn');
+    const botMenu=document.getElementById('dropdownMenu');
+    const ticksBtn=document.getElementById('analysisBtn');
+    const ticksMenu=document.getElementById('analysisMenu');
+    const metasBtn=document.getElementById('targetBtn');
+    const metasMenu=document.getElementById('targetMenu');
+
+    if(botBtn&&botMenu){
+      botBtn.onclick=function(e){
+        e.preventDefault();
+        e.stopPropagation();
+        botMenu.classList.toggle('open');
+        ticksMenu?.classList.remove('open');
+        metasMenu?.classList.remove('open');
+      };
+    }
+
+    if(ticksBtn&&ticksMenu){
+      ticksBtn.onclick=function(e){
+        e.preventDefault();
+        e.stopPropagation();
+        ticksMenu.classList.toggle('open');
+        botMenu?.classList.remove('open');
+        metasMenu?.classList.remove('open');
+      };
+    }
+
+    if(metasBtn&&metasMenu){
+      metasBtn.onclick=function(e){
+        e.preventDefault();
+        e.stopPropagation();
+        metasMenu.classList.toggle('open');
+        botMenu?.classList.remove('open');
+        ticksMenu?.classList.remove('open');
+      };
+    }
+  }
+
+  if(document.readyState==='loading'){
+    document.addEventListener('DOMContentLoaded',rebindDashboardDropdowns,{once:true});
+  }else{
+    rebindDashboardDropdowns();
+  }
+
+  window.addEventListener('izitrader:language-change',function(){
+    requestAnimationFrame(rebindDashboardDropdowns);
+  });
+})();
+</script>
+
+<script src="/dashboard-assets/live-analysis.js"></script>
+<script src="/dashboard-assets/deriv-realtime.js?v=20261014-r4"></script>
+
+<script>
+(function(){
+'use strict';
+function initAulaController(){
+  const trigger=document.getElementById('aulaTrigger');
+  const options=document.getElementById('aulaLanguageOptions');
+  if(!trigger)return;
+  if(trigger.dataset.aulaController==='1')return;
+  trigger.dataset.aulaController='1';
+
+  const AULA_VIDEO_URLS={
+    proparity:{
+      pc:'https://youtu.be/2yIO-2Lq7VA',
+      mobile:'https://youtu.be/9GKHv5qQbWo'
+    },
+    octawin:{
+      pc:'https://youtu.be/vi8pMWGB8gg',
+      mobile:'https://youtu.be/BRciO9ttHUU'
+    }
+  };
+
+  trigger.addEventListener('click',function(ev){
+    ev.preventDefault();
+    ev.stopPropagation();
+    const name=(document.getElementById('selectedBotName')?.textContent||'').trim().toLowerCase();
+    const bot=name.includes('octa')?'octawin':'proparity';
+    const device=window.matchMedia('(max-width:899px)').matches?'mobile':'pc';
+    const url=AULA_VIDEO_URLS[bot][device];
+    if(options) options.hidden=true;
+    trigger.setAttribute('aria-expanded','false');
+    window.location.href=url;
+  });
+}
+if(document.readyState==='loading'){
+  document.addEventListener('DOMContentLoaded',initAulaController,{once:true});
+}else{
+  initAulaController();
+}
+})();
+</script>
+
+</body>
+</html>

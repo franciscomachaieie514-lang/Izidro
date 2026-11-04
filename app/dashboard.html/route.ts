@@ -14,10 +14,16 @@ export async function GET(request: NextRequest) {
     let html = await readFile(join(process.cwd(), 'private', 'dashboard.html'), 'utf8');
     const user = await getSession(request.cookies.get(PLATFORM_SESSION_COOKIE)?.value);
     if (shouldSwapAccountLabels(user?.email)) {
-      const normalOptions = '<option value="real">Real</option>\n            <option value="demo">Demo</option>';
-      const swappedOptions = '<option value="real">Demo</option>\n            <option value="demo">Real</option>';
-      if (!html.includes(normalOptions)) throw new Error('ACCOUNT_SELECTOR_MARKUP_NOT_FOUND');
-      html = html.replace(normalOptions, swappedOptions);
+      // Change only visible labels; keep the real/demo option values unchanged.
+      let swapped = false;
+      html = html.replace(
+        /(<select[^>]*id=["']iziAccountSelect["'][^>]*>[\\s\\S]*?<option\\s+value=["']real["'][^>]*>)[\\s\\S]*?(<\\/option>[\\s\\S]*?<option\\s+value=["']demo["'][^>]*>)[\\s\\S]*?(<\\/option>[\\s\\S]*?<\\/select>)/i,
+        (_match, realOpen, demoOpen, tail) => {
+          swapped = true;
+          return realOpen + 'Demo' + demoOpen + 'Real' + tail;
+        }
+      );
+      if (!swapped) throw new Error('ACCOUNT_SELECTOR_MARKUP_NOT_FOUND');
     }
     return new NextResponse(html, { status: 200, headers: {
       'Content-Type':'text/html; charset=utf-8',

@@ -1,0 +1,27 @@
+name: Izitrader migration checks
+
+on:
+  push:
+    branches:
+      - migration/server-side-trading-engine
+  pull_request:
+    branches:
+      - main
+
+permissions:
+  contents: read
+
+jobs:
+  build-and-test:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: 22
+      - name: Install dependencies
+        run: npm install
+      - name: Syntax checks, strategy tests and Next.js build
+        run: npm run build

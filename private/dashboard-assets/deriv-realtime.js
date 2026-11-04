@@ -149,7 +149,7 @@ function handleMessage(message){
   paintButton();setStatus(message.message||'',Boolean(message.ok));return;
  }
  if(message.type==='robot_started'){
-  active=true;statusValue='running';pendingBuy=false;openContractId=null;updatePnl(0);level=0;updateStake(baseStake);
+  active=true;statusValue='running';reconcileRequired=false;pendingBuy=false;openContractId=null;updatePnl(0);level=0;updateStake(baseStake);
   paintButton();setStatus(text('active'),true);return;
  }
  if(message.type==='tick'){

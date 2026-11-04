@@ -272,7 +272,20 @@ class TradingWorker {
       return;
     }
     this.config.bot = BOTS.includes(row.bot) ? row.bot : this.config.bot;
-    this.config.symbol = SYMBOLS[this.config.uiSymbol] || this.config.symbol;
+
+    // Restore the persisted market, not the browser's localStorage selection.
+    // This keeps the tick subscription and open-contract recovery aligned after
+    // a reconnect or process restart.
+    const savedSymbol = String(row.symbol || '');
+    const savedUiSymbol = Object.keys(SYMBOLS).find(key => SYMBOLS[key] === savedSymbol);
+    if (savedUiSymbol) {
+      this.config.symbol = savedSymbol;
+      this.config.uiSymbol = savedUiSymbol;
+    } else {
+      const requestedUiSymbol = Object.keys(SYMBOLS).find(key => SYMBOLS[key] === this.config.symbol);
+      if (requestedUiSymbol) this.config.uiSymbol = requestedUiSymbol;
+    }
+
     this.config.profitTarget = Number(row.profit_target || 0);
     this.config.lossLimit = Number(row.loss_limit || 0);
     this.baseStake = Number(row.base_stake || this.config.baseStake);

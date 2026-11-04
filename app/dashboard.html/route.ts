@@ -14,8 +14,8 @@ export async function GET(request: NextRequest) {
     let html = await readFile(join(process.cwd(), 'private', 'dashboard.html'), 'utf8');
     const user = await getSession(request.cookies.get(PLATFORM_SESSION_COOKIE)?.value);
     if (shouldSwapAccountLabels(user?.email)) {
-      const normalOptions = '<option value="real">Real</option>\\n            <option value="demo">Demo</option>';
-      const swappedOptions = '<option value="real">Demo</option>\\n            <option value="demo">Real</option>';
+      const normalOptions = '<option value="real">Real</option>\n            <option value="demo">Demo</option>';
+      const swappedOptions = '<option value="real">Demo</option>\n            <option value="demo">Real</option>';
       if (!html.includes(normalOptions)) throw new Error('ACCOUNT_SELECTOR_MARKUP_NOT_FOUND');
       html = html.replace(normalOptions, swappedOptions);
     }

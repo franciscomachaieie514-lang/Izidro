@@ -262,6 +262,8 @@ function startStop(){
 }
 function restartConnection(){
  if(active||pendingBuy||openContractId){setStatus('Termine a operação actual antes de mudar de conta ou símbolo.',false);return}
+ if(handshakeTimer){clearTimeout(handshakeTimer);handshakeTimer=null}
+ if(configurationTimer){clearTimeout(configurationTimer);configurationTimer=null}
  if(socket){const old=socket;socket=null;try{old.close(1000,'Reconfigure')}catch{}}
  connected=false;configured=false;connecting=false;
  setTimeout(()=>connect(),800);
@@ -278,7 +280,7 @@ function boot(){
  connect();
 }
 window.IziDerivWS={
- stop:()=>{stopped=true;active=false;if(reconnectTimer)clearTimeout(reconnectTimer);if(pingTimer)clearInterval(pingTimer);if(socket){const old=socket;socket=null;try{old.close(1000,'Logout')}catch{}}connected=false;configured=false;paintButton()},
+ stop:()=>{stopped=true;active=false;if(reconnectTimer)clearTimeout(reconnectTimer);if(pingTimer)clearInterval(pingTimer);if(handshakeTimer){clearTimeout(handshakeTimer);handshakeTimer=null}if(configurationTimer){clearTimeout(configurationTimer);configurationTimer=null}if(socket){const old=socket;socket=null;try{old.close(1000,'Logout')}catch{}}connected=false;configured=false;paintButton()},
  pause:()=>{send({type:'pause'});active=false;paintButton()},
  start:startStop,
  getState:()=>({active,connected,authorized:configured,accountType,symbol:SYMBOLS[uiSymbol],stake,martingaleLevel:level,balance,buyOutcomeUnknown:reconcileRequired})

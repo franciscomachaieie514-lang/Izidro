@@ -897,15 +897,22 @@ app.prepare().then(() => {
     let pathname='/';
     try { pathname=new URL(req.url||'/', 'http://localhost').pathname; } catch {}
     if(pathname!=='/api/trading/ws') { socket.destroy(); return; }
-    if(!originAllowed(req)) { socket.write('HTTP/1.1 403 Forbidden\r\nConnection: close\r\n\r\n');socket.destroy();return; }
+    console.info('[Izi WS] Upgrade request received.');
+    if(!originAllowed(req)) {
+      console.warn('[Izi WS] Upgrade rejected: invalid origin.'); socket.write('HTTP/1.1 403 Forbidden\r\nConnection: close\r\n\r\n');socket.destroy();return; }
     let identity;
     try { identity=await resolveSocketIdentity(req); }
-    catch { socket.write('HTTP/1.1 503 Service Unavailable\r\nConnection: close\r\n\r\n');socket.destroy();return; }
-    if(!identity) { socket.write('HTTP/1.1 401 Unauthorized\r\nConnection: close\r\n\r\n');socket.destroy();return; }
+    catch(error) {
+      console.error('[Izi WS] Could not resolve session identity:',error instanceof Error?error.message:'Unknown error');
+      socket.write('HTTP/1.1 503 Service Unavailable\r\nConnection: close\r\n\r\n');socket.destroy();return; }
+    if(!identity) {
+      console.warn('[Izi WS] Upgrade rejected: no authenticated Deriv session.');
+      socket.write('HTTP/1.1 401 Unauthorized\r\nConnection: close\r\n\r\n');socket.destroy();return; }
     wss.handleUpgrade(req,socket,head,client=>wss.emit('connection',client,req,identity));
   });
 
   wss.on('connection',(client,req,identity)=>{
+    console.info('[Izi WS] Browser connection accepted.');
     let worker=null;
     let configured=false;
     client.on('message',async raw=>{
@@ -915,9 +922,20 @@ app.prepare().then(() => {
         if(message.type==='ping') { sendClient(client,'pong',{at:Date.now()});return; }
         if(message.type==='configure') {
           if(configured || worker)throw new Error('Esta ligação já foi configurada.');
-          worker=await configureWorker(client,identity,message);
+          sendClient(client,'status',{message:'A validar a conta Deriv e a preparar a sessão…',ok:false,state:{status:'connecting'}});
+          console.info('[Izi WS] Dashboard configuration started.');
+          const configuredWorker=await configureWorker(client,identity,message);
+          // The browser may time out while the Deriv session is being prepared.
+          // Never leave an orphan worker or a held account lock after client disconnect.
+          if(client.readyState!==WebSocket.OPEN) {
+            await configuredWorker.clientGone().catch(()=>{});
+            console.info('[Izi WS] Browser left before configuration completed; worker cleaned up.');
+            return;
+          }
+          worker=configuredWorker;
           configured=true;
           sendClient(client,'configured',{state:worker.snapshot()});
+          console.info('[Izi WS] Dashboard configuration completed.');
           return;
         }
         if(!worker)throw new Error('A ligação ainda não foi configurada.');
@@ -930,6 +948,9 @@ app.prepare().then(() => {
         if(message.type==='close') { await worker.pause();await worker.clientGone();return; }
         sendClient(client,'error',{message:'Comando não reconhecido.'});
       } catch(error) {
+        if(message.type==='configure' && !worker) {
+          console.error('[Izi WS] Dashboard configuration failed:',error instanceof Error?error.message:'Unknown error');
+        }
         sendClient(client,'error',{message:error instanceof Error?error.message:'Falha no servidor.'});
         if(message.type==='configure' && !worker) client.close(1008,'Configuration failed');
       }

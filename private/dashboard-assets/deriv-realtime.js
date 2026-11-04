@@ -14,11 +14,13 @@ if(!SYMBOLS[uiSymbol])uiSymbol='V100';
 let bot=localStorage.getItem('izitrader_bot')||'ProParity';
 if(!['ProParity','Octawin'].includes(bot))bot='ProParity';
 let baseStake=Math.max(.35,Number(localStorage.getItem('izitrader_stake')||.35));
-let balance=null,pnl=0,stake=baseStake,level=0,statusValue='connecting',pendingBuy=false,openContractId=null,reconcileRequired=false,connectDelay=1000;
+let balance=null,pnl=0,stake=baseStake,level=0,statusValue='connecting',pendingBuy=false,openContractId=null,reconcileRequired=false,connectDelay=1000,stageStatusTimer=null;
 const $=s=>document.querySelector(s);
 const emit=(name,detail)=>window.dispatchEvent(new CustomEvent('izitrader:'+name,{detail}));
 function text(key){const lang=localStorage.getItem('izitrader_language')||localStorage.getItem('izitrader_lang')||'pt';const words={
- active:{pt:'Robô activo — análise no servidor.',en:'Robot active — server-side analysis.',es:'Robot activo — análisis en el servidor.'},
+ active:{pt:'Activo',en:'Active',es:'Activo'},
+ tradeOpen:{pt:'Trade aberto',en:'Trade open',es:'Operación abierta'},
+ tradeClosed:{pt:'Trade fechado — à espera de ticks',en:'Trade closed — waiting for ticks',es:'Operación cerrada — esperando ticks'},
  connected:{pt:'Conta ligada',en:'Account connected',es:'Cuenta conectada'},
  waiting:{pt:'Aguardando ligação à Deriv…',en:'Waiting for Deriv connection…',es:'Esperando conexión a Deriv…'},
  start:{pt:'▶ Iniciar Robô',en:'▶ Start Robot',es:'▶ Iniciar Robot'},
@@ -147,9 +149,10 @@ function handleMessage(message){
   if(data.active!==undefined)active=Boolean(data.active);
   if(data.pendingBuy!==undefined)pendingBuy=Boolean(data.pendingBuy);
   if(data.openContractId!==undefined)openContractId=data.openContractId;
-  paintButton();setStatus(message.message||'',Boolean(message.ok));return;
+  paintButton();if(!stageStatusTimer)setStatus(active&&!openContractId&&!pendingBuy?text('active'):(message.message||''),Boolean(message.ok));return;
  }
  if(message.type==='robot_started'){
+  if(stageStatusTimer){clearTimeout(stageStatusTimer);stageStatusTimer=null}
   active=true;statusValue='running';reconcileRequired=false;pendingBuy=false;openContractId=null;updatePnl(0);level=0;updateStake(baseStake);
   paintButton();setStatus(text('active'),true);return;
  }
@@ -161,12 +164,13 @@ function handleMessage(message){
  }
  if(message.type==='balance'){updateBalance(message.balance,message.currency);emit('balance',message);return}
  if(message.type==='buy_pending'){
-  pendingBuy=true;statusValue='buy_pending';setStatus('Compra enviada à Deriv. A aguardar confirmação…',false);paintButton();return;
+  pendingBuy=true;statusValue='buy_pending';setStatus(text('tradeOpen'),false);paintButton();return;
  }
  if(message.type==='buy'){
   pendingBuy=false;openContractId=message.contract_id;statusValue='contract_open';
   emit('buy',message);emit('contract-state',{closed:false,contract:message});
-  setStatus('Operação aberta #'+message.contract_id,true);paintButton();return;
+  if(stageStatusTimer){clearTimeout(stageStatusTimer);stageStatusTimer=null}
+  setStatus(text('tradeOpen'),true);paintButton();return;
  }
  if(message.type==='contract_state'){
   if(message.closed){openContractId=null;pendingBuy=false;statusValue='running';paintButton()}
@@ -174,7 +178,10 @@ function handleMessage(message){
  }
  if(message.type==='contract_closed'){
   openContractId=null;pendingBuy=false;updatePnl(Number(message.profit_loss||0)+pnl);
-  emit('contract-closed',message);
+  emit('contract-closed',message);emit('contract-state',{closed:true,contract_id:message.contract_id});
+  if(stageStatusTimer)clearTimeout(stageStatusTimer);
+  setStatus(text('tradeClosed'),true);
+  stageStatusTimer=setTimeout(()=>{stageStatusTimer=null;if(active&&!openContractId&&!pendingBuy)setStatus(text('active'),true)},3000);
   if(Number(message.profit_loss)>0){try{window.dispatchEvent(new CustomEvent('izitrader:celebrate-win'))}catch{}}
   statusValue='running';paintButton();return;
  }

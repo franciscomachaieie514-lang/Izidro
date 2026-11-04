@@ -195,6 +195,8 @@ class TradingWorker {
     this.lastContractId = null;
     this.buyOpenedAt = null;
     this.openTradeBot = null;
+    this.portfolioCheckCompleted = false;
+    this.portfolioOpenContractCount = 0;
     this.pingTimer = null;
     this.buyTimer = null;
     this.brokerReconnectTimer = null;
@@ -345,6 +347,8 @@ class TradingWorker {
       sendDeriv(this.deriv, { proposal_open_contract:1, contract_id:this.openContractId, subscribe:1, req_id:this.id() });
       sendClient(this.client, 'state', { state:this.snapshot(), message:'A recuperar a operação aberta. Nenhuma nova entrada será enviada.' });
     } else if (this.status === 'reconcile_required') {
+      this.portfolioCheckCompleted = false;
+      this.portfolioOpenContractCount = 0;
       sendDeriv(this.deriv, { portfolio:1, req_id:this.id() });
       sendClient(this.client, 'reconciliation_required', {
         state:this.snapshot(),
@@ -434,7 +438,9 @@ class TradingWorker {
 
   async confirmNoPending() {
     if (!this.pendingBuy || this.openContractId) throw new Error('Não existe uma compra ambígua que possa ser confirmada.');
-    // This action is only accepted after the user confirms manually in the UI.
+    if (!this.portfolioCheckCompleted) throw new Error('Aguarde a verificação da carteira Deriv antes de confirmar.');
+    if (this.portfolioOpenContractCount > 0) throw new Error('A carteira ainda mostra contratos abertos. Não é seguro retomar o robô.');
+    // Require a completed empty Deriv portfolio check before clearing an ambiguous buy.
     this.pendingBuy = false;
     this.pendingBuyAt = null;
     this.buyReqId = null;
@@ -443,8 +449,10 @@ class TradingWorker {
     this.buyStake = null;
     this.active = false;
     this.status = 'stopped';
+    if (this.ready) sendDeriv(this.deriv,{ticks:this.config.symbol,subscribe:1,req_id:this.id()});
     await this.persist();
-    this.emitStatus('Compra pendente marcada como verificada pelo utilizador. Robô parado.', true);
+    this.emitStatus('Carteira Deriv verificada sem contratos abertos. Robô parado até nova ordem de início.', true);
+    if (!this.client) await this.cleanup();
   }
 
   async requestBuy(signal) {
@@ -512,9 +520,13 @@ class TradingWorker {
         this.pendingBuy=false;
         this.pendingBuyAt=null;
         this.buyReqId=null;
+        this.buyOpenedAt=null;
+        this.openTradeBot=null;
+        this.buyStake=null;
         this.status=this.active?'running':'stopped';
         await this.persist().catch(()=>{});
         this.emitStatus('Deriv recusou a compra: '+String(message.error.message||message.error.code||'erro'),false);
+        if (!this.client && !this.openContractId) await this.cleanup();
       } else {
         sendClient(this.client,'deriv_error',{message:String(message.error.message||message.error.code||'Erro Deriv')});
       }
@@ -533,8 +545,11 @@ class TradingWorker {
 
     if (message.msg_type==='portfolio' && this.status==='reconcile_required') {
       const rows=Array.isArray(message.portfolio?.contracts)?message.portfolio.contracts:[];
+      const activeRows=rows.filter(c=>!['sold','won','lost','expired','closed'].includes(String(c.status||'').toLowerCase()));
+      this.portfolioCheckCompleted=true;
+      this.portfolioOpenContractCount=activeRows.length;
       sendClient(this.client,'portfolio_check',{
-        contracts:rows.map(c=>({
+        contracts:activeRows.map(c=>({
           contract_id:c.contract_id,
           symbol:c.underlying,
           contract_type:c.contract_type,
@@ -542,6 +557,7 @@ class TradingWorker {
           status:c.status,
         })),
       });
+      if (!this.client) await this.cleanup();
       return;
     }
 
@@ -619,6 +635,7 @@ class TradingWorker {
   async closeContract(contract,profit) {
     const contractId=Number(this.openContractId);
     const stake=Number(this.buyStake ?? this.stake);
+    const tradeBot=this.openTradeBot || this.config.bot;
     const digitDisplay=contract.exit_tick_display_value ?? contract.exit_spot_display_value ?? contract.sell_spot_display_value;
     const digitMatch=String(digitDisplay??'').match(/(\d)\s*$/);
     const lastDigit=digitMatch?Number(digitMatch[1]):null;
@@ -627,7 +644,7 @@ class TradingWorker {
         (owner_key,account_id,contract_id,bot,symbol,stake,profit_loss,result,last_digit,opened_at,closed_at)
        VALUES ($1,$2,$3,$4,$5,$6,$7,$8,$9,$10,NOW())
        ON CONFLICT (owner_key,account_id,contract_id) DO NOTHING`,
-      [this.identity.ownerKey,this.config.accountId,contractId,this.openTradeBot || this.config.bot,this.config.symbol,stake,profit,profit>=0?'WON':'LOST',lastDigit,this.buyOpenedAt],
+      [this.identity.ownerKey,this.config.accountId,contractId,tradeBot,this.config.symbol,stake,profit,profit>=0?'WON':'LOST',lastDigit,this.buyOpenedAt],
     ).catch(error=>console.error('Izitrader history persistence error:',error.message));
 
     this.pnl=Number((this.pnl+profit).toFixed(2));
@@ -658,7 +675,7 @@ class TradingWorker {
       result:profit>=0?'WON':'LOST',
       lastDigit,
       exit_tick_display_value:digitDisplay,
-      bot_name:this.openTradeBot || this.config.bot,
+      bot_name:tradeBot,
       symbol:this.config.symbol,
       accountType:this.config.accountType,
     });
@@ -677,6 +694,7 @@ class TradingWorker {
   async onBrokerClose() {
     if(this.closed)return;
     this.ready=false;
+    if(this.pingTimer){clearInterval(this.pingTimer);this.pingTimer=null;}
     this.deriv=null;
     if(this.pendingBuy) {
       this.status='reconcile_required';

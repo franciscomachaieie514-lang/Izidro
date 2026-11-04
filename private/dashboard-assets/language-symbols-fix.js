@@ -83,12 +83,8 @@ function applyLanguage(lang){
   }
  }
 
- const account=document.getElementById('iziAccountSelect');
- if(account){
-  const real=account.querySelector('option[value="real"]'),demo=account.querySelector('option[value="demo"]');
-  if(real)real.textContent=t.accountReal;
-  if(demo)demo.textContent=t.accountDemo;
- }
+ // Account labels are rendered by the authenticated server route.
+ // Do not overwrite them here: the server may provide account-specific display text.
 
  setText('stageLabel0',t.analyzing);setText('stageLabel1',t.open);setText('stageLabel2',t.closed);
 

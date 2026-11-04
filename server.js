@@ -127,6 +127,9 @@ async function ensureTradingSchema() {
       open_contract_id BIGINT,
       pending_buy BOOLEAN NOT NULL DEFAULT FALSE,
       pending_buy_at TIMESTAMPTZ,
+      opened_at TIMESTAMPTZ,
+      open_trade_bot TEXT,
+      open_trade_stake NUMERIC(18,2),
       updated_at TIMESTAMPTZ NOT NULL DEFAULT NOW(),
       PRIMARY KEY (owner_key, account_id)
     );
@@ -144,6 +147,9 @@ async function ensureTradingSchema() {
       closed_at TIMESTAMPTZ NOT NULL DEFAULT NOW(),
       PRIMARY KEY (owner_key, account_id, contract_id)
     );
+    ALTER TABLE izitrader_trade_sessions ADD COLUMN IF NOT EXISTS opened_at TIMESTAMPTZ;
+    ALTER TABLE izitrader_trade_sessions ADD COLUMN IF NOT EXISTS open_trade_bot TEXT;
+    ALTER TABLE izitrader_trade_sessions ADD COLUMN IF NOT EXISTS open_trade_stake NUMERIC(18,2);
     CREATE INDEX IF NOT EXISTS izitrader_trade_history_closed_idx
       ON izitrader_trade_history(owner_key, account_id, closed_at DESC);
   `);
@@ -231,20 +237,22 @@ class TradingWorker {
     await pool.query(
       `INSERT INTO izitrader_trade_sessions
         (owner_key,account_id,account_type,symbol,bot,base_stake,stake,martingale_level,
-         session_pnl,profit_target,loss_limit,active,status,open_contract_id,pending_buy,pending_buy_at,updated_at)
-       VALUES ($1,$2,$3,$4,$5,$6,$7,$8,$9,$10,$11,$12,$13,$14,$15,$16,NOW())
+         session_pnl,profit_target,loss_limit,active,status,open_contract_id,pending_buy,pending_buy_at,
+         opened_at,open_trade_bot,open_trade_stake,updated_at)
+       VALUES ($1,$2,$3,$4,$5,$6,$7,$8,$9,$10,$11,$12,$13,$14,$15,$16,$17,$18,$19,NOW())
        ON CONFLICT (owner_key,account_id) DO UPDATE SET
          account_type=EXCLUDED.account_type,symbol=EXCLUDED.symbol,bot=EXCLUDED.bot,
          base_stake=EXCLUDED.base_stake,stake=EXCLUDED.stake,martingale_level=EXCLUDED.martingale_level,
          session_pnl=EXCLUDED.session_pnl,profit_target=EXCLUDED.profit_target,
          loss_limit=EXCLUDED.loss_limit,active=EXCLUDED.active,status=EXCLUDED.status,
          open_contract_id=EXCLUDED.open_contract_id,pending_buy=EXCLUDED.pending_buy,
-         pending_buy_at=EXCLUDED.pending_buy_at,updated_at=NOW()`,
+         pending_buy_at=EXCLUDED.pending_buy_at,opened_at=EXCLUDED.opened_at,
+         open_trade_bot=EXCLUDED.open_trade_bot,open_trade_stake=EXCLUDED.open_trade_stake,updated_at=NOW()`,
       [
         this.identity.ownerKey,this.config.accountId,this.config.accountType,this.config.symbol,
         this.config.bot,this.baseStake,this.stake,this.level,this.pnl,
         this.config.profitTarget,this.config.lossLimit,this.active,this.status,
-        this.openContractId,this.pendingBuy,this.pendingBuyAt,
+        this.openContractId,this.pendingBuy,this.pendingBuyAt,this.buyOpenedAt,this.openTradeBot,this.buyStake,
       ],
     );
     this.saved = true;
@@ -271,6 +279,9 @@ class TradingWorker {
     this.pnl = Number(row.session_pnl || 0);
     this.openContractId = row.open_contract_id ? Number(row.open_contract_id) : null;
     this.pendingBuy = row.pending_buy === true;
+    this.buyOpenedAt = row.opened_at || row.pending_buy_at || null;
+    this.openTradeBot = row.open_trade_bot || this.config.bot;
+    this.buyStake = row.open_trade_stake ? Number(row.open_trade_stake) : this.stake;
     if(this.openContractId || this.pendingBuy) {
       const savedSymbol=String(row.symbol||'');
       const savedUi=Object.keys(SYMBOLS).find(key=>SYMBOLS[key]===savedSymbol);
@@ -396,8 +407,13 @@ class TradingWorker {
   }
 
   async changeConfig(data) {
+    if (data.bot && BOTS.includes(data.bot)) {
+      this.config.bot = data.bot;
+      await this.persist();
+      sendClient(this.client,'state',{state:this.snapshot()});
+      return;
+    }
     if (this.pendingBuy || this.openContractId) throw new Error('Termine a operação actual antes de alterar a configuração.');
-    if (data.bot && BOTS.includes(data.bot)) this.config.bot = data.bot;
     if (data.uiSymbol && SYMBOLS[data.uiSymbol]) {
       this.config.uiSymbol = data.uiSymbol;
       this.config.symbol = SYMBOLS[data.uiSymbol];
@@ -422,6 +438,9 @@ class TradingWorker {
     this.pendingBuy = false;
     this.pendingBuyAt = null;
     this.buyReqId = null;
+    this.buyOpenedAt = null;
+    this.openTradeBot = null;
+    this.buyStake = null;
     this.active = false;
     this.status = 'stopped';
     await this.persist();

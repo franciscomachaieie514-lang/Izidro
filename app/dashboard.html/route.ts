@@ -14,16 +14,14 @@ export async function GET(request: NextRequest) {
     let html = await readFile(join(process.cwd(), 'private', 'dashboard.html'), 'utf8');
     const user = await getSession(request.cookies.get(PLATFORM_SESSION_COOKIE)?.value);
     if (shouldSwapAccountLabels(user?.email)) {
-      // Change only visible labels; keep the real/demo option values unchanged.
-      let swapped = false;
-      html = html.replace(
-        /(<select[^>]*id=["']iziAccountSelect["'][^>]*>[\\s\\S]*?<option\\s+value=["']real["'][^>]*>)[\\s\\S]*?(<\\/option>[\\s\\S]*?<option\\s+value=["']demo["'][^>]*>)[\\s\\S]*?(<\\/option>[\\s\\S]*?<\\/select>)/i,
-        (_match, realOpen, demoOpen, tail) => {
-          swapped = true;
-          return realOpen + 'Demo' + demoOpen + 'Real' + tail;
-        }
-      );
-      if (!swapped) throw new Error('ACCOUNT_SELECTOR_MARKUP_NOT_FOUND');
+      // Swap visible labels only; option values remain bound to real/demo accounts.
+      const selectorStart = html.indexOf('<select class="account-select" id="iziAccountSelect">');
+      const selectorEnd = selectorStart >= 0 ? html.indexOf('</select>', selectorStart) : -1;
+      if (selectorStart < 0 || selectorEnd < 0) throw new Error('ACCOUNT_SELECTOR_MARKUP_NOT_FOUND');
+      const selector = html.slice(selectorStart, selectorEnd + '</select>'.length)
+        .replace('<option value="real">Real</option>', '<option value="real">Demo</option>')
+        .replace('<option value="demo">Demo</option>', '<option value="demo">Real</option>');
+      html = html.slice(0, selectorStart) + selector + html.slice(selectorEnd + '</select>'.length);
     }
     return new NextResponse(html, { status: 200, headers: {
       'Content-Type':'text/html; charset=utf-8',

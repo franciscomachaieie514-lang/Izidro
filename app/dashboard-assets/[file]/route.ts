@@ -7,7 +7,7 @@ export const runtime = 'nodejs';
 export const dynamic = 'force-dynamic';
 export const revalidate = 0;
 
-const ALLOWED = new Set(["account-label.js","auth.js","dashboard-metrics.js","deriv-realtime.js","history-target-fix.js","language-context.js","language-symbols-fix.js","live-analysis.js","professional-ui.js","risk-warning.js","safe-start-confirm.js","slogan.js","stake-controls-596.js","stake-controls.js","theme-toggle.js","trading-enhancements.js","ui-layout-symbol-fix.js"]);
+const ALLOWED = new Set(["auth.js","dashboard-metrics.js","deriv-realtime.js","history-target-fix.js","language-context.js","language-symbols-fix.js","live-analysis.js","professional-ui.js","risk-warning.js","safe-start-confirm.js","slogan.js","stake-controls-596.js","stake-controls.js","theme-toggle.js","trading-enhancements.js","ui-layout-symbol-fix.js"]);
 
 export async function GET(request: NextRequest, context: { params: Promise<{ file: string }> }) {
   try {

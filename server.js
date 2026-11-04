@@ -186,6 +186,7 @@ class TradingWorker {
     this.ticks = [];
     this.lastEpoch = null;
     this.openContractId = null;
+    this.closingContractId = null;
     this.pendingBuy = false;
     this.pendingBuyAt = null;
     this.buyReqId = null;
@@ -647,6 +648,11 @@ class TradingWorker {
 
   async closeContract(contract,profit) {
     const contractId=Number(this.openContractId);
+    if (!Number.isSafeInteger(contractId) || contractId <= 0) return;
+    // Deriv can emit multiple final contract updates for the same subscription.
+    // Lock synchronously before the first await so P/L and Martingale are applied once.
+    if (this.closingContractId === contractId) return;
+    this.closingContractId = contractId;
     const stake=Number(this.buyStake ?? this.stake);
     const tradeBot=this.openTradeBot || this.config.bot;
     const digitDisplay=contract.exit_tick_display_value ?? contract.exit_spot_display_value ?? contract.sell_spot_display_value;
@@ -668,6 +674,7 @@ class TradingWorker {
     const targetLoss=this.config.lossLimit>0 && this.pnl<=-this.config.lossLimit;
     const maxStake=this.stake>10000;
     this.openContractId=null;
+    this.closingContractId=null;
     this.pendingBuy=false;
     this.pendingBuyAt=null;
     this.buyStake=null;

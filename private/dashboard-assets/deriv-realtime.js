@@ -143,6 +143,7 @@ function handleMessage(message){
  }
  if(message.type==='status'){
   if(data.status)statusValue=data.status;
+  reconcileRequired=statusValue==='reconcile_required';
   if(data.active!==undefined)active=Boolean(data.active);
   if(data.pendingBuy!==undefined)pendingBuy=Boolean(data.pendingBuy);
   if(data.openContractId!==undefined)openContractId=data.openContractId;
@@ -201,7 +202,7 @@ function startStop(){
  if(active){send({type:'pause'});active=false;statusValue=openContractId?'contract_open':'stopped';paintButton();return}
  if(reconcileRequired){
   const ok=window.confirm('A última compra ficou sem confirmação. Abra a Deriv e verifique as posições abertas. Só escolha OK depois de confirmar que não existe uma operação pendente desta sessão.');
-  if(ok){send({type:'confirm_no_pending'});reconcileRequired=false;pendingBuy=false;statusValue='stopped';setStatus('Verificação manual confirmada. Clique novamente para iniciar.',true);paintButton()}
+  if(ok){send({type:'confirm_no_pending'});setStatus('A confirmar a verificação da carteira no servidor…',false)}
   return;
  }
  if(openContractId||pendingBuy||statusValue==='recovery'||statusValue==='buy_pending'||statusValue==='contract_open'){

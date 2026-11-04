@@ -63,6 +63,7 @@ export class TradingEngine {
   private lastProcessedTick: number | null = null;
   private lastError: string | null = null;
   private buySequence = 0;
+  private requestedStop = false;
   private readonly seenTickKeys = new Set<string>();
   private readonly strategy: StrategyConfig;
 
@@ -81,6 +82,8 @@ export class TradingEngine {
     if (this.status === 'buy_pending' || this.status === 'contract_open') {
       throw new Error('Não é possível reiniciar enquanto existe uma compra ou contrato pendente.');
     }
+    this.requestedStop = false;
+    this.tickWindow = [];
     this.pnl = 0;
     this.level = 0;
     this.stake = this.config.baseStake;
@@ -91,7 +94,10 @@ export class TradingEngine {
   }
 
   stop() {
-    // A stop never cancels an accepted Deriv contract. It only prevents new buys.
+    // A stop never cancels an accepted Deriv contract or an in-flight buy.
+    // It prevents subsequent entries after the pending action is reconciled.
+    this.requestedStop = true;
+    if (this.status === 'buy_pending') return;
     this.status = this.openContractId ? 'contract_open' : 'stopped';
   }
 
@@ -159,7 +165,8 @@ export class TradingEngine {
     this.level = next.level;
     this.openContractId = null;
 
-    if ((this.config.profitTarget > 0 && this.pnl >= this.config.profitTarget) ||
+    if (this.requestedStop ||
+        (this.config.profitTarget > 0 && this.pnl >= this.config.profitTarget) ||
         (this.config.lossLimit > 0 && this.pnl <= -this.config.lossLimit)) {
       this.status = 'stopped';
     } else if (this.status !== 'stopped') {

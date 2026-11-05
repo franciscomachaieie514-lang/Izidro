@@ -14,6 +14,12 @@ if(!SYMBOLS[uiSymbol])uiSymbol='V100';
 let bot=localStorage.getItem('izitrader_bot')||'ProParity';
 if(!['ProParity','Octawin'].includes(bot))bot='ProParity';
 let baseStake=Math.max(.35,Number(localStorage.getItem('izitrader_stake')||.35));
+let workerId='';
+try{
+ workerId=sessionStorage.getItem('izitrader_worker_id')||'';
+ if(!/^[A-Za-z0-9_-]{8,80}$/.test(workerId))workerId='';
+ if(!workerId){workerId=window.crypto?.randomUUID?.()||('w'+Date.now().toString(36)+Math.random().toString(36).slice(2));sessionStorage.setItem('izitrader_worker_id',workerId)}
+}catch{workerId='w'+Date.now().toString(36)+Math.random().toString(36).slice(2)}
 let balance=null,pnl=0,stake=baseStake,level=0,statusValue='connecting',pendingBuy=false,openContractId=null,reconcileRequired=false,connectDelay=1000,stageStatusTimer=null;
 const $=s=>document.querySelector(s);
 const emit=(name,detail)=>window.dispatchEvent(new CustomEvent('izitrader:'+name,{detail}));
@@ -101,7 +107,7 @@ async function getAccount(){
  return account;
 }
 function configPayload(accountId){
- return {type:'configure',accountId,accountType,uiSymbol,symbol:SYMBOLS[uiSymbol],bot,baseStake,
+ return {type:'configure',accountId,accountType,workerId,uiSymbol,symbol:SYMBOLS[uiSymbol],bot,baseStake,
   profitTarget:Math.max(0,Number(localStorage.getItem('izitrader_profit_goal')||0)),
   lossLimit:Math.max(0,Number(localStorage.getItem('izitrader_loss_goal')||0))};
 }

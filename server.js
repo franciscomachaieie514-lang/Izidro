@@ -160,7 +160,7 @@ async function ensureTradingSchema() {
       ALTER TABLE izitrader_trade_sessions ADD COLUMN IF NOT EXISTS opened_at TIMESTAMPTZ;
       ALTER TABLE izitrader_trade_sessions ADD COLUMN IF NOT EXISTS open_trade_bot TEXT;
       ALTER TABLE izitrader_trade_sessions ADD COLUMN IF NOT EXISTS open_trade_stake NUMERIC(18,2);
-      DO $
+      DO $$
       DECLARE pk_name TEXT;
       BEGIN
         SELECT c.conname INTO pk_name FROM pg_constraint c
@@ -170,7 +170,7 @@ async function ensureTradingSchema() {
         END IF;
         ALTER TABLE izitrader_trade_sessions
           ADD CONSTRAINT izitrader_trade_sessions_pkey PRIMARY KEY (owner_key,account_id,worker_id);
-      END $;
+      END $$;
       CREATE INDEX IF NOT EXISTS izitrader_trade_history_closed_idx
         ON izitrader_trade_history(owner_key, account_id, closed_at DESC);
     `);

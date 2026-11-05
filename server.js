@@ -2,7 +2,7 @@
 
 const http = require('http');
 const { parse: parseUrl } = require('url');
-const { createHash } = require('crypto');
+const { createHash, randomUUID } = require('crypto');
 const next = require('next');
 const { Pool } = require('pg');
 const WebSocket = require('ws');
@@ -121,6 +121,7 @@ async function ensureTradingSchema() {
       CREATE TABLE IF NOT EXISTS izitrader_trade_sessions (
         owner_key TEXT NOT NULL,
         account_id TEXT NOT NULL,
+        worker_id TEXT NOT NULL DEFAULT 'legacy',
         account_type TEXT NOT NULL,
         symbol TEXT NOT NULL,
         bot TEXT NOT NULL,
@@ -139,7 +140,7 @@ async function ensureTradingSchema() {
         open_trade_bot TEXT,
         open_trade_stake NUMERIC(18,2),
         updated_at TIMESTAMPTZ NOT NULL DEFAULT NOW(),
-        PRIMARY KEY (owner_key, account_id)
+        PRIMARY KEY (owner_key, account_id, worker_id)
       );
       CREATE TABLE IF NOT EXISTS izitrader_trade_history (
         owner_key TEXT NOT NULL,
@@ -155,9 +156,21 @@ async function ensureTradingSchema() {
         closed_at TIMESTAMPTZ NOT NULL DEFAULT NOW(),
         PRIMARY KEY (owner_key, account_id, contract_id)
       );
+      ALTER TABLE izitrader_trade_sessions ADD COLUMN IF NOT EXISTS worker_id TEXT NOT NULL DEFAULT 'legacy';
       ALTER TABLE izitrader_trade_sessions ADD COLUMN IF NOT EXISTS opened_at TIMESTAMPTZ;
       ALTER TABLE izitrader_trade_sessions ADD COLUMN IF NOT EXISTS open_trade_bot TEXT;
       ALTER TABLE izitrader_trade_sessions ADD COLUMN IF NOT EXISTS open_trade_stake NUMERIC(18,2);
+      DO $
+      DECLARE pk_name TEXT;
+      BEGIN
+        SELECT c.conname INTO pk_name FROM pg_constraint c
+         WHERE c.conrelid='izitrader_trade_sessions'::regclass AND c.contype='p';
+        IF pk_name IS NOT NULL THEN
+          EXECUTE format('ALTER TABLE izitrader_trade_sessions DROP CONSTRAINT %I',pk_name);
+        END IF;
+        ALTER TABLE izitrader_trade_sessions
+          ADD CONSTRAINT izitrader_trade_sessions_pkey PRIMARY KEY (owner_key,account_id,worker_id);
+      END $;
       CREATE INDEX IF NOT EXISTS izitrader_trade_history_closed_idx
         ON izitrader_trade_history(owner_key, account_id, closed_at DESC);
     `);
@@ -180,10 +193,9 @@ function sendDeriv(socket, payload) {
 }
 
 class TradingWorker {
-  constructor(client, identity, lockClient, config) {
+  constructor(client, identity, config) {
     this.client = client;
     this.identity = identity;
-    this.lockClient = lockClient;
     this.config = config;
     this.deriv = null;
     this.ready = false;
@@ -253,11 +265,11 @@ class TradingWorker {
   async persist() {
     await pool.query(
       `INSERT INTO izitrader_trade_sessions
-        (owner_key,account_id,account_type,symbol,bot,base_stake,stake,martingale_level,
+        (owner_key,account_id,worker_id,account_type,symbol,bot,base_stake,stake,martingale_level,
          session_pnl,profit_target,loss_limit,active,status,open_contract_id,pending_buy,pending_buy_at,
          opened_at,open_trade_bot,open_trade_stake,updated_at)
-       VALUES ($1,$2,$3,$4,$5,$6,$7,$8,$9,$10,$11,$12,$13,$14,$15,$16,$17,$18,$19,NOW())
-       ON CONFLICT (owner_key,account_id) DO UPDATE SET
+       VALUES ($1,$2,$3,$4,$5,$6,$7,$8,$9,$10,$11,$12,$13,$14,$15,$16,$17,$18,$19,$20,NOW())
+       ON CONFLICT (owner_key,account_id,worker_id) DO UPDATE SET
          account_type=EXCLUDED.account_type,symbol=EXCLUDED.symbol,bot=EXCLUDED.bot,
          base_stake=EXCLUDED.base_stake,stake=EXCLUDED.stake,martingale_level=EXCLUDED.martingale_level,
          session_pnl=EXCLUDED.session_pnl,profit_target=EXCLUDED.profit_target,
@@ -266,7 +278,7 @@ class TradingWorker {
          pending_buy_at=EXCLUDED.pending_buy_at,opened_at=EXCLUDED.opened_at,
          open_trade_bot=EXCLUDED.open_trade_bot,open_trade_stake=EXCLUDED.open_trade_stake,updated_at=NOW()`,
       [
-        this.identity.ownerKey,this.config.accountId,this.config.accountType,this.config.symbol,
+        this.identity.ownerKey,this.config.accountId,this.config.workerId,this.config.accountType,this.config.symbol,
         this.config.bot,this.baseStake,this.stake,this.level,this.pnl,
         this.config.profitTarget,this.config.lossLimit,this.active,this.status,
         this.openContractId,this.pendingBuy,this.pendingBuyAt,this.buyOpenedAt,this.openTradeBot,this.buyStake,
@@ -276,9 +288,15 @@ class TradingWorker {
   }
 
   async restore() {
-    const result = await pool.query(
-      'SELECT * FROM izitrader_trade_sessions WHERE owner_key=$1 AND account_id=$2 LIMIT 1',
-      [this.identity.ownerKey,this.config.accountId],
+    const claimed = await pool.query(
+      `UPDATE izitrader_trade_sessions SET worker_id=$3,updated_at=NOW()
+        WHERE owner_key=$1 AND account_id=$2 AND worker_id='legacy'
+        RETURNING *`,
+      [this.identity.ownerKey,this.config.accountId,this.config.workerId],
+    );
+    const result = claimed.rowCount ? claimed : await pool.query(
+      'SELECT * FROM izitrader_trade_sessions WHERE owner_key=$1 AND account_id=$2 AND worker_id=$3 LIMIT 1',
+      [this.identity.ownerKey,this.config.accountId,this.config.workerId],
     );
     const row = result.rows[0];
     if (!row) {
@@ -726,8 +744,8 @@ class TradingWorker {
         const saved=await client.query(
           `SELECT session_pnl,stake,martingale_level,active,status
              FROM izitrader_trade_sessions
-            WHERE owner_key=$1 AND account_id=$2 FOR UPDATE`,
-          [this.identity.ownerKey,this.config.accountId],
+            WHERE owner_key=$1 AND account_id=$2 AND worker_id=$3 FOR UPDATE`,
+          [this.identity.ownerKey,this.config.accountId,this.config.workerId],
         );
         if(saved.rows[0]) {
           this.pnl=Number(saved.rows[0].session_pnl||0);
@@ -746,8 +764,8 @@ class TradingWorker {
             SET session_pnl=$3,stake=$4,martingale_level=$5,active=$6,status=$7,
                 open_contract_id=NULL,pending_buy=FALSE,pending_buy_at=NULL,
                 opened_at=NULL,open_trade_bot=NULL,open_trade_stake=NULL,updated_at=NOW()
-          WHERE owner_key=$1 AND account_id=$2`,
-        [this.identity.ownerKey,this.config.accountId,this.pnl,this.stake,this.level,this.active,this.status],
+          WHERE owner_key=$1 AND account_id=$2 AND worker_id=$8`,
+        [this.identity.ownerKey,this.config.accountId,this.pnl,this.stake,this.level,this.active,this.status,this.config.workerId],
       );
       if(sessionUpdate.rowCount!==1) throw new Error('TRADING_SESSION_ROW_MISSING');
       await client.query('COMMIT');
@@ -848,13 +866,7 @@ class TradingWorker {
     if(this.buyTimer)clearTimeout(this.buyTimer);
     if(this.brokerReconnectTimer)clearTimeout(this.brokerReconnectTimer);
     try { if(this.deriv && this.deriv.readyState===WebSocket.OPEN)this.deriv.close(1000,'Izitrader session closed'); } catch {}
-    try {
-      if(this.lockClient) {
-        await this.lockClient.query('SELECT pg_advisory_unlock(hashtext($1))',[this.identity.ownerKey+':'+this.config.accountId]);
-        this.lockClient.release();
-        this.lockClient=null;
-      }
-    } catch {}
+    // This worker owns only its browser-tab session; no account-wide lock is held.
   }
 
   async shutdown() {
@@ -882,33 +894,24 @@ async function configureWorker(client, identity, request) {
   if(!symbol)throw new Error('Símbolo inválido.');
   if(!Number.isFinite(baseStake)||baseStake<0.35||baseStake>10000)throw new Error('A aposta base deve estar entre $0.35 e $10,000.');
 
+  const workerId=String(request.workerId||randomUUID());
+  if(!/^[A-Za-z0-9_-]{8,80}$/.test(workerId))throw new Error('Identificador da sessão inválido.');
   await ensureTradingSchema();
-  console.info('[Izi WS] Database schema ready in',Date.now()-configStartedAt,'ms; requesting account lock.');
-  const lockClient=await pool.connect();
-  const lockKey=identity.ownerKey+':'+accountId;
+  console.info('[Izi WS] Database schema ready; creating independent worker',workerId);
+  const worker=new TradingWorker(client,identity,{
+    accountId,accountType,workerId,uiSymbol,symbol,bot,baseStake,
+    profitTarget,lossLimit,
+  });
+  activeWorkers.add(worker);
   try {
-    const lock=await lockClient.query('SELECT pg_try_advisory_lock(hashtext($1)) AS locked',[lockKey]);
-    if(lock.rows[0]?.locked!==true)throw new Error('Esta conta já tem uma sessão Izitrader activa noutra janela.');
-    console.info('[Izi WS] Account lock acquired in',Date.now()-configStartedAt,'ms; restoring worker state.');
-    const worker=new TradingWorker(client,identity,lockClient,{
-      accountId,accountType,uiSymbol,symbol,bot,baseStake,
-      profitTarget,lossLimit,
-    });
-    activeWorkers.add(worker);
-    try {
-      await worker.restore();
-      console.info('[Izi WS] Worker state restored in',Date.now()-configStartedAt,'ms; connecting broker.');
-      await worker.connectBroker();
-      console.info('[Izi WS] Worker fully prepared in',Date.now()-configStartedAt,'ms.');
-      return worker;
-    } catch(error) {
-      activeWorkers.delete(worker);
-      worker.closed=true;
-      throw error;
-    }
+    await worker.restore();
+    console.info('[Izi WS] Worker state restored in',Date.now()-configStartedAt,'ms; connecting broker.');
+    await worker.connectBroker();
+    console.info('[Izi WS] Worker fully prepared in',Date.now()-configStartedAt,'ms.');
+    return worker;
   } catch(error) {
-    try { await lockClient.query('SELECT pg_advisory_unlock(hashtext($1))',[lockKey]); } catch {}
-    lockClient.release();
+    activeWorkers.delete(worker);
+    worker.closed=true;
     throw error;
   }
 }

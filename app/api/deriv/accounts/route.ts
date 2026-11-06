@@ -10,11 +10,10 @@ export async function GET(request: NextRequest) {
     const resolved = await resolveDerivToken(request);
     if (!resolved) return NextResponse.json({ error: 'Deriv account not connected' }, { status: 401 });
 
+    // OAuth2 Bearer tokens identify the registered app; Deriv-App-ID is for PAT authentication.
     const headers: Record<string, string> = {
       Authorization: `Bearer ${resolved.accessToken}`,
     };
-    const appId = (process.env.DERIV_APP_ID || process.env.DERIV_CLIENT_ID || '').trim();
-    if (appId) headers['Deriv-App-ID'] = appId;
 
     const upstream = await fetchDerivJson(`${API_BASE}/trading/v1/options/accounts`, { headers });
     if (!upstream.validJson) {
@@ -37,10 +36,11 @@ export async function GET(request: NextRequest) {
         message: detail.message || 'No JSON error message',
       });
       const upstreamUnavailable = upstream.response.status >= 500;
+      const tokenExpired = upstream.response.status === 401;
       return NextResponse.json(
         {
-          error: detail.message || 'Deriv accounts request failed',
-          code: upstreamUnavailable ? 'DERIV_UPSTREAM_BUSY' : (detail.code || 'DERIV_REQUEST_FAILED'),
+          error: tokenExpired ? 'A sessão Deriv expirou. Volte a ligar a sua conta.' : (detail.message || 'Deriv accounts request failed'),
+          code: tokenExpired ? 'DERIV_TOKEN_EXPIRED' : (upstreamUnavailable ? 'DERIV_UPSTREAM_BUSY' : (detail.code || 'DERIV_REQUEST_FAILED')),
           retryAfterSeconds: upstreamUnavailable ? 30 : undefined,
         },
         {

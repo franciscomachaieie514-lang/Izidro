@@ -36,9 +36,17 @@ export async function GET(request: NextRequest) {
         code: detail.code || 'UPSTREAM_ERROR',
         message: detail.message || 'No JSON error message',
       });
+      const upstreamUnavailable = upstream.response.status >= 500;
       return NextResponse.json(
-        { error: detail.message || 'Deriv accounts request failed', code: detail.code || 'DERIV_REQUEST_FAILED' },
-        { status: upstream.response.status >= 500 ? 502 : upstream.response.status },
+        {
+          error: detail.message || 'Deriv accounts request failed',
+          code: upstreamUnavailable ? 'DERIV_UPSTREAM_BUSY' : (detail.code || 'DERIV_REQUEST_FAILED'),
+          retryAfterSeconds: upstreamUnavailable ? 30 : undefined,
+        },
+        {
+          status: upstream.response.status === 503 ? 503 : (upstreamUnavailable ? 502 : upstream.response.status),
+          headers: upstreamUnavailable ? { 'Retry-After': '30', 'Cache-Control': 'no-store' } : { 'Cache-Control': 'no-store' },
+        },
       );
     }
 

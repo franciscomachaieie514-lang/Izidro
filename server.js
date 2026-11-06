@@ -23,7 +23,6 @@ const pool = new Pool({
   statement_timeout: 15000,
   idleTimeoutMillis: 30000,
 });
-const APP_ID = (process.env.DERIV_APP_ID || process.env.DERIV_CLIENT_ID || '').trim();
 const activeWorkers = new Set();
 
 function cookieMap(header='') {
@@ -93,7 +92,10 @@ async function fetchJson(url, init={}, timeoutMs=12000) {
       const first = Array.isArray(data.errors) ? data.errors[0] : data.error;
       const error = new Error(String(first?.message || 'Pedido à Deriv recusado.').slice(0, 220));
       error.code = String(first?.code || 'DERIV_REQUEST_FAILED');
-      error.status = response.status >= 500 ? 502 : response.status;
+      error.status = response.status;
+      error.retryAfterMs = response.status === 503
+        ? Math.max(30000, Number(response.headers.get('Retry-After') || 0) * 1000)
+        : 0;
       throw error;
     }
     return data;
@@ -354,8 +356,8 @@ class TradingWorker {
     try {
     progress('A validar a conta na Deriv…');
     console.info('[Izi WS] Deriv account validation started.');
+    // OAuth2 Bearer tokens identify the registered app; no PAT app-id header is needed.
     const headers = { Authorization: 'Bearer ' + this.identity.accessToken };
-    if (APP_ID) headers['Deriv-App-ID'] = APP_ID;
     const accountsPayload = await fetchJson('https://api.derivws.com/trading/v1/options/accounts', { headers });
     const accounts = Array.isArray(accountsPayload.data) ? accountsPayload.data : (accountsPayload.data ? [accountsPayload.data] : []);
     console.info('[Izi WS] Deriv accounts response received:',accounts.length,'account(s).');
@@ -988,7 +990,11 @@ app.prepare().then(() => {
         if(message.type==='configure' && !worker) {
           console.error('[Izi WS] Dashboard configuration failed:',error instanceof Error?error.message:'Unknown error');
         }
-        sendClient(client,'error',{message:error instanceof Error?error.message:'Falha no servidor.'});
+        sendClient(client,'error',{
+          message:error instanceof Error?error.message:'Falha no servidor.',
+          code:error?.code || (error?.status === 401 ? 'DERIV_TOKEN_EXPIRED' : 'DERIV_CONNECTION_FAILED'),
+          retryAfterMs:Number(error?.retryAfterMs)||0,
+        });
         if(message.type==='configure' && !worker) client.close(1008,'Configuration failed');
       }
     });

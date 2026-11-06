@@ -20,5 +20,6 @@ export async function exchangeCode(clientId: string, redirectUri: string, code: 
   const response = await fetch(DERIV_OAUTH_TOKEN, { method:'POST', headers:{'Content-Type':'application/x-www-form-urlencoded'}, body:params.toString(), cache:'no-store' });
   const data = await response.json().catch(() => null);
   if (!response.ok || !data?.access_token) throw new Error(data?.error_description || data?.error || 'OAuth token exchange failed');
-  return { access_token:data.access_token as string, refresh_token:data.refresh_token as string|undefined, expires_in:data.expires_in as number|undefined };
+  // Deriv OAuth2 does not issue refresh tokens to third-party applications.
+  return { access_token:data.access_token as string, expires_in:data.expires_in as number|undefined };
 }

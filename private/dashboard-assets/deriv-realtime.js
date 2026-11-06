@@ -108,6 +108,7 @@ async function getAccount(){
   if(response.status===401||data.code==='DERIV_TOKEN_EXPIRED')error.code='DERIV_TOKEN_EXPIRED';
   throw error;
  }
+ try{sessionStorage.removeItem('izi_deriv_reauth_attempted')}catch{}
  const accounts=Array.isArray(data.accounts)?data.accounts:[];
  const isReal=a=>String(a.account_type||'').toLowerCase()==='real'||a.is_virtual===false||/^CR/i.test(String(a.account_id||''));
  const isDemo=a=>String(a.account_type||'').toLowerCase()==='demo'||a.is_virtual===true||/^VR/i.test(String(a.account_id||''));
@@ -181,8 +182,16 @@ async function connect(){
   connecting=false;socket=null;connected=false;
   if(error&&error.code==='DERIV_TOKEN_EXPIRED'){
    reauthRequired=true;
-   setStatus('Sessão Deriv expirada. Volte a ligar a conta para continuar.',false);
+   setStatus('Sessão Deriv expirada. A iniciar nova autenticação…',false);
    paintButton();
+   try{
+    if(sessionStorage.getItem('izi_deriv_reauth_attempted')!=='1'){
+     sessionStorage.setItem('izi_deriv_reauth_attempted','1');
+     window.location.assign('/api/auth/login');
+     return;
+    }
+   }catch{}
+   setStatus('Sessão Deriv expirada. Termine sessão e volte a ligar a conta.',false);
    return;
   }
   setStatus(error instanceof Error?error.message:'Falha ao ligar ao servidor.',false);

@@ -98,7 +98,14 @@ async function getAccount(){
   throw new Error('Não foi possível contactar o servidor do Izitrader.');
  }finally{clearTimeout(timeout)}
  const data=await response.json().catch(()=>({}));
- if(!response.ok)throw new Error(data.error||'Não foi possível consultar as contas Deriv.');
+ if(!response.ok){
+  const error=new Error(data.error||'Não foi possível consultar as contas Deriv.');
+  const headerDelay=Number(response.headers.get('Retry-After')||0);
+  const bodyDelay=Number(data.retryAfterSeconds||0);
+  error.retryAfterMs=Math.max(headerDelay,bodyDelay)*1000;
+  if(response.status===503||data.code==='DERIV_UPSTREAM_BUSY')error.retryAfterMs=Math.max(error.retryAfterMs,30000);
+  throw error;
+ }
  const accounts=Array.isArray(data.accounts)?data.accounts:[];
  const isReal=a=>String(a.account_type||'').toLowerCase()==='real'||a.is_virtual===false||/^CR/i.test(String(a.account_id||''));
  const isDemo=a=>String(a.account_type||'').toLowerCase()==='demo'||a.is_virtual===true||/^VR/i.test(String(a.account_id||''));
@@ -170,7 +177,12 @@ async function connect(){
  }catch(error){
   connecting=false;socket=null;connected=false;
   setStatus(error instanceof Error?error.message:'Falha ao ligar ao servidor.',false);
-  if(!stopped){const delay=connectDelay;connectDelay=Math.min(connectDelay*2,10000);reconnectTimer=setTimeout(()=>{reconnectTimer=null;connect()},delay)}
+  if(!stopped){
+   const serverDelay=Number(error&&error.retryAfterMs)||0;
+   const delay=Math.max(connectDelay,Math.min(serverDelay,120000));
+   connectDelay=Math.min(Math.max(connectDelay*2,1000),60000);
+   reconnectTimer=setTimeout(()=>{reconnectTimer=null;connect()},delay);
+  }
  }
 }
 function handleMessage(message){

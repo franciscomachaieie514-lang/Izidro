@@ -20,7 +20,7 @@ try{
  if(!/^[A-Za-z0-9_-]{8,80}$/.test(workerId))workerId='';
  if(!workerId){workerId=window.crypto?.randomUUID?.()||('w'+Date.now().toString(36)+Math.random().toString(36).slice(2));sessionStorage.setItem('izitrader_worker_id',workerId)}
 }catch{workerId='w'+Date.now().toString(36)+Math.random().toString(36).slice(2)}
-let balance=null,pnl=0,stake=baseStake,level=0,statusValue='connecting',pendingBuy=false,openContractId=null,reconcileRequired=false,connectDelay=1000,stageStatusTimer=null;
+let balance=null,pnl=0,stake=baseStake,level=0,statusValue='connecting',pendingBuy=false,openContractId=null,reconcileRequired=false,connectDelay=1000,stageStatusTimer=null,serverRetryAfterMs=0,reauthRequired=false;
 const $=s=>document.querySelector(s);
 const emit=(name,detail)=>window.dispatchEvent(new CustomEvent('izitrader:'+name,{detail}));
 function text(key){const lang=localStorage.getItem('izitrader_language')||localStorage.getItem('izitrader_lang')||'pt';const words={
@@ -45,7 +45,7 @@ function setStatus(message,ok){
 function paintButton(){
  const button=$('#operateBtn');
  if(!button)return;
- button.disabled=!connected||pendingBuy||Boolean(openContractId)||reconcileRequired||statusValue==='recovery';
+ button.disabled=reauthRequired||!connected||pendingBuy||Boolean(openContractId)||reconcileRequired||statusValue==='recovery';
  button.dataset.running=active?'1':'0';
  button.textContent=active?text('stop'):text('start');
 }
@@ -100,10 +100,12 @@ async function getAccount(){
  const data=await response.json().catch(()=>({}));
  if(!response.ok){
   const error=new Error(data.error||'Não foi possível consultar as contas Deriv.');
+  error.code=data.code||'DERIV_REQUEST_FAILED';
   const headerDelay=Number(response.headers.get('Retry-After')||0);
   const bodyDelay=Number(data.retryAfterSeconds||0);
   error.retryAfterMs=Math.max(headerDelay,bodyDelay)*1000;
   if(response.status===503||data.code==='DERIV_UPSTREAM_BUSY')error.retryAfterMs=Math.max(error.retryAfterMs,30000);
+  if(response.status===401||data.code==='DERIV_TOKEN_EXPIRED')error.code='DERIV_TOKEN_EXPIRED';
   throw error;
  }
  const accounts=Array.isArray(data.accounts)?data.accounts:[];
@@ -169,13 +171,20 @@ async function connect(){
    paintButton();
    if(!stopped && event.code!==1008){
     setStatus('Ligação interrompida. A tentar recuperar…',false);
-    const delay=connectDelay;connectDelay=Math.min(connectDelay*2,10000);
+    const delay=Math.max(connectDelay,Math.min(serverRetryAfterMs,120000));serverRetryAfterMs=0;
+    connectDelay=Math.min(connectDelay*2,10000);
     reconnectTimer=setTimeout(()=>{reconnectTimer=null;connect()},delay);
    }
   };
   connecting=false;
  }catch(error){
   connecting=false;socket=null;connected=false;
+  if(error&&error.code==='DERIV_TOKEN_EXPIRED'){
+   reauthRequired=true;
+   setStatus('Sessão Deriv expirada. Volte a ligar a conta para continuar.',false);
+   paintButton();
+   return;
+  }
   setStatus(error instanceof Error?error.message:'Falha ao ligar ao servidor.',false);
   if(!stopped){
    const serverDelay=Number(error&&error.retryAfterMs)||0;
@@ -248,8 +257,12 @@ function handleMessage(message){
  }
  if(message.type==='deriv_error'||message.type==='error'){
   pendingBuy=Boolean(data.pendingBuy);openContractId=data.openContractId||openContractId;
-  if(message.message)setStatus(message.message,false);
-  paintButton();emit('deriv-error',{message:message.message||'Erro de execução'});return;
+  serverRetryAfterMs=Math.max(serverRetryAfterMs,Number(message.retryAfterMs)||0);
+  if(message.code==='DERIV_TOKEN_EXPIRED'){
+   reauthRequired=true;
+   setStatus('Sessão Deriv expirada. Volte a ligar a conta para continuar.',false);
+  }else if(message.message)setStatus(message.message,false);
+  paintButton();emit('deriv-error',{message:message.message||'Erro de execução',code:message.code});return;
  }
  if(message.type==='reconciliation_required'){
   reconcileRequired=true;pendingBuy=true;statusValue='reconcile_required';

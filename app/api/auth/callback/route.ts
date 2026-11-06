@@ -37,7 +37,7 @@ export async function GET(request: NextRequest) {
   }
 
   try {
-    const { access_token, refresh_token, expires_in } = await exchangeCode(
+    const { access_token, expires_in } = await exchangeCode(
       clientId,
       callbackUrl,
       code,
@@ -45,13 +45,12 @@ export async function GET(request: NextRequest) {
     );
 
     if (platformSession) {
-      await saveDerivAccount(platformSession.id, access_token, refresh_token, expires_in);
+      await saveDerivAccount(platformSession.id, access_token, undefined, expires_in);
     }
 
     const response = NextResponse.redirect(publicAppUrl + '/?deriv_connected=1', { status: 302 });
     if (!platformSession) {
       response.cookies.set('deriv_access_token', access_token, { httpOnly: true, secure: true, sameSite: 'lax', path: '/', maxAge: expires_in || 3600 });
-      if (refresh_token) response.cookies.set('deriv_refresh_token', refresh_token, { httpOnly: true, secure: true, sameSite: 'lax', path: '/', maxAge: 60 * 60 * 24 * 30 });
     }
     response.cookies.delete('oauth_verifier');
     response.cookies.delete('oauth_state');

@@ -56,17 +56,20 @@ export async function GET(request: NextRequest) {
       sessionStorage.setItem(key,id);
     }
     window.__IZI_SESSION_ID__=id;
-    var previous=localStorage.getItem('izitrader_active_session_id');
+    var previous=sessionStorage.getItem('izitrader_active_session_id');
     if(previous!==id){
-      localStorage.setItem('izitrader_active_session_id',id);
-      localStorage.setItem('izitrader_operations','0');
+      sessionStorage.setItem('izitrader_active_session_id',id);
+      sessionStorage.setItem('izitrader_operations','0');
     }
   } catch(e) {
     window.__IZI_SESSION_ID__='w'+Date.now().toString(36)+Math.random().toString(36).slice(2);
   }
 })();
 </script>`;
-    const bootstrappedHtml = sourceHtml.replace('<head>', '<head>' + sessionBootstrap);
+    const sessionScopedHtml = sourceHtml
+      .replaceAll("localStorage.getItem('izitrader_operations')", "sessionStorage.getItem('izitrader_operations')")
+      .replaceAll("localStorage.setItem('izitrader_operations'", "sessionStorage.setItem('izitrader_operations'");
+    const bootstrappedHtml = sessionScopedHtml.replace('<head>', '<head>' + sessionBootstrap);
     const html = applyAccountDisplay(bootstrappedHtml, useAlternateDisplay);
 
     return new NextResponse(html, {

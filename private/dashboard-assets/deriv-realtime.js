@@ -408,7 +408,7 @@ if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',
  });
  const count=row.querySelectorAll('.chip[data-closed="1"]').length;
  const counter=$('#opsCount');if(counter)counter.textContent=String(count);
- try{localStorage.setItem('izitrader_operations',String(count))}catch{}
+ try{sessionStorage.setItem('izitrader_operations',String(count))}catch{}
  row.scrollLeft=0;
  emit('history-load',{count,trades:list});
 }

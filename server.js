@@ -148,6 +148,7 @@ async function ensureTradingSchema() {
         owner_key TEXT NOT NULL,
         account_id TEXT NOT NULL,
         contract_id BIGINT NOT NULL,
+        worker_id TEXT,
         bot TEXT NOT NULL,
         symbol TEXT NOT NULL,
         stake NUMERIC(18,2) NOT NULL,
@@ -159,6 +160,7 @@ async function ensureTradingSchema() {
         PRIMARY KEY (owner_key, account_id, contract_id)
       );
       ALTER TABLE izitrader_trade_sessions ADD COLUMN IF NOT EXISTS worker_id TEXT NOT NULL DEFAULT 'legacy';
+      ALTER TABLE izitrader_trade_history ADD COLUMN IF NOT EXISTS worker_id TEXT;
       ALTER TABLE izitrader_trade_sessions ADD COLUMN IF NOT EXISTS opened_at TIMESTAMPTZ;
       ALTER TABLE izitrader_trade_sessions ADD COLUMN IF NOT EXISTS open_trade_bot TEXT;
       ALTER TABLE izitrader_trade_sessions ADD COLUMN IF NOT EXISTS open_trade_stake NUMERIC(18,2);
@@ -175,6 +177,8 @@ async function ensureTradingSchema() {
       END $$;
       CREATE INDEX IF NOT EXISTS izitrader_trade_history_closed_idx
         ON izitrader_trade_history(owner_key, account_id, closed_at DESC);
+      CREATE INDEX IF NOT EXISTS izitrader_trade_history_session_idx
+        ON izitrader_trade_history(owner_key, account_id, worker_id, closed_at DESC);
     `);
   })();
   try {
@@ -289,6 +293,18 @@ class TradingWorker {
     this.saved = true;
   }
 
+  async sendSessionHistory() {
+    const result = await pool.query(
+      `SELECT contract_id,bot,symbol,stake,profit_loss,result,last_digit,opened_at,closed_at
+         FROM izitrader_trade_history
+        WHERE owner_key=$1 AND account_id=$2 AND worker_id=$3
+        ORDER BY closed_at DESC
+        LIMIT 20`,
+      [this.identity.ownerKey,this.config.accountId,this.config.workerId],
+    );
+    sendClient(this.client,'session_history',{trades:result.rows});
+  }
+
   async restore() {
     const claimed = await pool.query(
       `UPDATE izitrader_trade_sessions SET worker_id=$3,updated_at=NOW()
@@ -304,6 +320,7 @@ class TradingWorker {
     if (!row) {
       this.status = 'stopped';
       await this.persist();
+      await this.sendSessionHistory();
       return;
     }
     this.config.bot = BOTS.includes(row.bot) ? row.bot : this.config.bot;
@@ -344,6 +361,7 @@ class TradingWorker {
     else if (this.openContractId) this.status = 'recovery';
     else this.status = 'stopped';
     await this.persist();
+    await this.sendSessionHistory();
   }
 
   async connectBroker() {
@@ -717,11 +735,11 @@ class TradingWorker {
       await client.query('BEGIN');
       const history=await client.query(
         `INSERT INTO izitrader_trade_history
-          (owner_key,account_id,contract_id,bot,symbol,stake,profit_loss,result,last_digit,opened_at,closed_at)
-         VALUES ($1,$2,$3,$4,$5,$6,$7,$8,$9,$10,NOW())
+          (owner_key,account_id,contract_id,worker_id,bot,symbol,stake,profit_loss,result,last_digit,opened_at,closed_at)
+         VALUES ($1,$2,$3,$4,$5,$6,$7,$8,$9,$10,$11,NOW())
          ON CONFLICT (owner_key,account_id,contract_id) DO NOTHING
          RETURNING contract_id`,
-        [this.identity.ownerKey,this.config.accountId,contractId,tradeBot,this.config.symbol,stake,profit,profit>=0?'WON':'LOST',lastDigit,this.buyOpenedAt],
+        [this.identity.ownerKey,this.config.accountId,contractId,this.config.workerId,tradeBot,this.config.symbol,stake,profit,profit>=0?'WON':'LOST',lastDigit,this.buyOpenedAt],
       );
       inserted=history.rowCount===1;
 

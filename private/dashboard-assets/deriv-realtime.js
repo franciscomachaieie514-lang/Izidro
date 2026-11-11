@@ -14,9 +14,9 @@ if(!SYMBOLS[uiSymbol])uiSymbol='V100';
 let bot=localStorage.getItem('izitrader_bot')||'ProParity';
 if(!['ProParity','Octawin'].includes(bot))bot='ProParity';
 let baseStake=Math.max(.35,Number(localStorage.getItem('izitrader_stake')||.35));
-let workerId=String(window.__IZI_SESSION_ID__||'');
+let workerId='';
 try{
- if(!/^[A-Za-z0-9_-]{8,80}$/.test(workerId))workerId=sessionStorage.getItem('izitrader_worker_id')||'';
+ workerId=sessionStorage.getItem('izitrader_worker_id')||'';
  if(!/^[A-Za-z0-9_-]{8,80}$/.test(workerId))workerId='';
  if(!workerId){workerId=window.crypto?.randomUUID?.()||('w'+Date.now().toString(36)+Math.random().toString(36).slice(2));sessionStorage.setItem('izitrader_worker_id',workerId)}
 }catch{workerId='w'+Date.now().toString(36)+Math.random().toString(36).slice(2)}
@@ -224,6 +224,88 @@ function loadSessionHistory(trades){
  try{sessionStorage.setItem('izitrader_operations',String(count))}catch{}
  row.scrollLeft=0;
  emit('history-load',{count,trades:list});
+}
+function handleMessage(message){
+ if(message.type==='session_history'){loadSessionHistory(message.trades);return;}
+ const data=message.state||{};
+ if(message.type==='configured'||message.type==='state'){
+  configured=true;connected=true;
+  if(configurationTimer){clearTimeout(configurationTimer);configurationTimer=null}
+  active=Boolean(data.active);statusValue=String(data.status||'stopped');
+  pendingBuy=Boolean(data.pendingBuy);openContractId=data.openContractId||null;reconcileRequired=statusValue==='reconcile_required';
+  if(Number.isFinite(Number(data.balance)))updateBalance(data.balance,data.currency);
+  if(data.pnl!==undefined)updatePnl(data.pnl);
+  if(data.baseStake!==undefined)baseStake=Number(data.baseStake);
+  if(data.stake!==undefined)updateStake(data.stake);
+  level=Number(data.martingaleLevel||0);
+  setStatus(message.message|| (statusValue==='recovery'?'A recuperar contrato aberto.':text('connected')),statusValue==='stopped'||statusValue==='running');
+  paintButton();emit('ws-open',{accountType,symbol:SYMBOLS[uiSymbol],uiSymbol});return;
+ }
+ if(message.type==='status'){
+  if(data.status)statusValue=data.status;
+  reconcileRequired=statusValue==='reconcile_required';
+  if(data.active!==undefined)active=Boolean(data.active);
+  if(data.pendingBuy!==undefined)pendingBuy=Boolean(data.pendingBuy);
+  if(data.openContractId!==undefined)openContractId=data.openContractId;
+  paintButton();if(!stageStatusTimer)setStatus(active&&!openContractId&&!pendingBuy?text('active'):(message.message||''),Boolean(message.ok));return;
+ }
+ if(message.type==='robot_started'){
+  if(stageStatusTimer){clearTimeout(stageStatusTimer);stageStatusTimer=null}
+  active=true;statusValue='running';reconcileRequired=false;pendingBuy=false;openContractId=null;updatePnl(0);level=0;updateStake(baseStake);
+  paintButton();setStatus(text('active'),true);return;
+ }
+ if(message.type==='tick'){
+  const digit=message.digit;
+  const last=$('#lastDigit');if(last)last.textContent=Number.isInteger(digit)?String(digit):'–';
+  emit('tick',{quote:message.quote,quoteRaw:message.quoteRaw,epoch:message.epoch,symbol:message.symbol,pip_size:message.pip_size});
+  emit('live-digit',{digit,quote:message.quote,epoch:message.epoch});return;
+ }
+ if(message.type==='balance'){updateBalance(message.balance,message.currency);emit('balance',message);return}
+ if(message.type==='buy_pending'){
+  pendingBuy=true;statusValue='buy_pending';setStatus(text('tradeOpen'),false);paintButton();return;
+ }
+ if(message.type==='buy'){
+  pendingBuy=false;openContractId=message.contract_id;statusValue='contract_open';
+  emit('buy',message);emit('contract-state',{closed:false,contract:message});
+  if(stageStatusTimer){clearTimeout(stageStatusTimer);stageStatusTimer=null}
+  setStatus(text('tradeOpen'),true);paintButton();return;
+ }
+ if(message.type==='contract_state'){
+  if(message.closed){openContractId=null;pendingBuy=false;statusValue='running';paintButton()}
+  return;
+ }
+ if(message.type==='contract_closed'){
+  openContractId=null;pendingBuy=false;updatePnl(Number(message.profit_loss||0)+pnl);
+  emit('contract-closed',message);emit('contract-state',{closed:true,contract_id:message.contract_id});
+  if(stageStatusTimer)clearTimeout(stageStatusTimer);
+  setStatus(text('tradeClosed'),true);
+  stageStatusTimer=setTimeout(()=>{stageStatusTimer=null;if(active&&!openContractId&&!pendingBuy)setStatus(text('active'),true)},3000);
+  if(Number(message.profit_loss)>0){try{window.dispatchEvent(new CustomEvent('izitrader:celebrate-win'))}catch{}}
+  statusValue='running';paintButton();return;
+ }
+ if(message.type==='pnl'){updatePnl(message.pnl);return}
+ if(message.type==='martingale'){
+  level=Number(message.level||0);updateStake(message.stake);emit('martingale',message);return;
+ }
+ if(message.type==='deriv_error'||message.type==='error'){
+  pendingBuy=Boolean(data.pendingBuy);openContractId=data.openContractId||openContractId;
+  serverRetryAfterMs=Math.max(serverRetryAfterMs,Number(message.retryAfterMs)||0);
+  if(message.code==='DERIV_TOKEN_EXPIRED'){
+   reauthRequired=true;
+   setStatus('Sessão Deriv expirada. Volte a ligar a conta para continuar.',false);
+  }else if(message.message)setStatus(message.message,false);
+  paintButton();emit('deriv-error',{message:message.message||'Erro de execução',code:message.code});return;
+ }
+ if(message.type==='reconciliation_required'){
+  reconcileRequired=true;pendingBuy=true;statusValue='reconcile_required';
+  setStatus(message.message||'É necessária verificação manual da carteira Deriv.',false);paintButton();return;
+ }
+ if(message.type==='portfolio_check'){
+  const rows=Array.isArray(message.contracts)?message.contracts:[];
+  const summary=rows.length?rows.map(c=>'#'+c.contract_id+' '+(c.symbol||'')+' '+(c.status||'')).join('\n'):'Não foram devolvidos contratos abertos.';
+  setStatus('Verificação necessária. Contratos encontrados:\n'+summary,false);
+  return;
+ }
 }
 function startStop(){
  if(active){send({type:'pause'});active=false;statusValue=openContractId?'contract_open':'stopped';paintButton();return}

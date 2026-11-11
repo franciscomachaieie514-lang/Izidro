@@ -18,9 +18,8 @@ let workerId=String(window.__IZI_SESSION_ID__||'');
 try{
  if(!/^[A-Za-z0-9_-]{8,80}$/.test(workerId))workerId=sessionStorage.getItem('izitrader_worker_id')||'';
  if(!/^[A-Za-z0-9_-]{8,80}$/.test(workerId))workerId='';
- if(!workerId)workerId=window.crypto?.randomUUID?.()||('w'+Date.now().toString(36)+Math.random().toString(36).slice(2));
- sessionStorage.setItem('izitrader_worker_id',workerId);
-}catch{if(!workerId)workerId='w'+Date.now().toString(36)+Math.random().toString(36).slice(2)}
+ if(!workerId){workerId=window.crypto?.randomUUID?.()||('w'+Date.now().toString(36)+Math.random().toString(36).slice(2));sessionStorage.setItem('izitrader_worker_id',workerId)}
+}catch{workerId='w'+Date.now().toString(36)+Math.random().toString(36).slice(2)}
 let balance=null,pnl=0,stake=baseStake,level=0,statusValue='connecting',pendingBuy=false,openContractId=null,reconcileRequired=false,connectDelay=1000,stageStatusTimer=null,serverRetryAfterMs=0,reauthRequired=false;
 const $=s=>document.querySelector(s);
 const emit=(name,detail)=>window.dispatchEvent(new CustomEvent('izitrader:'+name,{detail}));
@@ -413,8 +412,8 @@ if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',
  emit('history-load',{count,trades:list});
 }
 function handleMessage(message){
- const data=message.state||{};
  if(message.type==='session_history'){loadSessionHistory(message.trades);return;}
+ const data=message.state||{};
  if(message.type==='configured'||message.type==='state'){
   configured=true;connected=true;
   if(configurationTimer){clearTimeout(configurationTimer);configurationTimer=null}

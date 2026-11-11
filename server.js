@@ -309,6 +309,7 @@ class TradingWorker {
     const claimed = await pool.query(
       `UPDATE izitrader_trade_sessions SET worker_id=$3,updated_at=NOW()
         WHERE owner_key=$1 AND account_id=$2 AND worker_id='legacy'
+          AND (open_contract_id IS NOT NULL OR pending_buy=TRUE)
         RETURNING *`,
       [this.identity.ownerKey,this.config.accountId,this.config.workerId],
     );

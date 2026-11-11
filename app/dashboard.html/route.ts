@@ -66,7 +66,7 @@ export async function GET(request: NextRequest) {
   }
 })();
 </script>`;
-    const bootstrappedHtml = sourceHtml.replace(/<head(\\s[^>]*)?>/i, match => match + sessionBootstrap);
+    const bootstrappedHtml = sourceHtml.replace('<head>', '<head>' + sessionBootstrap);
     const html = applyAccountDisplay(bootstrappedHtml, useAlternateDisplay);
 
     return new NextResponse(html, {

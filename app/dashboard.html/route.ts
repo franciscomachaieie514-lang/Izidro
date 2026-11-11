@@ -45,7 +45,29 @@ export async function GET(request: NextRequest) {
     );
 
     const sourceHtml = await readFile(join(process.cwd(), 'private', 'dashboard.html'), 'utf8');
-    const html = applyAccountDisplay(sourceHtml, useAlternateDisplay);
+    // One worker ID represents one browser-tab session. sessionStorage survives
+    // reloads in that tab but is isolated from newly opened tabs/sessions.
+    const sessionBootstrap = `<script>
+(function(){
+  try {
+    var key='izitrader_worker_id', id=sessionStorage.getItem(key);
+    if(!/^[A-Za-z0-9_-]{8,80}$/.test(id||'')){
+      id=(window.crypto&&crypto.randomUUID)?crypto.randomUUID():('w'+Date.now().toString(36)+Math.random().toString(36).slice(2));
+      sessionStorage.setItem(key,id);
+    }
+    window.__IZI_SESSION_ID__=id;
+    var previous=localStorage.getItem('izitrader_active_session_id');
+    if(previous!==id){
+      localStorage.setItem('izitrader_active_session_id',id);
+      localStorage.setItem('izitrader_operations','0');
+    }
+  } catch(e) {
+    window.__IZI_SESSION_ID__='w'+Date.now().toString(36)+Math.random().toString(36).slice(2);
+  }
+})();
+</script>`;
+    const bootstrappedHtml = sourceHtml.replace(/<head(\\s[^>]*)?>/i, match => match + sessionBootstrap);
+    const html = applyAccountDisplay(bootstrappedHtml, useAlternateDisplay);
 
     return new NextResponse(html, {
       status: 200,

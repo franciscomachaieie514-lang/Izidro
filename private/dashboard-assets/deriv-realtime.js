@@ -13,7 +13,7 @@ let uiSymbol=localStorage.getItem('izitrader_symbol')||'V100';
 if(!SYMBOLS[uiSymbol])uiSymbol='V100';
 let bot=localStorage.getItem('izitrader_bot')||'ProParity';
 if(!['ProParity','Octawin'].includes(bot))bot='ProParity';
-let baseStake=Math.max(.35,Number(localStorage.getItem('izitrader_stake')||.35));
+let baseStake=Math.max(.35,Number(sessionStorage.getItem('izitrader_stake')||.35));
 let workerId='';
 try{
  workerId=sessionStorage.getItem('izitrader_worker_id')||'';
@@ -78,7 +78,7 @@ function configureButton(){
  }
  input.onchange=()=>{
   let value=Number(input.value);if(!Number.isFinite(value)||value<.35)value=.35;
-  baseStake=Number(value.toFixed(2));localStorage.setItem('izitrader_stake',String(baseStake));updateStake(baseStake);
+  baseStake=Number(value.toFixed(2));sessionStorage.setItem('izitrader_stake',String(baseStake));updateStake(baseStake);
   send({type:'stake',baseStake});
  };
  updateStake(baseStake);
@@ -361,7 +361,7 @@ window.addEventListener('izitrader:symbol-change',e=>{
 });
 window.addEventListener('izitrader:stake-change',e=>{
  const value=Number(e?.detail?.stake);if(!Number.isFinite(value)||value<.35)return;
- baseStake=Number(value.toFixed(2));localStorage.setItem('izitrader_stake',String(baseStake));send({type:'stake',baseStake});
+ baseStake=Number(value.toFixed(2));sessionStorage.setItem('izitrader_stake',String(baseStake));send({type:'stake',baseStake});
 });
 window.addEventListener('izitrader:language-change',()=>{
  const button=$('#operateBtn');if(button)button.textContent=active?text('stop'):text('start');
